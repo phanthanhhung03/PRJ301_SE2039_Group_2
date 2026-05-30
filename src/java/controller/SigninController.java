@@ -33,11 +33,10 @@ public class SigninController extends HttpServlet {
         Customer customer = d.getCustomer(email, password);
 
         if (customer != null && customer.isStatus()) {
-            response.sendRedirect("customer/dashboard.jsp");
-        }
-
-        if (customer == null) {
-            System.out.println("LOGIN FAIL");
+            request.getSession().setAttribute("USER", customer);
+            request.getRequestDispatcher("customer/dashboard.jsp").forward(request, response);
+        } else {
+            response.getWriter().println("LOGIN FAIL");
         }
     }
 

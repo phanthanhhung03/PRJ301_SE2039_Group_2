@@ -23,7 +23,7 @@ public class MainController extends HttpServlet {
             throws ServletException, IOException {
 
         String action = request.getParameter("action");
-
+        
         if (action == null) {
             action = "/customer/landing-page";
         }
