@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import dao.CustomerDAO;
@@ -34,7 +30,7 @@ public class SigninController extends HttpServlet {
 
         if (customer != null && customer.isStatus()) {
             request.getSession().setAttribute("USER", customer);
-            request.getRequestDispatcher("customer/dashboard.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/MainController?action=viewDashBoard");
         } else {
             response.getWriter().println("LOGIN FAIL");
         }

@@ -28,7 +28,7 @@
         <main class="main-wrapper main-wrapper--narrow">
             <div class="auth-card glass-panel" style="border-color: var(--color-accent-cyan);">
 
-                <a href="index.html" class="auth-card__logo">
+                <a href="${pageContext.request.contextPath}/MainController?action=landing-page" class="auth-card__logo">
                     <div class="site-header__logo-icon" style="background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-cyan));"></div>
                 </a>
 

@@ -48,6 +48,14 @@ public class MainController extends HttpServlet {
                 url = "SigninController";
                 break;
                 
+            case "viewDashBoard":
+                url = "/customer/dashboard.jsp";
+                break;
+                
+            case "viewAdminSignIn":
+                url = "/admin/admin-login.jsp";
+                break;
+ 
             default:
                 url = "/customer/landing-page.jsp";
                 break;

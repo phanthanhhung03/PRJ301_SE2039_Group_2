@@ -28,7 +28,7 @@
         <main class="main-wrapper main-wrapper--narrow">
             <div class="auth-card glass-panel">
 
-                <a href="${pageContext.request.contextPath}/customer/landing-page.jsp" class="auth-card__logo">
+                <a href="${pageContext.request.contextPath}/MainController?action=landing" class="auth-card__logo">
                     <div class="site-header__logo-icon"></div>
                 </a>
 
@@ -67,7 +67,7 @@
 
                 <!-- Footer signup link -->
                 <div class="auth-card__footer">
-                    Don't have an account? <a href="signup.jsp" class="auth-card__footer-link">Create Account</a>
+                    Don't have an account? <a href="${pageContext.request.contextPath}/MainController?action=viewSignUp" class="auth-card__footer-link">Create Account</a>
                 </div>
 
             </div>

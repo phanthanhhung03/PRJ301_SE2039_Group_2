@@ -320,7 +320,7 @@
                 </div>
                 <div class="site-footer__bottom">
                     <p>&copy; 2026 AutoWashPro Inc. All rights reserved.</p>
-                    <a href="admin/admin-login.jsp" class="site-footer__staff-link">Staff Portal</a>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewAdminSignIn" class="site-footer__staff-link">Staff Portal</a>
                 </div>
             </div>
         </footer>

@@ -10,7 +10,7 @@
 <%
     Customer user = (Customer) session.getAttribute("USER");
     if (user == null) {
-        response.sendRedirect("customer/landing-page.jsp");
+        response.sendRedirect(request.getContextPath() + "/MainController");
     }
 
     // === Next Reward ===
@@ -205,7 +205,7 @@
                                 </div>
                             </div>
                             <div class="stat-card__body">
-                                <span class="stat-card__value"><%= user.getTotalBooking() %></span>
+                                <span class="stat-card__value"><%= user.getTotalBooking()%></span>
                                 <span class="stat-card__change stat-card__change--up">1 Upcoming</span>
                             </div>
                         </div>
@@ -227,230 +227,233 @@
                 </div>
             </section>
 
-            <!-- SECTION 2: VEHICLES OVERVIEW -->
-            <section class="dashboard-section" id="vehicles">
-                <div class="dashboard-section__header">
-                    <h2 class="dashboard-section__title">Vehicles</h2>
-                    <a href="#" class="btn btn--secondary btn--sm">Manage Fleet</a>
-                </div>
 
-                <div class="grid-cols-3">
-                    <!-- Vehicle 1 -->
-                    <div class="vehicle-card glass-panel">
-                        <div class="vehicle-card__header">
-                            <div>
-                                <span class="vehicle-card__type">Primary Coupe</span>
-                                <h3 class="vehicle-card__name">Nissan GT-R Nismo</h3>
-                            </div>
-                            <span class="status-badge status-badge--completed">Active</span>
-                        </div>
-                        <span class="vehicle-card__plate">品川 300 輪 23-45</span>
-                        <div class="vehicle-card__actions">
-                            <a href="#" class="btn btn--secondary btn--sm">Detail Log</a>
-                            <a href="#" class="btn btn--primary btn--sm">Book Wash</a>
-                        </div>
-                    </div>
-                    <!-- Vehicle 2 -->
-                    <div class="vehicle-card glass-panel">
-                        <div class="vehicle-card__header">
-                            <div>
-                                <span class="vehicle-card__type">Executive Sedan</span>
-                                <h3 class="vehicle-card__name">Lexus LS 500h</h3>
-                            </div>
-                            <span class="status-badge status-badge--completed">Active</span>
-                        </div>
-                        <span class="vehicle-card__plate">足立 330 す 78-90</span>
-                        <div class="vehicle-card__actions">
-                            <a href="#" class="btn btn--secondary btn--sm">Detail Log</a>
-                            <a href="#" class="btn btn--primary btn--sm">Book Wash</a>
-                        </div>
-                    </div>
-                    <!-- Add New Vehicle Card -->
-                    <div class="vehicle-card vehicle-card--add-new glass-panel">
-                        <div class="vehicle-card__add-icon">+</div>
-                        <span style="font-weight:600; color:var(--color-text-primary);">Add New Vehicle</span>
-                        <span style="font-size:0.8rem; color:var(--color-text-tertiary);">Register vehicle plate & model</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 3: BOOKINGS MANAGEMENT -->
-            <section class="dashboard-section" id="bookings">
-                <div class="dashboard-section__header">
-                    <h2 class="dashboard-section__title">Bookings</h2>
-                    <a href="#" class="btn btn--primary btn--sm">Schedule Detailing</a>
-                </div>
-
-                <div class="grid-cols-2">
-                    <!-- Upcoming Booking -->
-                    <div>
-                        <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Upcoming Schedule</h3>
-                        <div class="booking-card glass-panel">
-                            <div class="booking-card__datetime">
-                                <span class="booking-card__month">Jun</span>
-                                <span class="booking-card__day">04</span>
-                                <span class="booking-card__time">10:30 AM</span>
-                            </div>
-                            <div class="booking-card__details">
-                                <span class="booking-card__service">Signature Graphene Coating</span>
-                                <span class="booking-card__vehicle">Nissan GT-R Nismo</span>
-                                <span style="font-size:0.8rem; color:var(--color-text-tertiary);">Wash Bay 3 | Operator: Saito Y.</span>
-                            </div>
-                            <div class="booking-card__meta">
-                                <span class="status-badge status-badge--pending">Confirmed</span>
-                                <a href="#" class="btn btn--danger btn--sm">Reschedule</a>
-                            </div>
-                        </div>
+            <div class="dashboard-preview">
+                <!-- SECTION 2: VEHICLES OVERVIEW -->
+                <section class="dashboard-section" id="vehicles">
+                    <div class="dashboard-section__header">
+                        <h2 class="dashboard-section__title">Vehicles</h2>
+                        <a href="#" class="btn btn--secondary btn--sm">Manage Fleet</a>
                     </div>
 
-                    <!-- Booking Summary list -->
-                    <div>
-                        <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Wash History</h3>
-
-                        <div class="booking-card glass-panel">
-                            <div class="booking-card__datetime">
-                                <span class="booking-card__month">May</span>
-                                <span class="booking-card__day">18</span>
-                                <span class="booking-card__time">02:00 PM</span>
+                    <div class="grid-cols-3">
+                        <!-- Vehicle 1 -->
+                        <div class="vehicle-card glass-panel">
+                            <div class="vehicle-card__header">
+                                <div>
+                                    <span class="vehicle-card__type">Primary Coupe</span>
+                                    <h3 class="vehicle-card__name">Nissan GT-R Nismo</h3>
+                                </div>
+                                <span class="status-badge status-badge--completed">Active</span>
                             </div>
-                            <div class="booking-card__details">
-                                <span class="booking-card__service">Express Clean Wash</span>
-                                <span class="booking-card__vehicle">Lexus LS 500h</span>
-                            </div>
-                            <div class="booking-card__meta">
-                                <span class="status-badge status-badge--completed">Completed</span>
+                            <span class="vehicle-card__plate">品川 300 輪 23-45</span>
+                            <div class="vehicle-card__actions">
+                                <a href="#" class="btn btn--secondary btn--sm">Detail Log</a>
+                                <a href="#" class="btn btn--primary btn--sm">Book Wash</a>
                             </div>
                         </div>
-
-                        <div class="booking-card glass-panel">
-                            <div class="booking-card__datetime">
-                                <span class="booking-card__month">Apr</span>
-                                <span class="booking-card__day">30</span>
-                                <span class="booking-card__time">09:00 AM</span>
+                        <!-- Vehicle 2 -->
+                        <div class="vehicle-card glass-panel">
+                            <div class="vehicle-card__header">
+                                <div>
+                                    <span class="vehicle-card__type">Executive Sedan</span>
+                                    <h3 class="vehicle-card__name">Lexus LS 500h</h3>
+                                </div>
+                                <span class="status-badge status-badge--completed">Active</span>
                             </div>
-                            <div class="booking-card__details">
-                                <span class="booking-card__service">Interior Steam Detailing</span>
-                                <span class="booking-card__vehicle">Nissan GT-R Nismo</span>
-                            </div>
-                            <div class="booking-card__meta">
-                                <span class="status-badge status-badge--completed">Completed</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 4: RECENT ACTIVITY TIMELINE -->
-            <section class="dashboard-section">
-                <div class="dashboard-section__header">
-                    <h2 class="dashboard-section__title">Recent Activity</h2>
-                </div>
-
-                <div class="glass-panel" style="padding: var(--spacing-xl); border-radius: var(--radius-xl);">
-                    <div class="activity-timeline">
-                        <!-- Timeline Item 1 -->
-                        <div class="activity-timeline__item">
-                            <div class="activity-timeline__dot activity-timeline__dot--booking"></div>
-                            <div class="activity-timeline__content">
-                                <span class="activity-timeline__time">May 28, 2026 - 14:32</span>
-                                <span class="activity-timeline__title">Scheduled Signature Graphene Wash</span>
-                                <span class="activity-timeline__desc">Booked detailing appointment for Nissan GT-R Nismo on June 04.</span>
+                            <span class="vehicle-card__plate">足立 330 す 78-90</span>
+                            <div class="vehicle-card__actions">
+                                <a href="#" class="btn btn--secondary btn--sm">Detail Log</a>
+                                <a href="#" class="btn btn--primary btn--sm">Book Wash</a>
                             </div>
                         </div>
-                        <!-- Timeline Item 2 -->
-                        <div class="activity-timeline__item">
-                            <div class="activity-timeline__dot activity-timeline__dot--loyalty"></div>
-                            <div class="activity-timeline__content">
-                                <span class="activity-timeline__time">May 18, 2026 - 15:10</span>
-                                <span class="activity-timeline__title">Earned +150 Loyalty Points</span>
-                                <span class="activity-timeline__desc">Express Clean Wash completed on Lexus LS 500h. Points updated to 4,850.</span>
-                            </div>
-                        </div>
-                        <!-- Timeline Item 3 -->
-                        <div class="activity-timeline__item">
-                            <div class="activity-timeline__dot activity-timeline__dot--loyalty"></div>
-                            <div class="activity-timeline__content">
-                                <span class="activity-timeline__time">May 01, 2026 - 00:00</span>
-                                <span class="activity-timeline__title">Membership Renewed</span>
-                                <span class="activity-timeline__desc">Monthly VIP Shogun membership renewed. 12 wash credits added for May.</span>
-                            </div>
+                        <!-- Add New Vehicle Card -->
+                        <div class="vehicle-card vehicle-card--add-new glass-panel">
+                            <div class="vehicle-card__add-icon">+</div>
+                            <span style="font-weight:600; color:var(--color-text-primary);">Add New Vehicle</span>
+                            <span style="font-size:0.8rem; color:var(--color-text-tertiary);">Register vehicle plate & model</span>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- SECTION 5: PROFILE & SETTINGS -->
-            <section class="dashboard-section" id="profile">
-                <div class="dashboard-section__header">
-                    <h2 class="dashboard-section__title">Profile & Settings</h2>
-                </div>
+                <!-- SECTION 3: BOOKINGS MANAGEMENT -->
+                <section class="dashboard-section" id="bookings">
+                    <div class="dashboard-section__header">
+                        <h2 class="dashboard-section__title">Bookings</h2>
+                        <a href="#" class="btn btn--primary btn--sm">Schedule Detailing</a>
+                    </div>
 
-                <div class="glass-panel" style="padding: var(--spacing-xl); border-radius: var(--radius-xl);">
                     <div class="grid-cols-2">
-                        <!-- Account Information Form -->
+                        <!-- Upcoming Booking -->
                         <div>
-                            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Account Information</h3>
-                            <form action="#" method="POST" onsubmit="return false;">
-                                <div class="form-group">
-                                    <label class="form-group__label">Full Name</label>
-                                    <input type="text" class="form-group__input" value="Kenji Takahashi">
+                            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Upcoming Schedule</h3>
+                            <div class="booking-card glass-panel">
+                                <div class="booking-card__datetime">
+                                    <span class="booking-card__month">Jun</span>
+                                    <span class="booking-card__day">04</span>
+                                    <span class="booking-card__time">10:30 AM</span>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-group__label">Phone Number</label>
-                                    <input type="tel" class="form-group__input" value="+81 90-1234-5678">
+                                <div class="booking-card__details">
+                                    <span class="booking-card__service">Signature Graphene Coating</span>
+                                    <span class="booking-card__vehicle">Nissan GT-R Nismo</span>
+                                    <span style="font-size:0.8rem; color:var(--color-text-tertiary);">Wash Bay 3 | Operator: Saito Y.</span>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-group__label">Email Address</label>
-                                    <input type="email" class="form-group__input" value="kenji@takahashi.co.jp" disabled>
-                                    <span style="font-size:0.75rem; color:var(--color-text-tertiary);">Contact support to modify email credentials.</span>
+                                <div class="booking-card__meta">
+                                    <span class="status-badge status-badge--pending">Confirmed</span>
+                                    <a href="#" class="btn btn--danger btn--sm">Reschedule</a>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-group__label">Billing Address</label>
-                                    <input type="text" class="form-group__input" value="3-5-1 Ginza, Chuo-ku, Tokyo">
-                                </div>
-                                <button class="btn btn--primary">Update Profile</button>
-                            </form>
+                            </div>
                         </div>
 
-                        <!-- Preferences Placeholder & Security Settings -->
-                        <div style="border-left: 1px solid var(--color-border); padding-left: var(--spacing-xl);">
-                            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Preferences & Safety</h3>
+                        <!-- Booking Summary list -->
+                        <div>
+                            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Wash History</h3>
 
-                            <div class="form-group">
-                                <label class="form-group__label" style="margin-bottom: var(--spacing-md);">Alert Settings</label>
-                                <label class="form-group__checkbox" style="margin-bottom: var(--spacing-sm);">
-                                    <input type="checkbox" class="form-group__checkbox-input" checked>
-                                    <span class="form-group__checkbox-label">Receive booking confirmations via SMS</span>
-                                </label>
-                                <label class="form-group__checkbox" style="margin-bottom: var(--spacing-sm);">
-                                    <input type="checkbox" class="form-group__checkbox-input" checked>
-                                    <span class="form-group__checkbox-label">Receive loyalty tier upgrade alerts</span>
-                                </label>
-                                <label class="form-group__checkbox">
-                                    <input type="checkbox" class="form-group__checkbox-input">
-                                    <span class="form-group__checkbox-label">Subscribe to seasonal detailing promotions</span>
-                                </label>
+                            <div class="booking-card glass-panel">
+                                <div class="booking-card__datetime">
+                                    <span class="booking-card__month">May</span>
+                                    <span class="booking-card__day">18</span>
+                                    <span class="booking-card__time">02:00 PM</span>
+                                </div>
+                                <div class="booking-card__details">
+                                    <span class="booking-card__service">Express Clean Wash</span>
+                                    <span class="booking-card__vehicle">Lexus LS 500h</span>
+                                </div>
+                                <div class="booking-card__meta">
+                                    <span class="status-badge status-badge--completed">Completed</span>
+                                </div>
                             </div>
 
-                            <div style="margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top:1px solid var(--color-border);">
-                                <h4 style="font-size:1.0rem; color:var(--color-text-primary); margin-bottom:var(--spacing-md);">Security Credentials</h4>
+                            <div class="booking-card glass-panel">
+                                <div class="booking-card__datetime">
+                                    <span class="booking-card__month">Apr</span>
+                                    <span class="booking-card__day">30</span>
+                                    <span class="booking-card__time">09:00 AM</span>
+                                </div>
+                                <div class="booking-card__details">
+                                    <span class="booking-card__service">Interior Steam Detailing</span>
+                                    <span class="booking-card__vehicle">Nissan GT-R Nismo</span>
+                                </div>
+                                <div class="booking-card__meta">
+                                    <span class="status-badge status-badge--completed">Completed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 4: RECENT ACTIVITY TIMELINE -->
+                <section class="dashboard-section">
+                    <div class="dashboard-section__header">
+                        <h2 class="dashboard-section__title">Recent Activity</h2>
+                    </div>
+
+                    <div class="glass-panel" style="padding: var(--spacing-xl); border-radius: var(--radius-xl);">
+                        <div class="activity-timeline">
+                            <!-- Timeline Item 1 -->
+                            <div class="activity-timeline__item">
+                                <div class="activity-timeline__dot activity-timeline__dot--booking"></div>
+                                <div class="activity-timeline__content">
+                                    <span class="activity-timeline__time">May 28, 2026 - 14:32</span>
+                                    <span class="activity-timeline__title">Scheduled Signature Graphene Wash</span>
+                                    <span class="activity-timeline__desc">Booked detailing appointment for Nissan GT-R Nismo on June 04.</span>
+                                </div>
+                            </div>
+                            <!-- Timeline Item 2 -->
+                            <div class="activity-timeline__item">
+                                <div class="activity-timeline__dot activity-timeline__dot--loyalty"></div>
+                                <div class="activity-timeline__content">
+                                    <span class="activity-timeline__time">May 18, 2026 - 15:10</span>
+                                    <span class="activity-timeline__title">Earned +150 Loyalty Points</span>
+                                    <span class="activity-timeline__desc">Express Clean Wash completed on Lexus LS 500h. Points updated to 4,850.</span>
+                                </div>
+                            </div>
+                            <!-- Timeline Item 3 -->
+                            <div class="activity-timeline__item">
+                                <div class="activity-timeline__dot activity-timeline__dot--loyalty"></div>
+                                <div class="activity-timeline__content">
+                                    <span class="activity-timeline__time">May 01, 2026 - 00:00</span>
+                                    <span class="activity-timeline__title">Membership Renewed</span>
+                                    <span class="activity-timeline__desc">Monthly VIP Shogun membership renewed. 12 wash credits added for May.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 5: PROFILE & SETTINGS -->
+                <section class="dashboard-section" id="profile">
+                    <div class="dashboard-section__header">
+                        <h2 class="dashboard-section__title">Profile & Settings</h2>
+                    </div>
+
+                    <div class="glass-panel" style="padding: var(--spacing-xl); border-radius: var(--radius-xl);">
+                        <div class="grid-cols-2">
+                            <!-- Account Information Form -->
+                            <div>
+                                <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Account Information</h3>
                                 <form action="#" method="POST" onsubmit="return false;">
                                     <div class="form-group">
-                                        <label class="form-group__label">Current Password</label>
-                                        <input type="password" class="form-group__input" placeholder="••••••••">
+                                        <label class="form-group__label">Full Name</label>
+                                        <input type="text" class="form-group__input" value="Kenji Takahashi">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-group__label">New Password</label>
-                                        <input type="password" class="form-group__input" placeholder="••••••••">
+                                        <label class="form-group__label">Phone Number</label>
+                                        <input type="tel" class="form-group__input" value="+81 90-1234-5678">
                                     </div>
-                                    <button class="btn btn--secondary">Modify Password</button>
+                                    <div class="form-group">
+                                        <label class="form-group__label">Email Address</label>
+                                        <input type="email" class="form-group__input" value="kenji@takahashi.co.jp" disabled>
+                                        <span style="font-size:0.75rem; color:var(--color-text-tertiary);">Contact support to modify email credentials.</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-group__label">Billing Address</label>
+                                        <input type="text" class="form-group__input" value="3-5-1 Ginza, Chuo-ku, Tokyo">
+                                    </div>
+                                    <button class="btn btn--primary">Update Profile</button>
                                 </form>
+                            </div>
+
+                            <!-- Preferences Placeholder & Security Settings -->
+                            <div style="border-left: 1px solid var(--color-border); padding-left: var(--spacing-xl);">
+                                <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Preferences & Safety</h3>
+
+                                <div class="form-group">
+                                    <label class="form-group__label" style="margin-bottom: var(--spacing-md);">Alert Settings</label>
+                                    <label class="form-group__checkbox" style="margin-bottom: var(--spacing-sm);">
+                                        <input type="checkbox" class="form-group__checkbox-input" checked>
+                                        <span class="form-group__checkbox-label">Receive booking confirmations via SMS</span>
+                                    </label>
+                                    <label class="form-group__checkbox" style="margin-bottom: var(--spacing-sm);">
+                                        <input type="checkbox" class="form-group__checkbox-input" checked>
+                                        <span class="form-group__checkbox-label">Receive loyalty tier upgrade alerts</span>
+                                    </label>
+                                    <label class="form-group__checkbox">
+                                        <input type="checkbox" class="form-group__checkbox-input">
+                                        <span class="form-group__checkbox-label">Subscribe to seasonal detailing promotions</span>
+                                    </label>
+                                </div>
+
+                                <div style="margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top:1px solid var(--color-border);">
+                                    <h4 style="font-size:1.0rem; color:var(--color-text-primary); margin-bottom:var(--spacing-md);">Security Credentials</h4>
+                                    <form action="#" method="POST" onsubmit="return false;">
+                                        <div class="form-group">
+                                            <label class="form-group__label">Current Password</label>
+                                            <input type="password" class="form-group__input" placeholder="••••••••">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-group__label">New Password</label>
+                                            <input type="password" class="form-group__input" placeholder="••••••••">
+                                        </div>
+                                        <button class="btn btn--secondary">Modify Password</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
+            </div>
         </main>
 
         <!-- FOOTER -->
@@ -458,7 +461,7 @@
             <div class="site-footer__container main-wrapper">
                 <div class="site-footer__bottom">
                     <p>&copy; 2026 AutoWashPro Inc. All rights reserved.</p>
-                    <a href="index.html" class="site-footer__staff-link">Return to Landing Page</a>
+                    <a href="${pageContext.request.contextPath}/MainController?action=landing-page" class="site-footer__staff-link">Return to Landing Page</a>
                 </div>
             </div>
         </footer>

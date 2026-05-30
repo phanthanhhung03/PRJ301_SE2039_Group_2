@@ -78,7 +78,7 @@
 
                 <!-- Footer signin link -->
                 <div class="auth-card__footer">
-                    Already have an account? <a href="signin.jsp" class="auth-card__footer-link">Sign In</a>
+                    Already have an account? <a href="${pageContext.request.contextPath}/MainController?action=viewSignIn" class="auth-card__footer-link">Sign In</a>
                 </div>
 
             </div>
