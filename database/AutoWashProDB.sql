@@ -69,7 +69,7 @@ CREATE TABLE Customers
 
     Address NVARCHAR(255),
 
-    TierID INT NOT NULL,
+    TierID INT DEFAULT 1,
 
     CurrentPoints INT DEFAULT 0,
 
