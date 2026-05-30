@@ -4,6 +4,12 @@
  */
 package dao;
 
+import dto.Customer;
+import dto.Vehicle;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import dto.Vehicle;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

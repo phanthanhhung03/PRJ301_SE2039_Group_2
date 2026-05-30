@@ -1,5 +1,7 @@
 package dto;
 
+import java.sql.Date;
+
 public class Vehicle {
 
     private int vehicleID;

@@ -4,9 +4,9 @@ GO
 USE AutoWashProDB;
 GO
 
-/* =========================================================
-   1. CUSTOMER TIERS
-========================================================= */
+-- =========================================
+-- TABLE: CustomerTiers
+-- =========================================
 
 CREATE TABLE CustomerTiers
 (
@@ -14,25 +14,46 @@ CREATE TABLE CustomerTiers
 
     TierName NVARCHAR(50) NOT NULL UNIQUE,
 
-    MinBookings INT DEFAULT 0,
+    MinBookings INT NOT NULL DEFAULT 0,
 
-    MinSpend DECIMAL(12,2) DEFAULT 0,
+    MinSpend DECIMAL(12,2) NOT NULL DEFAULT 0,
 
-    PointMultiplier DECIMAL(5,2) DEFAULT 1.0,
+    PointMultiplier DECIMAL(5,2) NOT NULL DEFAULT 1.0,
 
-    DiscountPercent DECIMAL(5,2) DEFAULT 0,
+    DiscountPercent DECIMAL(5,2) NOT NULL DEFAULT 0,
 
-    PriorityLevel INT DEFAULT 1,
+    PriorityLevel INT NOT NULL DEFAULT 1,
 
-    BookingWindowDays INT DEFAULT 7,
+    BookingWindowDays INT NOT NULL DEFAULT 7,
+
+    CreatedAt DATETIME DEFAULT GETDATE(),
+
+    CHECK (PointMultiplier >= 1),
+    CHECK (DiscountPercent BETWEEN 0 AND 100)
+);
+
+-- =========================================
+-- TABLE: Admins
+-- =========================================
+
+CREATE TABLE Admins
+(
+    AdminID INT PRIMARY KEY IDENTITY(1,1),
+
+    FullName NVARCHAR(100) NOT NULL,
+
+    Email VARCHAR(100) NOT NULL UNIQUE,
+
+    Password NVARCHAR(255) NOT NULL,
+
+    Status BIT DEFAULT 1,
 
     CreatedAt DATETIME DEFAULT GETDATE()
 );
-GO
 
-/* =========================================================
-   2. CUSTOMERS
-========================================================= */
+-- =========================================
+-- TABLE: Customers
+-- =========================================
 
 CREATE TABLE Customers
 (
@@ -40,15 +61,15 @@ CREATE TABLE Customers
 
     FullName NVARCHAR(100) NOT NULL,
 
-    PhoneNumber NVARCHAR(20) NOT NULL UNIQUE,
+    PhoneNumber VARCHAR(15) NOT NULL UNIQUE,
 
-    Email NVARCHAR(100) NOT NULL UNIQUE,
+    Email NVARCHAR(100) UNIQUE,
 
-    PasswordHash NVARCHAR(255) NOT NULL,
+    Password NVARCHAR(255) NOT NULL,
 
     Address NVARCHAR(255),
 
-    TierID INT DEFAULT 1,
+    TierID INT NOT NULL,
 
     CurrentPoints INT DEFAULT 0,
 
@@ -60,15 +81,18 @@ CREATE TABLE Customers
 
     CreatedAt DATETIME DEFAULT GETDATE(),
 
-    CONSTRAINT FK_Customers_Tiers
-        FOREIGN KEY (TierID)
-        REFERENCES CustomerTiers(TierID)
-);
-GO
+    CONSTRAINT FK_Customers_CustomerTiers
+    FOREIGN KEY (TierID)
+    REFERENCES CustomerTiers(TierID),
 
-/* =========================================================
-   3. VEHICLES
-========================================================= */
+    CHECK (CurrentPoints >= 0),
+    CHECK (TotalBookings >= 0),
+    CHECK (TotalSpend >= 0)
+);
+
+-- =========================================
+-- TABLE: Vehicles
+-- =========================================
 
 CREATE TABLE Vehicles
 (
@@ -76,7 +100,7 @@ CREATE TABLE Vehicles
 
     CustomerID INT NOT NULL,
 
-    LicensePlate NVARCHAR(20) NOT NULL UNIQUE,
+    LicensePlate VARCHAR(20) NOT NULL UNIQUE,
 
     Brand NVARCHAR(50),
 
@@ -87,14 +111,13 @@ CREATE TABLE Vehicles
     CreatedAt DATETIME DEFAULT GETDATE(),
 
     CONSTRAINT FK_Vehicles_Customers
-        FOREIGN KEY (CustomerID)
-        REFERENCES Customers(CustomerID)
+    FOREIGN KEY (CustomerID)
+    REFERENCES Customers(CustomerID)
 );
-GO
 
-/* =========================================================
-   4. BOOKINGS
-========================================================= */
+-- =========================================
+-- TABLE: Bookings
+-- =========================================
 
 CREATE TABLE Bookings
 (
@@ -106,35 +129,30 @@ CREATE TABLE Bookings
 
     ServiceType NVARCHAR(100) NOT NULL,
 
-    BookingStatus NVARCHAR(20)
-        DEFAULT 'Pending'
-        CHECK (BookingStatus IN
-        (
-            'Pending',
-            'Confirmed',
-            'Completed',
-            'Cancelled'
-        )),
+    BookingStatus NVARCHAR(20) DEFAULT 'Pending',
 
     Notes NVARCHAR(255),
 
-    TotalAmount DECIMAL(12,2) DEFAULT 0,
+    TotalAmount DECIMAL(12,2) NOT NULL,
 
     DiscountAmount DECIMAL(12,2) DEFAULT 0,
 
-    FinalAmount DECIMAL(12,2) DEFAULT 0,
+    FinalAmount DECIMAL(12,2) NOT NULL,
 
     CreatedAt DATETIME DEFAULT GETDATE(),
 
     CONSTRAINT FK_Bookings_Vehicles
-        FOREIGN KEY (VehicleID)
-        REFERENCES Vehicles(VehicleID)
-);
-GO
+    FOREIGN KEY (VehicleID)
+    REFERENCES Vehicles(VehicleID),
 
-/* =========================================================
-   5. POINT TRANSACTIONS
-========================================================= */
+    CHECK (TotalAmount >= 0),
+    CHECK (DiscountAmount >= 0),
+    CHECK (FinalAmount >= 0)
+);
+
+-- =========================================
+-- TABLE: PointTransactions
+-- =========================================
 
 CREATE TABLE PointTransactions
 (
@@ -146,14 +164,7 @@ CREATE TABLE PointTransactions
 
     PointsChanged INT NOT NULL,
 
-    TransactionType NVARCHAR(20)
-        CHECK (TransactionType IN
-        (
-            'EARN',
-            'REDEEM',
-            'EXPIRE',
-            'BONUS'
-        )),
+    TransactionType NVARCHAR(20) NOT NULL,
 
     ExpiryDate DATETIME NULL,
 
@@ -162,18 +173,19 @@ CREATE TABLE PointTransactions
     CreatedAt DATETIME DEFAULT GETDATE(),
 
     CONSTRAINT FK_PointTransactions_Customers
-        FOREIGN KEY (CustomerID)
-        REFERENCES Customers(CustomerID),
+    FOREIGN KEY (CustomerID)
+    REFERENCES Customers(CustomerID),
 
     CONSTRAINT FK_PointTransactions_Bookings
-        FOREIGN KEY (BookingID)
-        REFERENCES Bookings(BookingID)
+    FOREIGN KEY (BookingID)
+    REFERENCES Bookings(BookingID)
 );
-GO
 
-/* =========================================================
-   INSERT DEFAULT CUSTOMER TIERS
-========================================================= */
+-- =========================================
+-- SAMPLE DATA
+-- =========================================
+
+-- Customer Tiers
 
 INSERT INTO CustomerTiers
 (
@@ -190,63 +202,100 @@ VALUES
 ('Silver', 5, 2000000, 1.1, 5, 2, 10),
 ('Gold', 15, 6000000, 1.2, 10, 3, 12),
 ('Platinum', 30, 15000000, 1.3, 15, 4, 14);
-GO
 
-/* =========================================================
-   INSERT CUSTOMERS
-========================================================= */
+-- Admin
+
+INSERT INTO Admins
+(
+    FullName,
+    Email,
+    Password
+)
+VALUES
+(
+    N'System Administrator',
+    'admin@autowashpro.com',
+    '123456'
+);
+
+-- Customers
 
 INSERT INTO Customers
 (
     FullName,
     PhoneNumber,
     Email,
-    PasswordHash,
+    Password,
     Address,
     TierID,
     CurrentPoints,
     TotalBookings,
-    TotalSpend
+    TotalSpend,
+    Status
 )
 VALUES
 (
-    'Nguyen Van A',
+    N'Nguyen Van A',
     '0901234567',
     'vana@gmail.com',
-    'HASHED_PASSWORD_1',
-    'Ho Chi Minh City',
+    '123456',
+    N'Ho Chi Minh City',
     1,
-    120,
+    100,
     2,
-    350000
+    500000,
+    1
 ),
 (
-    'Tran Thi B',
+    N'Tran Thi B',
     '0912345678',
     'thib@gmail.com',
-    'HASHED_PASSWORD_2',
-    'Da Nang',
+    '123456',
+    N'Ha Noi',
     2,
-    580,
-    8,
-    2500000
+    350,
+    7,
+    2500000,
+    1
 ),
 (
-    'Le Van C',
-    '0988888888',
-    'vanc@gmail.com',
-    'HASHED_PASSWORD_3',
-    'Ha Noi',
+    N'Le Van C',
+    '0933333333',
+    'levanc@gmail.com',
+    '123456',
+    N'Da Nang',
     3,
-    1400,
-    20,
-    7500000
+    850,
+    18,
+    7500000,
+    1
+),
+(
+    N'Pham Thi D',
+    '0944444444',
+    'phamd@gmail.com',
+    '123456',
+    N'Can Tho',
+    4,
+    2500,
+    35,
+    18000000,
+    1
+),
+(
+    N'Hoang Van E',
+    '0955555555',
+    'hoange@gmail.com',
+    '123456',
+    N'Binh Duong',
+    1,
+    0,
+    0,
+    0,
+    0
 );
-GO
 
-/* =========================================================
-   INSERT VEHICLES
-========================================================= */
+-- Vehicles
 
 INSERT INTO Vehicles
 (
@@ -257,15 +306,14 @@ INSERT INTO Vehicles
     Color
 )
 VALUES
-(1, '51A-12345', 'Toyota', 'Vios', 'White'),
-(1, '51G-67890', 'Honda', 'City', 'Black'),
-(2, '43A-99999', 'Mazda', 'CX5', 'Red'),
-(3, '30H-45678', 'Hyundai', 'Elantra', 'Blue');
-GO
+(1, '59A-12345', 'Toyota', 'Vios', 'White'),
+(1, '59A-67890', 'Kia', 'K3', 'Red'),
+(2, '51G-88888', 'Honda', 'City', 'Black'),
+(3, '43A-11111', 'Mazda', 'CX5', 'Gray'),
+(4, '65A-22222', 'Mercedes', 'C300', 'White'),
+(4, '65A-33333', 'BMW', 'X5', 'Black');
 
-/* =========================================================
-   INSERT BOOKINGS
-========================================================= */
+-- Bookings
 
 INSERT INTO Bookings
 (
@@ -281,49 +329,56 @@ INSERT INTO Bookings
 VALUES
 (
     1,
-    '2026-05-20 08:00:00',
-    'Premium Wash',
+    '2026-05-30 09:00:00',
+    N'Premium Wash',
     'Completed',
-    'VIP customer',
-    200000,
-    10000,
-    190000
-),
-(
-    2,
-    '2026-05-22 10:30:00',
-    'Interior Cleaning',
-    'Pending',
-    NULL,
+    N'Wash and wax',
     300000,
     0,
     300000
 ),
 (
     3,
-    '2026-05-23 14:00:00',
-    'Wax Coating',
-    'Confirmed',
-    'Customer requests fast service',
+    '2026-05-31 14:00:00',
+    N'Basic Wash',
+    'Pending',
+    N'Customer waits at station',
+    150000,
+    7500,
+    142500
+),
+(
+    4,
+    '2026-06-01 08:00:00',
+    N'Interior Cleaning',
+    'Completed',
+    N'Full interior cleaning',
     500000,
     25000,
     475000
 ),
 (
-    4,
-    '2026-05-24 09:00:00',
-    'Basic Wash',
-    'Completed',
-    NULL,
-    100000,
+    5,
+    '2026-06-02 10:00:00',
+    N'Ceramic Coating',
+    'Pending',
+    N'Premium package',
+    2000000,
+    300000,
+    1700000
+),
+(
+    6,
+    '2026-06-03 15:00:00',
+    N'Basic Wash',
+    'Cancelled',
+    N'Customer cancelled',
+    150000,
     0,
-    100000
+    150000
 );
-GO
 
-/* =========================================================
-   INSERT POINT TRANSACTIONS
-========================================================= */
+-- Point Transactions
 
 INSERT INTO PointTransactions
 (
@@ -338,122 +393,51 @@ VALUES
 (
     1,
     1,
-    190,
-    'EARN',
-    DATEADD(MONTH, 12, GETDATE()),
-    'Earned points from Premium Wash'
-),
-(
-    2,
-    3,
-    475,
-    'EARN',
-    DATEADD(MONTH, 12, GETDATE()),
-    'Earned points from Wax Coating'
-),
-(
-    2,
-    NULL,
-    -200,
-    'REDEEM',
-    NULL,
-    'Redeemed points for discount voucher'
-),
-(
-    3,
-    4,
     100,
-    'BONUS',
-    DATEADD(MONTH, 12, GETDATE()),
-    'Gold member bonus points'
+    'Earned',
+    DATEADD(YEAR,1,GETDATE()),
+    N'Earned from booking'
+),
+(
+    2,
+    2,
+    -50,
+    'Redeemed',
+    NULL,
+    N'Used points for discount'
+),
+(
+    3,
+    3,
+    200,
+    'Earned',
+    DATEADD(YEAR,1,GETDATE()),
+    N'Interior cleaning reward'
+),
+(
+    4,
+    4,
+    500,
+    'Earned',
+    DATEADD(YEAR,1,GETDATE()),
+    N'VIP customer reward'
+),
+(
+    4,
+    4,
+    -300,
+    'Redeemed',
+    NULL,
+    N'Redeemed points for promotion'
 );
-GO
 
-/* =========================================================
-   INDEXES
-========================================================= */
+-- =========================================
+-- TEST QUERIES
+-- =========================================
 
-CREATE INDEX IDX_Vehicles_LicensePlate
-ON Vehicles(LicensePlate);
-
-CREATE INDEX IDX_Bookings_Date
-ON Bookings(BookingDate);
-
-CREATE INDEX IDX_PointTransactions_CustomerID
-ON PointTransactions(CustomerID);
-
-CREATE INDEX IDX_Customers_Phone
-ON Customers(PhoneNumber);
-GO
-
-/* =========================================================
-   SAMPLE QUERY 1
-   VIEW CUSTOMER + TIER
-========================================================= */
-
-SELECT
-    C.CustomerID,
-    C.FullName,
-    C.PhoneNumber,
-    T.TierName,
-    C.CurrentPoints,
-    C.TotalSpend
-FROM Customers C
-JOIN CustomerTiers T
-    ON C.TierID = T.TierID;
-GO
-
-/* =========================================================
-   SAMPLE QUERY 2
-   VIEW VEHICLES OF CUSTOMERS
-========================================================= */
-
-SELECT
-    C.FullName,
-    V.LicensePlate,
-    V.Brand,
-    V.Model,
-    V.Color
-FROM Vehicles V
-JOIN Customers C
-    ON V.CustomerID = C.CustomerID;
-GO
-
-/* =========================================================
-   SAMPLE QUERY 3
-   VIEW BOOKING HISTORY
-========================================================= */
-
-SELECT
-    B.BookingID,
-    C.FullName,
-    V.LicensePlate,
-    B.ServiceType,
-    B.BookingDate,
-    B.BookingStatus,
-    B.FinalAmount
-FROM Bookings B
-JOIN Vehicles V
-    ON B.VehicleID = V.VehicleID
-JOIN Customers C
-    ON V.CustomerID = C.CustomerID
-ORDER BY B.BookingDate DESC;
-GO
-
-/* =========================================================
-   SAMPLE QUERY 4
-   VIEW POINT TRANSACTIONS
-========================================================= */
-
-SELECT
-    PT.PointTransactionID,
-    C.FullName,
-    PT.PointsChanged,
-    PT.TransactionType,
-    PT.Description,
-    PT.CreatedAt
-FROM PointTransactions PT
-JOIN Customers C
-    ON PT.CustomerID = C.CustomerID
-ORDER BY PT.CreatedAt DESC;
-GO
+SELECT * FROM CustomerTiers;
+SELECT * FROM Admins;
+SELECT * FROM Customers;
+SELECT * FROM Vehicles;
+SELECT * FROM Bookings;
+SELECT * FROM PointTransactions;

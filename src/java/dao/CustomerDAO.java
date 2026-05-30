@@ -7,6 +7,7 @@ package dao;
 import dto.Customer;
 import dto.CustomerTier;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -41,7 +42,8 @@ public class CustomerDAO {
                         + "t.DiscountPercent, "
                         + "t.PriorityLevel, "
                         + "t.BookingWindowDays "
-                        + "FROM Customers c " + "JOIN CustomerTiers t " + "ON c.TierID = t.TierID " + "WHERE c.Email = ? " + "AND c.PasswordHash = ?";
+                        + "FROM Customers c " + "JOIN CustomerTiers t " + "ON c.TierID = t.TierID " 
+                        + "WHERE c.Email = ? " + "AND c.PasswordHash = ?";
 
                 // Step 3
                 st = cn.prepareStatement(sql);
