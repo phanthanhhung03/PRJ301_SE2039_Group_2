@@ -4,6 +4,8 @@
  */
 package controller;
 
+import dao.CustomerDAO;
+import dto.Customer;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,53 +17,34 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Asus
  */
-@WebServlet(name = "MainController", urlPatterns = {"/MainController"})
-public class MainController extends HttpServlet {
+@WebServlet(name = "SigninController", urlPatterns = {"/SigninController"})
+public class SigninController extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        String action = request.getParameter("action");
+        response.setContentType("text/html;charset=UTF-8");
 
-        if (action == null) {
-            action = "/customer/landing-page";
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+
+        CustomerDAO d = new CustomerDAO();
+        Customer customer = d.getCustomer(email, password);
+
+        if (customer != null && customer.isStatus()) {
+            response.sendRedirect("customer/dashboard.jsp");
         }
 
-        String url;
-
-        switch (action) {
-
-            case "viewSignIn":
-                url = "/customer/signin.jsp";
-                break;
-
-            case "viewSignUp":
-                url = "/customer/signup.jsp";
-                break;
-
-            case "landing":
-                url = "/customer/landing-page.jsp";
-                break;
-
-            case "signIn":
-                url = "SigninController";
-                break;
-                
-            default:
-                url = "/customer/landing-page.jsp";
-                break;
+        if (customer == null) {
+            System.out.println("LOGIN FAIL");
         }
-
-        request.getRequestDispatcher(url)
-                .forward(request, response);
     }
 
     @Override
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-
         processRequest(request, response);
     }
 
@@ -69,7 +52,11 @@ public class MainController extends HttpServlet {
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-
         processRequest(request, response);
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "Short description";
     }
 }

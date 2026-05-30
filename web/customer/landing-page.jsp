@@ -31,8 +31,8 @@
                     <a href="#testimonials" class="site-header__nav-link">Feedback</a>
                 </nav>
                 <div class="site-header__actions">
-                    <a href="${pageContext.request.contextPath}/MainController?action=signin" class="btn btn--secondary btn--sm">Sign In</a>
-                    <a href="${pageContext.request.contextPath}/MainController?action=signup" class="btn btn--primary btn--sm">Sign Up</a>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewSignIn" class="btn btn--secondary btn--sm">Sign In</a>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewSignUp" class="btn btn--primary btn--sm">Sign Up</a>
                 </div>
             </div>
         </header>
@@ -48,7 +48,7 @@
                     Experience a high-end car wash platform with smart vehicle scheduling, interactive loyalty point tier rewards, and precision cleaning techniques.
                 </p>
                 <div class="hero-section__actions">
-                    <a href="${pageContext.request.contextPath}/MainController?action=signup" class="btn btn--gold">Explore Memberships</a>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewSignUp" class="btn btn--gold">Explore Memberships</a>
                     <a href="#features" class="btn btn--secondary">Learn More</a>
                 </div>
             </div>
@@ -151,7 +151,7 @@
                             <li class="tier-card__item">Track booking history</li>
                         </ul>
 
-                        <a href="${pageContext.request.contextPath}/MainController?action=signup"
+                        <a href="${pageContext.request.contextPath}/MainController?action=viewSignUp"
                            class="btn btn--secondary btn--block">
                             Get Started
                         </a>
@@ -171,7 +171,7 @@
                             <li class="tier-card__item">Faster Service Queue</li>
                         </ul>
 
-                        <a href="${pageContext.request.contextPath}/MainController?action=signup"
+                        <a href="${pageContext.request.contextPath}/MainController?action=viewSignUp"
                            class="btn btn--secondary btn--block">
                             Join Silver
                         </a>
@@ -191,7 +191,7 @@
                             <li class="tier-card__item">Exclusive Gold Rewards</li>
                         </ul>
 
-                        <a href="${pageContext.request.contextPath}/MainController?action=signup"
+                        <a href="${pageContext.request.contextPath}/MainController?action=viewSignUp"
                            class="btn btn--primary btn--block">
                             Join Gold
                         </a>
@@ -212,7 +212,7 @@
                             <li class="tier-card__item">Exclusive Promotions & Rewards</li>
                         </ul>
 
-                        <a href="${pageContext.request.contextPath}/MainController?action=signup"
+                        <a href="${pageContext.request.contextPath}/MainController?action=viewSignUp"
                            class="btn btn--gold btn--block">
                             Join Platinum
                         </a>
@@ -280,7 +280,7 @@
                 <div class="cta-card glass-panel">
                     <h2 class="cta-card__title">Elevate Your Automotive Care</h2>
                     <p class="cta-card__desc">Join thousands of members who enjoy premium, hassle-free detailing services on demand.</p>
-                    <a href="${pageContext.request.contextPath}/MainController?action=signup" class="btn btn--primary">Get Started Now</a>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewSignUp" class="btn btn--primary">Get Started Now</a>
                 </div>
             </div>
         </section>
@@ -304,8 +304,8 @@
                     <div>
                         <h4 class="site-footer__section-title">Customer Care</h4>
                         <ul class="site-footer__list">
-                            <li><a href="${pageContext.request.contextPath}/MainController?action=signin" class="site-footer__link">Sign In</a></li>
-                            <li><a href="${pageContext.request.contextPath}/MainController?action=signup" class="site-footer__link">Sign Up</a></li>
+                            <li><a href="${pageContext.request.contextPath}/MainController?action=viewSignIn" class="site-footer__link">Sign In</a></li>
+                            <li><a href="${pageContext.request.contextPath}/MainController?action=viewSignUp" class="site-footer__link">Sign Up</a></li>
                             <li><a href="#" class="site-footer__link">Support Portal</a></li>
                         </ul>
                     </div>

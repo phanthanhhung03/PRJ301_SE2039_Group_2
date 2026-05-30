@@ -28,19 +28,19 @@
         <main class="main-wrapper main-wrapper--narrow">
             <div class="auth-card glass-panel">
 
-                <a href="customer/landing-page.jsp" class="auth-card__logo">
+                <a href="${pageContext.request.contextPath}/customer/landing-page.jsp" class="auth-card__logo">
                     <div class="site-header__logo-icon"></div>
                 </a>
 
                 <h1 class="auth-card__title">Welcome Back</h1>
                 <p class="auth-card__desc">Sign in to manage bookings, track loyalty points, and review premium washes.</p>
 
-                <form action="dashboard.jsp" method="GET">
+                <form action="MainController" method="POST">
                     <!-- Email field -->
                     <div class="form-group">
                         <label for="email" class="form-group__label">Email Address</label>
                         <div class="form-group__input-wrapper">
-                            <input type="email" id="email" class="form-group__input" placeholder="name@domain.com" required autocomplete="email">
+                            <input type="email" id="email" class="form-group__input" placeholder="name@domain.com" required autocomplete="email" name="email">
                         </div>
                     </div>
 
@@ -48,7 +48,7 @@
                     <div class="form-group">
                         <label for="password" class="form-group__label">Password</label>
                         <div class="form-group__input-wrapper">
-                            <input type="password" id="password" class="form-group__input" placeholder="••••••••" required autocomplete="current-password">
+                            <input type="password" id="password" class="form-group__input" placeholder="••••••••" required autocomplete="current-password" name="password">
                         </div>
                     </div>
 
@@ -62,7 +62,7 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn--primary btn--block">Sign In</button>
+                    <button type="submit" class="btn btn--primary btn--block" name="action" value="signIn">Sign In</button>
                 </form>
 
                 <!-- Footer signup link -->
