@@ -13,66 +13,76 @@
         response.sendRedirect("customer/landing-page.jsp");
     }
 
-    // Next Reward
-    String nextTierName = "";
-    int remainingBookings = 0;
-    double remainingSpend = 0;
+    // === Next Reward ===
+    String nextTierName = null;
 
     String tierName = user.getTierId().getTierName();
-
     int currentBookings = user.getTotalBooking();
     double currentSpend = user.getTotalSpend();
+
+    // Target
+    double bookingTarget = 0;
+    double spendTarget = 0;
 
     switch (tierName) {
 
         case "Member":
 
             nextTierName = "Silver";
-
-            remainingBookings = 5 - currentBookings;
-
-            remainingSpend = 2000000 - currentSpend;
+            bookingTarget = 5;
+            spendTarget = 2000000;
 
             break;
 
         case "Silver":
 
             nextTierName = "Gold";
-
-            remainingBookings = 15 - currentBookings;
-
-            remainingSpend = 6000000 - currentSpend;
+            bookingTarget = 15;
+            spendTarget = 6000000;
 
             break;
 
         case "Gold":
 
             nextTierName = "Platinum";
-
-            remainingBookings = 30 - currentBookings;
-
-            remainingSpend = 15000000 - currentSpend;
+            bookingTarget = 30;
+            spendTarget = 15000000;
 
             break;
 
         case "Platinum":
-
-            nextTierName = "MAX";
-
-            remainingBookings = 0;
-            remainingSpend = 0;
-
             break;
+
     }
 
-// Tranh negative number
-    if (remainingBookings < 0) {
-        remainingBookings = 0;
+    // Calculate Remaining Washes , Spend , Percent and Points
+    int remainingWashes = 0;
+    double remainingSpend = 0;
+    double progressPercent = 100;
+    int remainingPoints = 0;
+
+    boolean isMaxTier = "Platinum".equals(tierName);
+    if (!isMaxTier) {
+
+        remainingWashes = (int) Math.max(0, bookingTarget - currentBookings);
+
+        remainingSpend = Math.max(0, spendTarget - currentSpend);
+
+        progressPercent = Math.min(100,
+                Math.max(
+                        currentBookings * 100.0 / bookingTarget,
+                        currentSpend * 100.0 / spendTarget
+                )
+        );
+
+        remainingPoints = (int) Math.ceil(remainingSpend / 1000.0);
     }
 
-    if (remainingSpend < 0) {
-        remainingSpend = 0;
-    }
+    // Finding Member Tier
+    String tierMessage = isMaxTier ? "Highest Tier Achieved" : "Next Tier: " + nextTierName;
+    String progressMessage = isMaxTier ? "Platinum Member" : String.format("%,d pts remaining", remainingPoints);
+// === Ending Next Reward ===
+
 %>
 
 <!DOCTYPE html>
@@ -100,7 +110,7 @@
                     <a href="#profile" class="site-header__nav-link">Profile</a>
                 </nav>
                 <div class="site-header__actions">
-                    <div class="status-badge status-badge--vip">VIP Member</div>
+                    <div class="status-badge status-badge--vip"><%= user.getTierId().getTierName()%> Tier</div>
                     <a href="index.html" class="btn btn--secondary btn--sm">Logout</a>
                 </div>
             </div>
@@ -119,44 +129,55 @@
                 <div class="grid-cols-2">
                     <!-- MEMBERSHIP HERO CARD (VIP Gold) -->
                     <div class="membership-card membership-card--vip glass-panel">
+
                         <div class="membership-card__header">
-                            <span class="membership-card__brand">AUTOWASH<span>PRO</span> CLUB</span>
+                            <span class="membership-card__brand">AUTOWASH<span>PRO</span></span>
                             <span class="membership-card__vip-badge">
                                 <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24" style="margin-right:4px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                                VIP Shogun
+                                <%= user.getTierId().getTierName()%>
                             </span>
                         </div>
 
                         <div class="membership-card__holder">
-                            <span class="membership-card__holder-label">Cardholder Identity</span>
-                            <h3 class="membership-card__holder-name">Kenji Takahashi</h3>
-                            <span class="membership-card__tier">Rank: Ultimate Tier VIP</span>
+                            <span class="membership-card__holder-label">Current Status</span>
+                            <h3 class="membership-card__holder-name"><%= user.getFullName()%></h3>
+                            <span class="membership-card__tier">Tier: <%= user.getTierId().getTierName()%></span>
                         </div>
 
                         <div class="membership-card__body">
                             <div class="membership-card__points">
-                                <span class="membership-card__points-val">4,850</span>
+                                <span class="membership-card__points-val"><%= user.getCurrentPoint()%></span>
                                 <span class="membership-card__points-label">Loyalty Points</span>
                             </div>
                             <div class="membership-card__progress-bar">
-                                <div class="membership-card__progress-fill" style="width: 85%;"></div>
+                                <div class="membership-card__progress-fill"  style="width:<%= progressPercent%>%;"></div>
                             </div>
                             <div class="membership-card__goal-progress">
-                                <span>Goal: 5,000 pts (Shogun Lord)</span>
-                                <span>150 pts remaining</span>
+                                <span><%= tierMessage%></span>
+                                <span><%= progressMessage%></span>
                             </div>
+
                         </div>
 
+                        <span>
+                            <%= isMaxTier
+                                    ? "You have achieved Platinum status, the highest loyalty tier at AutoWash Pro. Enjoy your premium perks and priority lane accesses!"
+                                    : "Complete either requirement below"%>
+                        </span>
+
+                        <% if (!isMaxTier) {%>
                         <div class="membership-card__footer">
                             <div class="membership-card__stat-item">
-                                <span class="membership-card__stat-label">Remaining Washes</span>
-                                <span class="membership-card__stat-val">12 Washes / Month</span>
+                                <span class="membership-card__stat-label">Washes needed</span>
+                                <span class="membership-card__stat-val"><%= remainingWashes%> Washes</span>
                             </div>
                             <div class="membership-card__stat-item">
-                                <span class="membership-card__stat-label">Remaining Spend</span>
-                                <span class="membership-card__stat-val">$140.00 Limit</span>
+                                <span class="membership-card__stat-label">Spend needed</span>
+                                <span class="membership-card__stat-val"><%= String.format("%,.0f", remainingSpend)%> VND</span>
                             </div>
                         </div>
+                        <% }%>
+
                     </div>
 
                     <!-- QUICK STATS -->
@@ -184,7 +205,7 @@
                                 </div>
                             </div>
                             <div class="stat-card__body">
-                                <span class="stat-card__value">24 Bookings</span>
+                                <span class="stat-card__value"><%= user.getTotalBooking() %></span>
                                 <span class="stat-card__change stat-card__change--up">1 Upcoming</span>
                             </div>
                         </div>
@@ -198,7 +219,7 @@
                                 </div>
                             </div>
                             <div class="stat-card__body">
-                                <span class="stat-card__value">$1,180.00</span>
+                                <span class="stat-card__value"><%= String.format("%,.0f", user.getTotalSpend())%> VND</span>
                                 <span class="stat-card__change stat-card__change--up">Lifetime loyalty</span>
                             </div>
                         </div>
