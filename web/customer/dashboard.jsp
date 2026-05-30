@@ -4,14 +4,85 @@
     Author     : Asus
 --%>
 
+<%@page import="dto.Customer"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%
+    Customer user = (Customer) session.getAttribute("USER");
+    if (user == null) {
+        response.sendRedirect("customer/landing-page.jsp");
+    }
+
+    // Next Reward
+    String nextTierName = "";
+    int remainingBookings = 0;
+    double remainingSpend = 0;
+
+    String tierName = user.getTierId().getTierName();
+
+    int currentBookings = user.getTotalBooking();
+    double currentSpend = user.getTotalSpend();
+
+    switch (tierName) {
+
+        case "Member":
+
+            nextTierName = "Silver";
+
+            remainingBookings = 5 - currentBookings;
+
+            remainingSpend = 2000000 - currentSpend;
+
+            break;
+
+        case "Silver":
+
+            nextTierName = "Gold";
+
+            remainingBookings = 15 - currentBookings;
+
+            remainingSpend = 6000000 - currentSpend;
+
+            break;
+
+        case "Gold":
+
+            nextTierName = "Platinum";
+
+            remainingBookings = 30 - currentBookings;
+
+            remainingSpend = 15000000 - currentSpend;
+
+            break;
+
+        case "Platinum":
+
+            nextTierName = "MAX";
+
+            remainingBookings = 0;
+            remainingSpend = 0;
+
+            break;
+    }
+
+// Tranh negative number
+    if (remainingBookings < 0) {
+        remainingBookings = 0;
+    }
+
+    if (remainingSpend < 0) {
+        remainingSpend = 0;
+    }
+%>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Customer Dashboard | AutoWashPro</title>
-        <link rel="stylesheet" href="../css/style.css">
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/style.css">
     </head>
     <body>
 
