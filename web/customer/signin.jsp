@@ -51,38 +51,53 @@
                     }
                 %>
 
-                <% if (request.getAttribute("ERROR") != null) {%>
-                <div class="auth-card__alert auth-card__alert--error">
-                    &#9888; <%= request.getAttribute("ERROR")%>
-                </div>
-                <% }%>
+                <% if (request.getAttribute("ERROR") != null) { %>
+                    <div style="background: rgba(239, 68, 68, 0.1); 
+                                border: 1px solid #ef4444; 
+                                color: #ef4444; 
+                                padding: 12px 16px; 
+                                border-radius: 8px; 
+                                margin-bottom: 20px; 
+                                font-size: 0.9rem; 
+                                font-weight: 600; 
+                                text-align: center; 
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center; 
+                                gap: 8px;">
+                        &#9888; <%= request.getAttribute("ERROR") %>
+                    </div>
+                <% } %>
+                <%
+                    String errorStyle = "";
+                    if (request.getAttribute("ERROR") != null) {
+                        errorStyle = "border: 1px solid #ef4444 !important; background-color: #1c1c21 !important; outline: none;";
+                    }
+                %>
 
                 <form action="MainController" method="POST">
                     <!-- Email field -->
                     <div class="form-group">
                         <label for="email" class="form-group__label">Email Address</label>
                         <div class="form-group__input-wrapper">
-                            <input type="email" id="email" class="form-group__input" placeholder="name@domain.com" 
-                                   required autocomplete="email" name="email"
-                                   maxlength="50" 
-                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                                   title="Please enter a valid email address (e.g. john@gmail.com)"
-                                   oninvalid="this.setCustomValidity('Please enter a valid email address.')"
-                                   oninput="this.setCustomValidity('')">
+                            <input type="email" id="email" class="form-group__input" 
+                                style="<%= errorStyle %>"
+                                placeholder="name@domain.com" 
+                                maxlength="50" 
+                                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                title="Please enter a valid email address (e.g. john@gmail.com)">
                         </div>
                     </div>
 
-
+                    <!-- Password field -->
                     <div class="form-group">
-                        <!-- Password field -->
                         <label for="password" class="form-group__label">Password</label>
                         <div class="form-group__input-wrapper">
-                            <input type="password" id="password" class="form-group__input" placeholder="••••••••" 
-                                   required autocomplete="current-password" name="password"
-                                   minlength="6" maxlength="20"
-                                   title="Password must be between 6 and 20 characters"
-                                   oninvalid="this.setCustomValidity('Please enter at least 6 characters.')"
-                                   oninput="this.setCustomValidity('')">
+                            <input type="password" id="password" class="form-group__input" 
+                                style="<%= errorStyle %>"
+                                placeholder="••••••••"                                 
+                                minlength="6" maxlength="20"
+                                title="Password must be between 6 and 20 characters">
                         </div>
                     </div>
                     <!-- Actions: Remember Me & Forgot Password -->
