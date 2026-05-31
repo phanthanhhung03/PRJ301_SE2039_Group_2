@@ -83,6 +83,7 @@ The loyalty system includes four membership tiers:
 
 * HTML5
 * CSS3
+* JavaScript
 * Responsive Design
 * BEM Methodology
 
