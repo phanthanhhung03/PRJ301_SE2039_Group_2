@@ -10,7 +10,8 @@
 <%
     Customer user = (Customer) session.getAttribute("USER");
     if (user == null) {
-        response.sendRedirect(request.getContextPath() + "/MainController");
+        response.sendRedirect("MainController");
+        return;
     }
 
     // === Next Reward ===
@@ -111,7 +112,7 @@
                 </nav>
                 <div class="site-header__actions">
                     <div class="status-badge status-badge--vip"><%= user.getTierId().getTierName()%> Tier</div>
-                    <a href="index.html" class="btn btn--secondary btn--sm">Logout</a>
+                    <a href="MainController?action=logout" class="btn btn--secondary btn--sm">Logout</a>
                 </div>
             </div>
         </header>

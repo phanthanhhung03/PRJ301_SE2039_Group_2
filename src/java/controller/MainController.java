@@ -45,7 +45,11 @@ public class MainController extends HttpServlet {
                 break;
 
             case "signIn":
-                url = "SigninController";
+                url = "/SigninController";
+                break;
+                
+            case "logout":
+                url = "/LogoutController"; 
                 break;
             
             case "signUp":

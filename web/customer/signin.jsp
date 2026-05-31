@@ -41,17 +41,38 @@
                     <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);color:#34d399;
                                 border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:0.875rem;">
                         &#10004; Đăng ký thành công! Vui lòng đăng nhập.
+                <% if (request.getAttribute("ERROR") != null) { %>
+                    <div style="color: #d93025; background-color: #fce8e6; padding: 10px; margin-bottom: 15px; border-radius: 6px; text-align: center; border: 1px solid #fad2cf; font-weight: 500;">
+                        <%= request.getAttribute("ERROR") %>
+                    </div>
+                <% } %>
+                
+                <form action="MainController" method="POST">
+                    <!-- Email field -->
+                    <div class="form-group">
+                        <label for="email" class="form-group__label">Email Address</label>
+                        <div class="form-group__input-wrapper">
+                            <input type="email" id="email" class="form-group__input" placeholder="name@domain.com" 
+                                   required autocomplete="email" name="email"
+                                   maxlength="50" 
+                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                   title="Vui lòng nhập đúng định dạng email (vd: nguyen@gmail.com)"
+                                   oninvalid="this.setCustomValidity('Xin vui lòng nhập đúng định dạng Email!')"
+                                   oninput="this.setCustomValidity('')">
+                        </div>
                     </div>
                     <% } %>
 
-                    <form action="MainController" method="POST">
-                        <!-- Email field -->
-                        <div class="form-group">
-                            <label for="email" class="form-group__label">Email Address</label>
-                            <div class="form-group__input-wrapper">
-                                <input type="email" id="email" class="form-group__input" placeholder="name@domain.com"
-                                    required autocomplete="email" name="email">
-                            </div>
+                    <!-- Password field -->
+                    <div class="form-group">
+                        <label for="password" class="form-group__label">Password</label>
+                        <div class="form-group__input-wrapper">
+                            <input type="password" id="password" class="form-group__input" placeholder="••••••••" 
+                                   required autocomplete="current-password" name="password"
+                                   minlength="6" maxlength="20"
+                                   title="Mật khẩu phải từ 6 đến 20 ký tự"
+                                   oninvalid="this.setCustomValidity('Xin vui lòng nhập mật khẩu tối thiểu 6 ký tự!')"
+                                   oninput="this.setCustomValidity('')">
                         </div>
 
                         <!-- Password field -->
