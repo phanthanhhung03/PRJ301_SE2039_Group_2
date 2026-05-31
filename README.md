@@ -2,6 +2,20 @@
 
 A modern vehicle wash and membership management platform developed using Java Servlet, JSP, and MVC2 architecture.
 
+## Screenshots
+
+### Landing Page
+
+<img src="docs/images/landing-page.png" width="100%">
+
+### Customer Dashboard
+
+<img src="docs/images/customer-dashboard.png" width="100%">
+
+### Admin Dashboard
+
+<img src="docs/images/admin-dashboard.png" width="100%">
+
 ## Overview
 
 AutoWashPro is a web-based system designed to streamline vehicle wash booking, membership management, loyalty rewards, and customer engagement.
