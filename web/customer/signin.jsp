@@ -51,23 +51,12 @@
                     }
                 %>
 
-                <% if (request.getAttribute("ERROR") != null) { %>
-                    <div style="background: rgba(239, 68, 68, 0.1); 
-                                border: 1px solid #ef4444; 
-                                color: #ef4444; 
-                                padding: 12px 16px; 
-                                border-radius: 8px; 
-                                margin-bottom: 20px; 
-                                font-size: 0.9rem; 
-                                font-weight: 600; 
-                                text-align: center; 
-                                display: flex; 
-                                align-items: center; 
-                                justify-content: center; 
-                                gap: 8px;">
-                        &#9888; <%= request.getAttribute("ERROR") %>
-                    </div>
-                <% } %>
+                <% if (request.getAttribute("ERROR") != null) {%>
+                <div class="auth-card__alert auth-card__alert--error">
+                    &#9888; <%= request.getAttribute("ERROR")%>
+                </div>
+                <% }%>
+                
                 <%
                     String errorStyle = "";
                     if (request.getAttribute("ERROR") != null) {
