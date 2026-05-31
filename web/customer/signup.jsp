@@ -33,7 +33,7 @@
                     <p class="auth-card__desc">Register to join the membership club, gain loyalty points, and book
                         services.</p>
 
-                    <%-- Hiển thị lỗi từ backend (email/phone trùng) --%>
+                    <%-- Show backend error (duplicate email/phone) --%>
                     <%
                         String errEmail = (String) request.getAttribute("SIGNUP_ERROR_EMAIL");
                         String errPhone = (String) request.getAttribute("SIGNUP_ERROR_PHONE");
@@ -49,7 +49,6 @@
                     </div>
                     <% } %>
 
-                    <%-- Lấy lại giá trị cũ để giữ trong form khi có lỗi --%>
                     <%
                         String oldFullName = request.getAttribute("oldFullName") != null ? (String) request.getAttribute("oldFullName") : "";
                         String oldPhone    = request.getAttribute("oldPhone")    != null ? (String) request.getAttribute("oldPhone")    : "";
@@ -116,7 +115,12 @@
 
                     <!-- Footer signin link -->
                     <div class="auth-card__footer">
-                        Already have an account? <a href="${pageContext.request.contextPath}/MainController?action=viewSignIn" class="auth-card__footer-link">Sign In</a>
+                        Already have an account? 
+                        <form action="${pageContext.request.contextPath}/MainController" 
+                            method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="viewSignIn">
+                            <button type="submit" class="auth-card__footer-link">Sign In</button>
+                        </form>
                     </div>
 
                 </div>

@@ -35,18 +35,19 @@
 
                     <%-- Hiển thị thông báo đăng ký thành công --%>
                     <%
-                        String registered = request.getParameter("registered");
-                        if ("true".equals(registered)) {
+                        String registered = (String) request.getAttribute("REGISTERED_SUCCESS");
                     %>
+                    <% if (registered != null) { %>
                     <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);color:#34d399;
                                 border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:0.875rem;">
-                        &#10004; Đăng ký thành công! Vui lòng đăng nhập.
-                <% if (request.getAttribute("ERROR") != null) { %>
+                        &#10004; <%= registered %>
+                    </div>
+                    <% } %>
+                    <% if (request.getAttribute("ERROR") != null) { %>
                     <div style="color: #d93025; background-color: #fce8e6; padding: 10px; margin-bottom: 15px; border-radius: 6px; text-align: center; border: 1px solid #fad2cf; font-weight: 500;">
                         <%= request.getAttribute("ERROR") %>
                     </div>
-                <% } %>
-                
+                    <% } %>
                 <form action="MainController" method="POST">
                     <!-- Email field -->
                     <div class="form-group">
@@ -61,7 +62,7 @@
                                    oninput="this.setCustomValidity('')">
                         </div>
                     </div>
-                    <% } %>
+                    
 
                     <!-- Password field -->
                     <div class="form-group">
@@ -73,15 +74,6 @@
                                    title="Mật khẩu phải từ 6 đến 20 ký tự"
                                    oninvalid="this.setCustomValidity('Xin vui lòng nhập mật khẩu tối thiểu 6 ký tự!')"
                                    oninput="this.setCustomValidity('')">
-                        </div>
-
-                        <!-- Password field -->
-                        <div class="form-group">
-                            <label for="password" class="form-group__label">Password</label>
-                            <div class="form-group__input-wrapper">
-                                <input type="password" id="password" class="form-group__input" placeholder="••••••••"
-                                    required autocomplete="current-password" name="password">
-                            </div>
                         </div>
 
                         <!-- Actions: Remember Me & Forgot Password -->
@@ -100,7 +92,12 @@
 
                     <!-- Footer signup link -->
                     <div class="auth-card__footer">
-                        Don't have an account? <a href="${pageContext.request.contextPath}/MainController?action=viewSignUp" class="auth-card__footer-link">Create Account</a>
+                        Don't have an account? 
+                        <form action="${pageContext.request.contextPath}/MainController" 
+                            method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="viewSignUp">
+                            <button type="submit" class="auth-card__footer-link">Create Account</button>
+                        </form>
                     </div>
 
                 </div>

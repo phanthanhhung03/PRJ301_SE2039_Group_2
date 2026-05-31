@@ -54,10 +54,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function validateFullname() {
         var val = fnEl.value.trim();
         if (!val) {
-            showError(fnEl, 'Họ tên không được để trống.'); return false;
+            showError(fnEl, 'FullName is required'); return false;
         }
         if (!/^[A-Za-zÀ-ỹ\s]{2,100}$/.test(val)) {
-            showError(fnEl, 'Họ tên chỉ gồm chữ cái, tối thiểu 2 ký tự.'); return false;
+            showError(fnEl, 'Full name must contain only letters and be at least 2 characters long.'); return false;
         }
         markValid(fnEl); return true;
     }
@@ -65,10 +65,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function validatePhone() {
         var val = phEl.value.trim();
         if (!val) {
-            showError(phEl, 'Số điện thoại không được để trống.'); return false;
+            showError(phEl, 'Phone is required'); return false;
         }
         if (!/^(0[35789])\d{8}$/.test(val)) {
-            showError(phEl, 'Số điện thoại không hợp lệ. Ví dụ: 0901234567'); return false;
+            showError(phEl, 'Invalid Phone. E.g., 0901234567'); return false;
         }
         markValid(phEl); return true;
     }
@@ -76,10 +76,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function validateEmail() {
         var val = emEl.value.trim();
         if (!val) {
-            showError(emEl, 'Email không được để trống.'); return false;
+            showError(emEl, 'Email is required.'); return false;
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-            showError(emEl, 'Email không hợp lệ. Ví dụ: example@gmail.com'); return false;
+            showError(emEl, 'Invalid email. E.g., example@gmail.com'); return false;
         }
         markValid(emEl); return true;
     }
@@ -87,27 +87,27 @@ document.addEventListener('DOMContentLoaded', function () {
     function validateAddress() {
         var val = adEl.value.trim();
         if (!val || val.length < 5) {
-            showError(adEl, 'Địa chỉ phải có ít nhất 5 ký tự.'); return false;
+            showError(adEl, 'Address must be at least 5 characters long.'); return false;
         }
         markValid(adEl); return true;
     }
 
     function validatePassword() {
         if (!pwEl.value) {
-            showError(pwEl, 'Mật khẩu không được để trống.'); return false;
+            showError(pwEl, 'Password is required'); return false;
         }
         if (pwEl.value.length < 6) {
-            showError(pwEl, 'Mật khẩu phải có ít nhất 6 ký tự.'); return false;
+            showError(pwEl, 'Passord must be at least 5 characters long.'); return false;
         }
         markValid(pwEl); return true;
     }
 
     function validateConfirm() {
         if (!cpEl.value) {
-            showError(cpEl, 'Vui lòng xác nhận mật khẩu.'); return false;
+            showError(cpEl, 'Enter password again'); return false;
         }
         if (cpEl.value !== pwEl.value) {
-            showError(cpEl, 'Mật khẩu xác nhận không khớp.'); return false;
+            showError(cpEl, 'Passwords do not match.'); return false;
         }
         markValid(cpEl); return true;
     }

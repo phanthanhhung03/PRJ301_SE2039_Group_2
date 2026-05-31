@@ -61,24 +61,25 @@ public class SignupController extends HttpServlet {
             // Kiểm tra trùng lặp Database
             if (check1 != null) {
                 request.setAttribute("SIGNUP_ERROR", "true");
-                request.setAttribute("SIGNUP_ERROR_EMAIL", "Email này đã được đăng ký.");
+                request.setAttribute("SIGNUP_ERROR_EMAIL", "This Email address is already in use.");
                 request.getRequestDispatcher("/customer/signup.jsp").forward(request, response);
             } else if (check2 != null) {
                 request.setAttribute("SIGNUP_ERROR", "true");
-                request.setAttribute("SIGNUP_ERROR_PHONE", "Số điện thoại này đã được đăng ký.");
+                request.setAttribute("SIGNUP_ERROR_PHONE", "This phone number is already in use.");
                 request.getRequestDispatcher("/customer/signup.jsp").forward(request, response);
             } else {
                 int result = dao.createCustomer(c);
                 if (result >= 1) {
-                    // Đăng ký thành công -> Xóa dữ liệu cũ đi để form trống trải, chuẩn bị cho lần đăng nhập
+                    //Reset form after successful registration.
                     request.removeAttribute("oldFullName");
                     request.removeAttribute("oldEmail");
                     request.removeAttribute("oldPhone");
                     request.removeAttribute("oldAddress");
-                    response.sendRedirect(request.getContextPath()
-                            + "/MainController?action=viewSignIn&registered=true");
+                    request.setAttribute("REGISTERED_SUCCESS",
+                    "Your account has been created successfully. Please sign in to continue.");
+                    request.getRequestDispatcher("/customer/signin.jsp").forward(request, response);
                 } else {
-                    request.setAttribute("SIGNUP_ERROR", "Lỗi hệ thống. Vui lòng thử lại sau.");
+                    request.setAttribute("SIGNUP_ERROR", "Something went wrong. Please try again later.");
                     request.getRequestDispatcher("/customer/signup.jsp").forward(request, response);
                 }
             }
