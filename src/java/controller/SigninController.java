@@ -26,13 +26,6 @@ public class SigninController extends HttpServlet {
             String email = request.getParameter("email");
             String password = request.getParameter("password");
 
-            //  Kiểm tra rỗng hoặc toàn khoảng trắng
-            if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-                request.setAttribute("ERROR", "Please fill out this field");
-                request.getRequestDispatcher("/customer/signin.jsp").forward(request, response);
-                return;
-            }
-
             // Dọn dẹp khoảng trắng dư thừa do copy/paste ở ô email
             email = email.trim();
 
