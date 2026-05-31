@@ -49,14 +49,14 @@
                 </div>
                 <%
                     }
-                %>
-
+                %>              
+                
                 <% if (request.getAttribute("ERROR") != null) {%>
                 <div class="auth-card__alert auth-card__alert--error">
                     &#9888; <%= request.getAttribute("ERROR")%>
                 </div>
                 <% }%>
-                
+
                 <%
                     String errorStyle = "";
                     if (request.getAttribute("ERROR") != null) {
