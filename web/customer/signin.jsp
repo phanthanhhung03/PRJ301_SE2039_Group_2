@@ -83,6 +83,7 @@
                             <input type="email" id="email" class="form-group__input" 
                                 style="<%= errorStyle %>"
                                 placeholder="name@domain.com" 
+                                required autocomplete="email" name="email" value="${param.email}"
                                 maxlength="50" 
                                 pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                                 title="Please enter a valid email address (e.g. john@gmail.com)">
@@ -95,7 +96,8 @@
                         <div class="form-group__input-wrapper">
                             <input type="password" id="password" class="form-group__input" 
                                 style="<%= errorStyle %>"
-                                placeholder="••••••••"                                 
+                                placeholder="••••••••" 
+                                required autocomplete="current-password" name="password"
                                 minlength="6" maxlength="20"
                                 title="Password must be between 6 and 20 characters">
                         </div>
