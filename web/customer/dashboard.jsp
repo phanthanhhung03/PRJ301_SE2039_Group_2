@@ -120,7 +120,7 @@
                             </div>
                             <div class="stat-card__body">
                                 <span class="stat-card__value">${totalVehicles}</span>
-                                <span class="stat-card__change stat-card__change--up">+1 this month</span>
+                                <span class="stat-card__change stat-card__change--up"></span> <!<!-- View thang nay add them bao nhieu xe (Comming Soon) -->
                             </div>
                         </div>
 
@@ -134,7 +134,7 @@
                             </div>
                             <div class="stat-card__body">
                                 <span class="stat-card__value"><%= user.getTotalBooking()%></span>
-                                <span class="stat-card__change stat-card__change--up">1 Upcoming</span>
+                                <span class="stat-card__change stat-card__change--up"></span> <!<!-- View booking trong tuong lai (Comming Soon) -->
                             </div>
                         </div>
 
@@ -148,7 +148,7 @@
                             </div>
                             <div class="stat-card__body">
                                 <span class="stat-card__value"><%= String.format("%,.0f", user.getTotalSpend())%> VND</span>
-                                <span class="stat-card__change stat-card__change--up">Lifetime loyalty</span>
+                                <span class="stat-card__change stat-card__change--up"></span>
                             </div>
                         </div>
                     </div>
