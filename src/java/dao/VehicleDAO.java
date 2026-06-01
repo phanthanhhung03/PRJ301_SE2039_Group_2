@@ -77,4 +77,57 @@ public class VehicleDAO {
 
         return result;
     }
+
+    public int countVehiclesByCustomer(int customerId) {
+        int totalVehicles = 0;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet table = null;
+
+        try {
+            //Step 1: Make Connection
+            cn = dbutils.DBUtils.getConnection();
+
+            if (cn != null) {
+                //Step 2: Querry SQL
+                String sql = "SELECT CustomerID ,COUNT(VehicleID) AS TotalVehicles\n"
+                        + "FROM [dbo].[Vehicles]\n"
+                        + "WHERE CustomerID = ?\n"
+                        + "GROUP BY CustomerID";
+
+                //Step 3:
+                st = cn.prepareStatement(sql);
+                st.setInt(1, customerId);
+
+                //Step 4
+                table = st.executeQuery();
+                if (table.next()) {
+                    totalVehicles = table.getInt("TotalVehicles");
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+
+                if (table != null) {
+                    table.close();
+                }
+
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return totalVehicles;
+    }
 }
