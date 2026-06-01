@@ -36,20 +36,13 @@
                 </p>
 
                 <%
-                    String registered = request.getParameter("registered");
-                    if ("true".equals(registered)) {
+                    String registered = (String) request.getAttribute("REGISTERED_SUCCESS");
                 %>
-                <div style="background: rgba(16,185,129,0.12);
-                     border: 1px solid rgba(16,185,129,0.35);
-                     color: #34d399;
-                     border-radius: 10px;
-                     padding: 12px 16px;
-                     margin-bottom: 18px;">
-                    Your account has been created successfully. Please sign in to continue.
+                <% if (registered != null) { %>
+                <div class="auth-card__alert auth-card__alert--success">
+                    &#10004; <%= registered %>
                 </div>
-                <%
-                    }
-                %>              
+                <% } %>             
                 
                 <% if (request.getAttribute("ERROR") != null) {%>
                 <div class="auth-card__alert auth-card__alert--error">

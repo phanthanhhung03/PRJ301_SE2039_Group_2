@@ -33,7 +33,7 @@
                 <p class="auth-card__desc">Register to join the membership club, gain loyalty points, and book
                     services.</p>
 
-                <%-- Hiển thị lỗi từ backend (email/phone trùng) --%>
+                <%-- Show errors from backend (duplicate email/phone) --%>
                 <%
                     String errEmail = (String) request.getAttribute("SIGNUP_ERROR_EMAIL");
                     String errPhone = (String) request.getAttribute("SIGNUP_ERROR_PHONE");
@@ -46,7 +46,7 @@
                 <div class="auth-card__alert auth-card__alert--error">&#9888; <%= displayErr%></div>
                 <% } %>
 
-                <%-- Lấy lại giá trị cũ để giữ trong form khi có lỗi --%>
+                
                 <%
                     String oldFullName = request.getAttribute("oldFullName") != null ? (String) request.getAttribute("oldFullName") : "";
                     String oldPhone = request.getAttribute("oldPhone") != null ? (String) request.getAttribute("oldPhone") : "";
