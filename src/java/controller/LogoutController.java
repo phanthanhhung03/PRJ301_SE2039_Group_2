@@ -38,16 +38,15 @@ public class LogoutController extends HttpServlet {
 
             // Nếu tìm thấy session thì Hủy nó đi
             if (session != null) {
-                session.invalidate(); 
+                session.invalidate();
             }
 
             // Đá người dùng về trang chủ (Landing Page) thông qua MainController
             response.sendRedirect("MainController?action=landing");
-            } catch(Exception e){
-                e.printStackTrace();
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

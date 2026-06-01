@@ -1,11 +1,9 @@
-
 package dao;
 
 import dbutils.DBUtils;
 import dto.Customer;
 import dto.CustomerTier;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -15,38 +13,39 @@ import java.sql.ResultSet;
  */
 public class CustomerDAO {
 
-    public int createCustomer(Customer c){
-        int result=0;
-        Connection cn=null;
+    public int createCustomer(Customer c) {
+        int result = 0;
+        Connection cn = null;
         try {
             //buoc 1: make connection
-            cn=DBUtils.getConnection();
-            if(cn!=null){
+            cn = DBUtils.getConnection();
+            if (cn != null) {
                 //buoc 2 : viet sql
                 String sql = "insert dbo.Customers([FullName], [PhoneNumber], [Email], [Password], [Address])\n"
                         + "values(?, ?, ?, ?, ?)";
-                PreparedStatement st=cn.prepareStatement(sql);
+                PreparedStatement st = cn.prepareStatement(sql);
                 st.setString(1, c.getFullName());
                 st.setString(2, c.getPhoneNumber());
                 st.setString(3, c.getEmail());
                 st.setString(4, c.getPassword());
                 st.setString(5, c.getAddress());
-                result=st.executeUpdate();
+                result = st.executeUpdate();
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
                 //buoc 4
-                if(cn!=null) 
+                if (cn != null) {
                     cn.close();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         return result;
     }
-    
+
     public Customer getCustomer(String email, String password) {
         Customer result = null;
         Connection cn = null;
@@ -72,7 +71,7 @@ public class CustomerDAO {
                         + "t.DiscountPercent, "
                         + "t.PriorityLevel, "
                         + "t.BookingWindowDays "
-                        + "FROM Customers c " + "JOIN CustomerTiers t " + "ON c.TierID = t.TierID " 
+                        + "FROM Customers c " + "JOIN CustomerTiers t " + "ON c.TierID = t.TierID "
                         + "WHERE c.Email = ? " + "AND c.Password = ?";
 
                 // Step 3
@@ -82,8 +81,6 @@ public class CustomerDAO {
                 st.setString(2, password);
 
                 // Step 4
-                System.out.println("DAO EMAIL = [" + email + "]");
-                System.out.println("DAO PASSWORD = [" + password + "]");
                 table = st.executeQuery();
 
                 if (table.next()) {
@@ -212,7 +209,7 @@ public class CustomerDAO {
         }
         return result;
     }
-    
+
     public Customer getCustomer2(String phone) {
         Customer result = null;
         Connection cn = null;
@@ -284,4 +281,3 @@ public class CustomerDAO {
         return result;
     }
 }
-

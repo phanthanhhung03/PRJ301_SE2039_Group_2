@@ -13,6 +13,7 @@ import java.sql.SQLException;
  * @author user
  */
 public class DBUtils {
+
     //    Do not change this code
     private static final String DB_NAME = "AutoWashProDB";
     private static final String DB_USER_NAME = "SA";

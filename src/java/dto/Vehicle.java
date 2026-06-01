@@ -16,11 +16,11 @@ public class Vehicle {
     }
 
     public Vehicle(int vehicleID,
-                   int customerID,
-                   String licensePlate,
-                   String brand,
-                   String model,
-                   String color) {
+            int customerID,
+            String licensePlate,
+            String brand,
+            String model,
+            String color) {
 
         this.vehicleID = vehicleID;
         this.customerID = customerID;

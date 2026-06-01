@@ -8,6 +8,11 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <%
+    // Ép Dashboard luôn moi, không được dùng Cache
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+    
     Customer user = (Customer) session.getAttribute("USER");
     if (user == null) {
         response.sendRedirect("MainController");
@@ -96,7 +101,7 @@
               href="${pageContext.request.contextPath}/css/style.css">
     </head>
     <body>
-
+        
         <!-- NAVIGATION -->
         <header class="site-header">
             <div class="site-header__container main-wrapper">
