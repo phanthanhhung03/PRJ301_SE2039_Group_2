@@ -8,87 +8,9 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <%
-    // Ép Dashboard luôn moi, không được dùng Cache
-    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-    response.setHeader("Pragma", "no-cache");
-    response.setDateHeader("Expires", 0);
-    
     Customer user = (Customer) session.getAttribute("USER");
-    if (user == null) {
-        response.sendRedirect("MainController");
-        return;
-    }
-
-    // === Next Reward ===
-    String nextTierName = null;
-
-    String tierName = user.getTierId().getTierName();
-    int currentBookings = user.getTotalBooking();
-    double currentSpend = user.getTotalSpend();
-
-    // Target
-    double bookingTarget = 0;
-    double spendTarget = 0;
-
-    switch (tierName) {
-
-        case "Member":
-
-            nextTierName = "Silver";
-            bookingTarget = 5;
-            spendTarget = 2000000;
-
-            break;
-
-        case "Silver":
-
-            nextTierName = "Gold";
-            bookingTarget = 15;
-            spendTarget = 6000000;
-
-            break;
-
-        case "Gold":
-
-            nextTierName = "Platinum";
-            bookingTarget = 30;
-            spendTarget = 15000000;
-
-            break;
-
-        case "Platinum":
-            break;
-
-    }
-
-    // Calculate Remaining Washes , Spend , Percent and Points
-    int remainingWashes = 0;
-    double remainingSpend = 0;
-    double progressPercent = 100;
-    int remainingPoints = 0;
-
-    boolean isMaxTier = "Platinum".equals(tierName);
-    if (!isMaxTier) {
-
-        remainingWashes = (int) Math.max(0, bookingTarget - currentBookings);
-
-        remainingSpend = Math.max(0, spendTarget - currentSpend);
-
-        progressPercent = Math.min(100,
-                Math.max(
-                        currentBookings * 100.0 / bookingTarget,
-                        currentSpend * 100.0 / spendTarget
-                )
-        );
-
-        remainingPoints = (int) Math.ceil(remainingSpend / 1000.0);
-    }
-
-    // Finding Member Tier
-    String tierMessage = isMaxTier ? "Highest Tier Achieved" : "Next Tier: " + nextTierName;
-    String progressMessage = isMaxTier ? "Platinum Member" : String.format("%,d pts remaining", remainingPoints);
-// === Ending Next Reward ===
-
+    boolean isMaxTier
+            = (Boolean) request.getAttribute("isMaxTier");
 %>
 
 <!DOCTYPE html>
@@ -101,7 +23,7 @@
               href="${pageContext.request.contextPath}/css/style.css">
     </head>
     <body>
-        
+
         <!-- NAVIGATION -->
         <header class="site-header">
             <div class="site-header__container main-wrapper">
@@ -156,11 +78,11 @@
                                 <span class="membership-card__points-label">Loyalty Points</span>
                             </div>
                             <div class="membership-card__progress-bar">
-                                <div class="membership-card__progress-fill"  style="width:<%= progressPercent%>%;"></div>
+                                <div class="membership-card__progress-fill"  style="width:${progressPercent}%;"></div>
                             </div>
                             <div class="membership-card__goal-progress">
-                                <span><%= tierMessage%></span>
-                                <span><%= progressMessage%></span>
+                                <span>${tierMessage}</span>
+                                <span>${progressMessage}</span>
                             </div>
 
                         </div>
@@ -175,11 +97,11 @@
                         <div class="membership-card__footer">
                             <div class="membership-card__stat-item">
                                 <span class="membership-card__stat-label">Washes needed</span>
-                                <span class="membership-card__stat-val"><%= remainingWashes%> Washes</span>
+                                <span class="membership-card__stat-val">${remainingWashes} Washes</span>
                             </div>
                             <div class="membership-card__stat-item">
                                 <span class="membership-card__stat-label">Spend needed</span>
-                                <span class="membership-card__stat-val"><%= String.format("%,.0f", remainingSpend)%> VND</span>
+                                <span class="membership-card__stat-val">${formattedRemainingSpend} VND</span>
                             </div>
                         </div>
                         <% }%>
@@ -197,7 +119,7 @@
                                 </div>
                             </div>
                             <div class="stat-card__body">
-                                <span class="stat-card__value">3</span>
+                                <span class="stat-card__value">${totalVehicles}</span>
                                 <span class="stat-card__change stat-card__change--up">+1 this month</span>
                             </div>
                         </div>
