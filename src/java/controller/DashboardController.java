@@ -77,6 +77,8 @@ public class DashboardController extends HttpServlet {
         double progressPercent = 100;
         int remainingPoints = 0;
 
+        int currentPoints = (int) Math.ceil(currentSpend / 1000.0);
+
         boolean isMaxTier = "Platinum".equals(tierName);
         if (!isMaxTier) {
 
@@ -112,6 +114,13 @@ public class DashboardController extends HttpServlet {
         request.setAttribute(
                 "progressMessage",
                 progressMessage);
+
+        String formattedCurrentPoints
+                = String.format("%,d", currentPoints);
+
+        request.setAttribute(
+                "formattedCurrentPoints",
+                formattedCurrentPoints);
 
         request.setAttribute(
                 "progressPercent",

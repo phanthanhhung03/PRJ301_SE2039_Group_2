@@ -74,7 +74,7 @@
 
                         <div class="membership-card__body">
                             <div class="membership-card__points">
-                                <span class="membership-card__points-val"><%= user.getCurrentPoint()%></span>
+                                <span class="membership-card__points-val">${formattedCurrentPoints}</span>
                                 <span class="membership-card__points-label">Loyalty Points</span>
                             </div>
                             <div class="membership-card__progress-bar">
