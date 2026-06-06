@@ -11,24 +11,31 @@ public class Vehicle {
     private String brand;
     private String model;
     private String color;
-
+    private Date createAt;
+    private Boolean status;
+    
     public Vehicle() {
     }
 
-    public Vehicle(int vehicleID,
-            int customerID,
-            String licensePlate,
-            String brand,
-            String model,
-            String color) {
-
+    public Vehicle(int vehicleID, int customerID, String licensePlate, String brand, String model, String color, Date createAt) {
         this.vehicleID = vehicleID;
         this.customerID = customerID;
         this.licensePlate = licensePlate;
         this.brand = brand;
         this.model = model;
         this.color = color;
+        this.createAt = createAt;
     }
+
+    public Date getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(Date createAt) {
+        this.createAt = createAt;
+    }
+
+    
 
     public int getVehicleID() {
         return vehicleID;

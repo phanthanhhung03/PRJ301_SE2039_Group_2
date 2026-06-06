@@ -6,13 +6,12 @@ package dao;
 
 import dto.Customer;
 import dto.Vehicle;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import dto.Vehicle;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -20,7 +19,7 @@ import java.sql.PreparedStatement;
  */
 public class VehicleDAO {
 
-    public int createVehicle(Vehicle vehicle) {
+    public int insertVehicle(Vehicle vehicle) {
 
         int result = 0;
         Connection cn = null;
@@ -129,5 +128,62 @@ public class VehicleDAO {
         }
 
         return totalVehicles;
+    }
+
+    public List<Vehicle> getVehiclesByCustomerId(int customerId) {
+        List<Vehicle> vehicleList = new ArrayList<>();
+        PreparedStatement st = null;
+        ResultSet table = null;
+        Connection cn = null;
+        try {
+            cn = dbutils.DBUtils.getConnection();
+
+            if (cn == null) {
+                System.out.println("CANNOT CONNECT TO SQL");
+                return vehicleList;
+            }
+
+            String sql = "SELECT [VehicleID], [LicensePlate], [Brand], [Model], [Color], [CreatedAt]\n"
+                    + "FROM Vehicles\n"
+                    + "WHERE CustomerID = ? AND Status = ?";
+
+            st = cn.prepareStatement(sql);
+            st.setInt(1, customerId);
+            st.setBoolean(2, true);
+
+            table = st.executeQuery();
+            while (table.next()) {
+                Vehicle vehicle = new Vehicle(
+                        table.getInt("VehicleID"),
+                        customerId,
+                        table.getString("LicensePlate"),
+                        table.getString("Brand"),
+                        table.getString("Model"),
+                        table.getString("Color"),
+                        table.getDate("CreatedAt"));
+
+                vehicleList.add(vehicle);
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (table != null) {
+                    table.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return vehicleList;
     }
 }

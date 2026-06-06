@@ -24,10 +24,6 @@
               href="${pageContext.request.contextPath}/css/style.css">
     </head>
     <body>
-        <%
-            System.out.println("LANDING PAGE EXECUTED");
-            System.out.println("LANDING USER = " + session.getAttribute("USER"));
-        %>
         <!-- 1. NAVIGATION -->
         <header class="site-header">
             <div class="site-header__container main-wrapper">
