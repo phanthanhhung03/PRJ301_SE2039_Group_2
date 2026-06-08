@@ -72,6 +72,10 @@ public class MainController extends HttpServlet {
                 url = "/dashboard";
                 break;
 
+            case "viewAddVehicle":
+                url = "/customer/addVehicle.jsp";
+                break;
+
             case "viewAdminSignIn":
                 if (request.getSession().getAttribute("ADMIN_USER") != null) {
                     response.sendRedirect("MainController?action=viewAdminDashboard");
@@ -80,12 +84,16 @@ public class MainController extends HttpServlet {
                 url = "/admin/admin-login.jsp";
                 break;
 
-            case "adminSignInProcess":              
+            case "adminSignInProcess":
                 url = "/AdminSigninController";
                 break;
 
             case "viewAdminDashboard":
                 url = "/AdminDashboardController";
+                break;
+
+            case "registerVehicle":
+                url = "/vehicle/register";
                 break;
 
             default:

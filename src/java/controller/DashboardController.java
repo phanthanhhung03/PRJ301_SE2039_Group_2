@@ -2,7 +2,9 @@ package controller;
 
 import dao.VehicleDAO;
 import dto.Customer;
+import dto.Vehicle;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -21,7 +23,10 @@ public class DashboardController extends HttpServlet {
         response.setDateHeader("Expires", 0);
 
         Customer user = (Customer) request.getSession().getAttribute("USER");
-
+        
+        VehicleDAO vd = new VehicleDAO();
+        List<Vehicle> vehicleList = vd.getVehiclesByCustomerId(user.getCusId());
+        
         if (user == null) {
             response.sendRedirect(
                     request.getContextPath()
@@ -101,8 +106,7 @@ public class DashboardController extends HttpServlet {
         String progressMessage = isMaxTier ? "Platinum Member" : String.format("%,d pts remaining", remainingPoints);
 
         //Total Vehicles
-        VehicleDAO vd = new VehicleDAO();
-        int totalVehicles = vd.countVehiclesByCustomer(user.getCusId());
+        int totalVehicles = vehicleList.size();
 
         //Set data forward to JSP
         request.setAttribute(
@@ -145,6 +149,7 @@ public class DashboardController extends HttpServlet {
                 "formattedRemainingSpend",
                 formattedRemainingSpend);
 
+        request.getSession().setAttribute("vehicleList", vehicleList);
         request.getRequestDispatcher("/customer/dashboard.jsp").forward(request, response);
 
     }

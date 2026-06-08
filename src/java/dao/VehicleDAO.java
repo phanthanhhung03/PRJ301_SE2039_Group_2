@@ -77,59 +77,6 @@ public class VehicleDAO {
         return result;
     }
 
-    public int countVehiclesByCustomer(int customerId) {
-        int totalVehicles = 0;
-        Connection cn = null;
-        PreparedStatement st = null;
-        ResultSet table = null;
-
-        try {
-            //Step 1: Make Connection
-            cn = dbutils.DBUtils.getConnection();
-
-            if (cn != null) {
-                //Step 2: Querry SQL
-                String sql = "SELECT CustomerID ,COUNT(VehicleID) AS TotalVehicles\n"
-                        + "FROM [dbo].[Vehicles]\n"
-                        + "WHERE CustomerID = ?\n"
-                        + "GROUP BY CustomerID";
-
-                //Step 3:
-                st = cn.prepareStatement(sql);
-                st.setInt(1, customerId);
-
-                //Step 4
-                table = st.executeQuery();
-                if (table.next()) {
-                    totalVehicles = table.getInt("TotalVehicles");
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-
-                if (table != null) {
-                    table.close();
-                }
-
-                if (st != null) {
-                    st.close();
-                }
-
-                if (cn != null) {
-                    cn.close();
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return totalVehicles;
-    }
-
     public List<Vehicle> getVehiclesByCustomerId(int customerId) {
         List<Vehicle> vehicleList = new ArrayList<>();
         PreparedStatement st = null;
@@ -186,4 +133,98 @@ public class VehicleDAO {
 
         return vehicleList;
     }
+
+    public Vehicle getVehicleByLicensePlate(String licensePlate) {
+        Vehicle vehicle = null;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet table = null;
+
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn == null) {
+                System.out.println("CANNOT CONNECT TO SQL");
+                return vehicle;
+            }
+
+            String sql = "SELECT [VehicleID], [CustomerID] ,[LicensePlate], [Brand], [Model], [Color], [CreatedAt], [Status]\n"
+                    + "FROM Vehicles\n"
+                    + "WHERE UPPER(LicensePlate) = UPPER(?)";
+
+            st = cn.prepareStatement(sql);
+            st.setString(1, licensePlate);
+
+            table = st.executeQuery();
+            if (table.next()) {
+                vehicle = new Vehicle(
+                        table.getInt("VehicleID"),
+                        table.getInt("CustomerID"),
+                        licensePlate,
+                        table.getString("Brand"),
+                        table.getString("Model"),
+                        table.getString("Color"),
+                        table.getDate("CreatedAt"),
+                        table.getBoolean("Status")
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (table != null) {
+                    table.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return vehicle;
+    }
+
+    public int restoreVehicle(int vehicleId) {
+        int result = 0;
+        Connection cn = null;
+        PreparedStatement st = null;
+
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn == null) {
+                System.out.println("CANNOT CONNECT TO SQL");
+                return result;
+            }
+            String sql
+                    = "UPDATE [dbo].[Vehicles]\n"
+                    + "   SET [Status] = 1\n"
+                    + " WHERE VehicleID = ?\n";
+
+            st = cn.prepareStatement(sql);
+            st.setInt(1, vehicleId);
+            result = st.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+
+    }
+
 }

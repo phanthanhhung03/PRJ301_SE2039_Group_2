@@ -13,8 +13,16 @@ public class Vehicle {
     private String color;
     private Date createAt;
     private Boolean status;
-    
+
     public Vehicle() {
+    }
+
+    public Vehicle(int customerID, String licensePlate, String brand, String model, String color) {
+        this.customerID = customerID;
+        this.licensePlate = licensePlate;
+        this.brand = brand;
+        this.model = model;
+        this.color = color;
     }
 
     public Vehicle(int vehicleID, int customerID, String licensePlate, String brand, String model, String color, Date createAt) {
@@ -27,6 +35,25 @@ public class Vehicle {
         this.createAt = createAt;
     }
 
+    public Vehicle(
+            int vehicleID,
+            int customerID,
+            String licensePlate,
+            String brand,
+            String model,
+            String color,
+            Date createdAt,
+            boolean status) {
+        this.vehicleID = vehicleID;
+        this.customerID = customerID;
+        this.licensePlate = licensePlate;
+        this.brand = brand;
+        this.model = model;
+        this.color = color;
+        this.createAt = createAt;
+        this.status = status;
+    }
+
     public Date getCreateAt() {
         return createAt;
     }
@@ -35,7 +62,13 @@ public class Vehicle {
         this.createAt = createAt;
     }
 
-    
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
 
     public int getVehicleID() {
         return vehicleID;
