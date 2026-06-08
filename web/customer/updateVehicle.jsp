@@ -8,40 +8,6 @@
 <%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
-<%
-    // Try to get vehicle from request attribute (set by future controllers)
-    Vehicle vehicle = (Vehicle) request.getAttribute("VEHICLE");
-    
-    // Fallback: Try to find vehicle by vehicleID parameter within the session's vehicleList
-    if (vehicle == null) {
-        String vehicleIDParam = request.getParameter("vehicleID");
-        List<Vehicle> vehicleList = (List<Vehicle>) session.getAttribute("vehicleList");
-        if (vehicleIDParam != null && vehicleList != null) {
-            try {
-                int targetID = Integer.parseInt(vehicleIDParam);
-                for (Vehicle v : vehicleList) {
-                    if (v.getVehicleID() == targetID) {
-                        vehicle = v;
-                        break;
-                    }
-                }
-            } catch (NumberFormatException e) {
-                // Ignore parse errors
-            }
-        }
-    }
-    
-    // Standard preview fallback mock if accessed directly
-    if (vehicle == null) {
-        vehicle = new Vehicle();
-        vehicle.setVehicleID(0);
-        vehicle.setLicensePlate("51A-12345");
-        vehicle.setBrand("Toyota");
-        vehicle.setModel("Vios");
-        vehicle.setColor("White");
-    }
-%>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -64,6 +30,9 @@
     </head>
 
     <body>
+        <%
+            Vehicle vehicle = (Vehicle) request.getAttribute("VEHICLE");
+        %>
 
         <main class="main-wrapper main-wrapper--narrow">
             <div class="auth-card glass-panel">
@@ -91,7 +60,7 @@
                 <form action="MainController" method="POST">
                     <!-- Action details -->
                     <input type="hidden" name="action" value="updateVehicle">
-                    <input type="hidden" name="vehicleID" value="<%= vehicle.getVehicleID() %>">
+                    <input type="hidden" name="vehicleID" value="<%= vehicle.getVehicleID()%>">
 
                     <div class="form-row">
                         <!-- License Plate (Read-Only) -->
@@ -103,7 +72,7 @@
                                 <input type="text"
                                        name="licensePlate"
                                        class="form-group__input"
-                                       value="<%= vehicle.getLicensePlate() %>"
+                                       value="<%= vehicle.getLicensePlate()%>"
                                        readonly
                                        style="opacity: 0.65; cursor: not-allowed; background: rgba(255, 255, 255, 0.01);"
                                        title="License plate cannot be changed. Contact support for assistance.">
@@ -120,17 +89,17 @@
                                         class="form-group__input form-group__select"
                                         required>
                                     <option value="">Select Brand</option>
-                                    <option value="Toyota" <%= "Toyota".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : "" %>>Toyota</option>
-                                    <option value="Honda" <%= "Honda".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : "" %>>Honda</option>
-                                    <option value="Mazda" <%= "Mazda".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : "" %>>Mazda</option>
-                                    <option value="Hyundai" <%= "Hyundai".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : "" %>>Hyundai</option>
-                                    <option value="Kia" <%= "Kia".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : "" %>>Kia</option>
-                                    <option value="Ford" <%= "Ford".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : "" %>>Ford</option>
-                                    <option value="BMW" <%= "BMW".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : "" %>>BMW</option>
-                                    <option value="Mercedes-Benz" <%= "Mercedes-Benz".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : "" %>>Mercedes-Benz</option>
-                                    <option value="Audi" <%= "Audi".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : "" %>>Audi</option>
-                                    <option value="Lexus" <%= "Lexus".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : "" %>>Lexus</option>
-                                    <option value="VinFast" <%= "VinFast".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : "" %>>VinFast</option>
+                                    <option value="Toyota" <%= "Toyota".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : ""%>>Toyota</option>
+                                    <option value="Honda" <%= "Honda".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : ""%>>Honda</option>
+                                    <option value="Mazda" <%= "Mazda".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : ""%>>Mazda</option>
+                                    <option value="Hyundai" <%= "Hyundai".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : ""%>>Hyundai</option>
+                                    <option value="Kia" <%= "Kia".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : ""%>>Kia</option>
+                                    <option value="Ford" <%= "Ford".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : ""%>>Ford</option>
+                                    <option value="BMW" <%= "BMW".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : ""%>>BMW</option>
+                                    <option value="Mercedes-Benz" <%= "Mercedes-Benz".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : ""%>>Mercedes-Benz</option>
+                                    <option value="Audi" <%= "Audi".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : ""%>>Audi</option>
+                                    <option value="Lexus" <%= "Lexus".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : ""%>>Lexus</option>
+                                    <option value="VinFast" <%= "VinFast".equalsIgnoreCase(vehicle.getBrand()) ? "selected" : ""%>>VinFast</option>
                                 </select>
                             </div>
                         </div>
@@ -146,7 +115,7 @@
                                 <input type="text"
                                        name="model"
                                        class="form-group__input"
-                                       value="<%= vehicle.getModel() %>"
+                                       value="<%= vehicle.getModel()%>"
                                        placeholder="Vios"
                                        required
                                        maxlength="50">
@@ -163,14 +132,14 @@
                                         class="form-group__input form-group__select"
                                         required>
                                     <option value="">Select Color</option>
-                                    <option value="White" <%= "White".equalsIgnoreCase(vehicle.getColor()) ? "selected" : "" %>>White</option>
-                                    <option value="Black" <%= "Black".equalsIgnoreCase(vehicle.getColor()) ? "selected" : "" %>>Black</option>
-                                    <option value="Silver" <%= "Silver".equalsIgnoreCase(vehicle.getColor()) ? "selected" : "" %>>Silver</option>
-                                    <option value="Gray" <%= "Gray".equalsIgnoreCase(vehicle.getColor()) ? "selected" : "" %>>Gray</option>
-                                    <option value="Red" <%= "Red".equalsIgnoreCase(vehicle.getColor()) ? "selected" : "" %>>Red</option>
-                                    <option value="Blue" <%= "Blue".equalsIgnoreCase(vehicle.getColor()) ? "selected" : "" %>>Blue</option>
-                                    <option value="Green" <%= "Green".equalsIgnoreCase(vehicle.getColor()) ? "selected" : "" %>>Green</option>
-                                    <option value="Yellow" <%= "Yellow".equalsIgnoreCase(vehicle.getColor()) ? "selected" : "" %>>Yellow</option>
+                                    <option value="White" <%= "White".equalsIgnoreCase(vehicle.getColor()) ? "selected" : ""%>>White</option>
+                                    <option value="Black" <%= "Black".equalsIgnoreCase(vehicle.getColor()) ? "selected" : ""%>>Black</option>
+                                    <option value="Silver" <%= "Silver".equalsIgnoreCase(vehicle.getColor()) ? "selected" : ""%>>Silver</option>
+                                    <option value="Gray" <%= "Gray".equalsIgnoreCase(vehicle.getColor()) ? "selected" : ""%>>Gray</option>
+                                    <option value="Red" <%= "Red".equalsIgnoreCase(vehicle.getColor()) ? "selected" : ""%>>Red</option>
+                                    <option value="Blue" <%= "Blue".equalsIgnoreCase(vehicle.getColor()) ? "selected" : ""%>>Blue</option>
+                                    <option value="Green" <%= "Green".equalsIgnoreCase(vehicle.getColor()) ? "selected" : ""%>>Green</option>
+                                    <option value="Yellow" <%= "Yellow".equalsIgnoreCase(vehicle.getColor()) ? "selected" : ""%>>Yellow</option>
                                 </select>
                             </div>
                         </div>

@@ -4,6 +4,8 @@
  */
 package controller;
 
+import dao.VehicleDAO;
+import dto.Vehicle;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -94,6 +96,42 @@ public class MainController extends HttpServlet {
 
             case "registerVehicle":
                 url = "/vehicle/register";
+                break;
+
+            //VEHICLE
+            case "viewUpdateVehicle":
+
+                int vehicleID = Integer.parseInt(
+                                request.getParameter("vehicleID"));
+
+                VehicleDAO dao = new VehicleDAO();
+
+                Vehicle vehicle = dao.getActiveVehicleById(vehicleID);
+
+                if (vehicle != null) {
+
+                    request.setAttribute("VEHICLE", vehicle);
+
+                    url = "/customer/updateVehicle.jsp";
+
+                } else {
+
+                    request.getSession() .setAttribute(
+                                    "ERROR_MESSAGE",
+                                    "Vehicle not found.");
+
+                    url = "/dashboard";
+
+                }
+
+                break;
+                
+            case "updateVehicle":
+                url = "/UpdateVehicle";
+                break;
+                
+            case "removeVehicle":
+                url = "RemoveVehicle";
                 break;
 
             default:

@@ -23,10 +23,18 @@ public class DashboardController extends HttpServlet {
         response.setDateHeader("Expires", 0);
 
         Customer user = (Customer) request.getSession().getAttribute("USER");
-        
+
+        if (user == null) {
+
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/MainController?action=viewSignIn");
+
+            return;
+        }
         VehicleDAO vd = new VehicleDAO();
         List<Vehicle> vehicleList = vd.getVehiclesByCustomerId(user.getCusId());
-        
+
         if (user == null) {
             response.sendRedirect(
                     request.getContextPath()

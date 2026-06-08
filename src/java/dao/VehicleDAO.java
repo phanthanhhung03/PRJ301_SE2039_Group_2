@@ -1,11 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dao;
 
-import dto.Customer;
-import dto.Vehicle;
 import java.sql.ResultSet;
 import dto.Vehicle;
 import java.sql.Connection;
@@ -188,6 +182,115 @@ public class VehicleDAO {
         return vehicle;
     }
 
+    public Vehicle getVehicleById(int id) {
+        Vehicle vehicle = null;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet table = null;
+
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn == null) {
+                System.out.println("CANNOT CONNECT TO SQL");
+                return vehicle;
+            }
+
+            String sql = "SELECT [VehicleID], [CustomerID] ,[LicensePlate], [Brand], [Model], [Color], [CreatedAt], [Status]\n"
+                    + "FROM Vehicles\n"
+                    + "WHERE VehicleID = ?";
+
+            st = cn.prepareStatement(sql);
+            st.setInt(1, id);
+
+            table = st.executeQuery();
+            if (table.next()) {
+                vehicle = new Vehicle(
+                        table.getInt("VehicleID"),
+                        table.getInt("CustomerID"),
+                        table.getString("LicensePlate"),
+                        table.getString("Brand"),
+                        table.getString("Model"),
+                        table.getString("Color"),
+                        table.getDate("CreatedAt"),
+                        table.getBoolean("Status")
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (table != null) {
+                    table.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return vehicle;
+    }
+
+    public Vehicle getActiveVehicleById(int id) {
+        Vehicle vehicle = null;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet table = null;
+
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn == null) {
+                System.out.println("CANNOT CONNECT TO SQL");
+                return vehicle;
+            }
+
+            String sql = "SELECT [VehicleID], [CustomerID] ,[LicensePlate], [Brand], [Model], [Color], [CreatedAt], [Status]\n"
+                    + "FROM Vehicles\n"
+                    + "WHERE VehicleID = ? AND Status = ?";
+
+            st = cn.prepareStatement(sql);
+            st.setInt(1, id);
+            st.setBoolean(2, true);
+
+            table = st.executeQuery();
+            if (table.next()) {
+                vehicle = new Vehicle(
+                        table.getInt("VehicleID"),
+                        table.getInt("CustomerID"),
+                        table.getString("LicensePlate"),
+                        table.getString("Brand"),
+                        table.getString("Model"),
+                        table.getString("Color"),
+                        table.getDate("CreatedAt"),
+                        table.getBoolean("Status")
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (table != null) {
+                    table.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return vehicle;
+    }
+
     public int restoreVehicle(int vehicleId) {
         int result = 0;
         Connection cn = null;
@@ -227,4 +330,85 @@ public class VehicleDAO {
 
     }
 
+    public int updateVehicle(int vehicleId, String brand, String model, String color) {
+        int result = 0;
+        Connection cn = null;
+        PreparedStatement st = null;
+
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn == null) {
+                System.out.println("CANNOT CONNECT TO SQL");
+                return result;
+            }
+            String sql = "UPDATE [dbo].[Vehicles] "
+                    + "SET [Brand] = ?, "
+                    + "    [Model] = ?, "
+                    + "    [Color] = ? "
+                    + "WHERE [VehicleID] = ? AND Status = 1";
+
+            st = cn.prepareStatement(sql);
+
+            st.setString(1, brand);
+            st.setString(2, model);
+            st.setString(3, color);
+            st.setInt(4, vehicleId);
+            
+            result = st.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public int softDeleteVehicle(int vehicleId) {
+        int result = 0;
+        PreparedStatement st = null;
+        Connection cn = null;
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn == null) {
+                System.out.println("CANNOT CONNECT TO SQL");
+                return result;
+            }
+            String sql = 
+                    "UPDATE [dbo].[Vehicles] "
+                    + "SET [Status] = 0 "
+                    + "WHERE [VehicleID] = ? AND [Status] = 1";
+
+            st = cn.prepareStatement(sql);
+            st.setInt(1, vehicleId);
+            
+            result = st.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
 }
