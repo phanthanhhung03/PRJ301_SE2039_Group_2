@@ -231,7 +231,15 @@
                                     <%= vehicle.getColor()%>
                                 </span>
                             </div>
-                            <span class="status-badge status-badge--completed">Active</span>
+                            <div class="vehicle-card__header-actions">
+                                <span class="status-badge status-badge--completed" style="margin-right: var(--spacing-sm);">Active</span>
+                                <a href="${pageContext.request.contextPath}/customer/updateVehicle.jsp?vehicleID=<%= vehicle.getVehicleID() %>" class="vehicle-card__action-icon vehicle-card__action-icon--edit" title="Edit Vehicle">
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                </a>
+                                <button type="button" class="vehicle-card__action-icon vehicle-card__action-icon--delete" title="Remove Vehicle" onclick="openRemoveModal(<%= vehicle.getVehicleID() %>, '<%= vehicle.getBrand() %> <%= vehicle.getModel() %> (<%= vehicle.getLicensePlate() %>)')">
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                </button>
+                            </div>
                         </div>
                         <span class="vehicle-card__plate"><%= vehicle.getLicensePlate()%></span>
                         <div class="vehicle-card__actions">
@@ -450,6 +458,24 @@
         </footer>
 
 
+        <!-- REMOVE VEHICLE CONFIRMATION MODAL -->
+        <div id="remove-vehicle-modal" class="modal-overlay">
+            <div class="modal-content glass-panel">
+                <h3 class="modal-title">Remove Vehicle</h3>
+                <p class="modal-desc">Are you sure you want to remove <strong id="remove-vehicle-name"></strong> from your account? This action will archive your vehicle information (Status = inactive).</p>
+                
+                <form action="MainController" method="POST" id="remove-vehicle-form">
+                    <input type="hidden" name="action" value="removeVehicle">
+                    <input type="hidden" name="vehicleID" id="remove-vehicle-id" value="">
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn--secondary btn--sm" onclick="closeRemoveModal()">Cancel</button>
+                        <button type="submit" class="btn btn--danger btn--sm">Remove Vehicle</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <script>
             document.addEventListener("DOMContentLoaded", function () {
 
@@ -471,6 +497,25 @@
 
                 }, 3000);
 
+            });
+
+            function openRemoveModal(vehicleId, vehicleName) {
+                document.getElementById("remove-vehicle-id").value = vehicleId;
+                document.getElementById("remove-vehicle-name").textContent = vehicleName;
+                const modal = document.getElementById("remove-vehicle-modal");
+                modal.classList.add("modal-overlay--show");
+            }
+
+            function closeRemoveModal() {
+                const modal = document.getElementById("remove-vehicle-modal");
+                modal.classList.remove("modal-overlay--show");
+            }
+
+            window.addEventListener("click", function(event) {
+                const modal = document.getElementById("remove-vehicle-modal");
+                if (event.target === modal) {
+                    closeRemoveModal();
+                }
             });
         </script>
     </body>
