@@ -8,7 +8,8 @@
 <%@page import="dto.Vehicle"%>
 <%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
     Customer user = (Customer) session.getAttribute("USER");
@@ -277,69 +278,77 @@
 
             <!-- SECTION 3: BOOKINGS MANAGEMENT -->
             <section class="dashboard-section" id="bookings">
-                <div class="dashboard-section__header">
-                    <h2 class="dashboard-section__title">Bookings</h2>
-                    <a href="#" class="btn btn--primary btn--sm">Schedule Detailing</a>
-                </div>
-
-                <div class="grid-cols-2">
-                    <!-- Upcoming Booking -->
-                    <div>
-                        <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Upcoming Schedule</h3>
-                        <div class="booking-card glass-panel">
-                            <div class="booking-card__datetime">
-                                <span class="booking-card__month">Jun</span>
-                                <span class="booking-card__day">04</span>
-                                <span class="booking-card__time">10:30 AM</span>
-                            </div>
-                            <div class="booking-card__details">
-                                <span class="booking-card__service">Signature Graphene Coating</span>
-                                <span class="booking-card__vehicle">Nissan GT-R Nismo</span>
-                                <span style="font-size:0.8rem; color:var(--color-text-tertiary);">Wash Bay 3 | Operator: Saito Y.</span>
-                            </div>
-                            <div class="booking-card__meta">
-                                <span class="status-badge status-badge--pending">Confirmed</span>
-                                <a href="#" class="btn btn--danger btn--sm">Reschedule</a>
-                            </div>
-                        </div>
+                    <div class="dashboard-section__header">
+                        <h2 class="dashboard-section__title">Bookings</h2>
+                        <a href="${pageContext.request.contextPath}/MainController?action=viewNewBooking" class="btn btn--primary btn--sm">Schedule Detailing</a>
                     </div>
 
-                    <!-- Booking Summary list -->
-                    <div>
-                        <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Wash History</h3>
-
-                        <div class="booking-card glass-panel">
-                            <div class="booking-card__datetime">
-                                <span class="booking-card__month">May</span>
-                                <span class="booking-card__day">18</span>
-                                <span class="booking-card__time">02:00 PM</span>
-                            </div>
-                            <div class="booking-card__details">
-                                <span class="booking-card__service">Express Clean Wash</span>
-                                <span class="booking-card__vehicle">Lexus LS 500h</span>
-                            </div>
-                            <div class="booking-card__meta">
-                                <span class="status-badge status-badge--completed">Completed</span>
-                            </div>
+                    <div class="grid-cols-2">
+                        <div>
+                            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Upcoming Schedule</h3>
+                            
+                            <c:choose>
+                                <c:when test="${empty UPCOMING_BOOKINGS}">
+                                    <div class="empty-state-panel glass-panel" style="padding: 2rem; text-align: center; border: 1px dashed var(--color-border);">
+                                        <span style="color: var(--color-text-tertiary);">You have no upcoming appointments.</span>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach items="${UPCOMING_BOOKINGS}" var="booking">
+                                        <div class="booking-card glass-panel">
+                                            <div class="booking-card__datetime">
+                                                <span class="booking-card__month"><fmt:formatDate value="${booking.bookingDate}" pattern="MMM"/></span>
+                                                <span class="booking-card__day"><fmt:formatDate value="${booking.bookingDate}" pattern="dd"/></span>
+                                                <span class="booking-card__time"><fmt:formatDate value="${booking.bookingDate}" pattern="hh:mm a"/></span>
+                                            </div>
+                                            <div class="booking-card__details">
+                                                <span class="booking-card__service">${booking.serviceType}</span>
+                                                <span class="booking-card__vehicle">${booking.vehicleName}</span>
+                                                <span style="font-size:0.8rem; color:var(--color-text-tertiary);">Notes: ${empty booking.notes ? 'None' : booking.notes}</span>
+                                            </div>
+                                            <div class="booking-card__meta">
+                                                <span class="status-badge status-badge--pending">${booking.bookingStatus}</span>
+                                                <a href="#" class="btn btn--danger btn--sm">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
-                        <div class="booking-card glass-panel">
-                            <div class="booking-card__datetime">
-                                <span class="booking-card__month">Apr</span>
-                                <span class="booking-card__day">30</span>
-                                <span class="booking-card__time">09:00 AM</span>
-                            </div>
-                            <div class="booking-card__details">
-                                <span class="booking-card__service">Interior Steam Detailing</span>
-                                <span class="booking-card__vehicle">Nissan GT-R Nismo</span>
-                            </div>
-                            <div class="booking-card__meta">
-                                <span class="status-badge status-badge--completed">Completed</span>
-                            </div>
+                        <div>
+                            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Wash History</h3>
+
+                            <c:choose>
+                                <c:when test="${empty PAST_BOOKINGS}">
+                                    <div class="empty-state-panel glass-panel" style="padding: 2rem; text-align: center; border: 1px dashed var(--color-border);">
+                                        <span style="color: var(--color-text-tertiary);">No wash history available.</span>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach items="${PAST_BOOKINGS}" var="history">
+                                        <div class="booking-card glass-panel">
+                                            <div class="booking-card__datetime">
+                                                <span class="booking-card__month"><fmt:formatDate value="${history.bookingDate}" pattern="MMM"/></span>
+                                                <span class="booking-card__day"><fmt:formatDate value="${history.bookingDate}" pattern="dd"/></span>
+                                                <span class="booking-card__time"><fmt:formatDate value="${history.bookingDate}" pattern="hh:mm a"/></span>
+                                            </div>
+                                            <div class="booking-card__details">
+                                                <span class="booking-card__service">${history.serviceType}</span>
+                                                <span class="booking-card__vehicle">${history.vehicleName}</span>
+                                            </div>
+                                            <div class="booking-card__meta">
+                                                <span class="status-badge ${history.bookingStatus == 'Cancelled' ? 'status-badge--cancelled' : 'status-badge--completed'}">
+                                                    ${history.bookingStatus}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
             <!-- SECTION 4: RECENT ACTIVITY TIMELINE -->
             <section class="dashboard-section">
