@@ -4,6 +4,8 @@
     Author     : Asus
 --%>
 
+<%@page import="dto.Booking"%>
+<%@page import="dao.BookingDAO"%>
 <%@page import="dto.Customer"%>
 <%@page import="dto.Vehicle"%>
 <%@page import="java.util.List"%>
@@ -27,6 +29,17 @@
 
     session.removeAttribute(
             "SUCCESS_MESSAGE");
+    if (user != null) {
+        BookingDAO bookingDao = new BookingDAO();
+        
+        // Gọi hàm từ DAO (Lưu ý: đổi user.getCusId() thành hàm lấy ID thật của bạn nếu tên khác nhé)
+        List<Booking> upcoming = bookingDao.getUpcomingBookings(user.getCusId());
+        List<Booking> past = bookingDao.getPastBookings(user.getCusId());
+        
+        // Đẩy thẳng vào request để các thẻ JSTL phía dưới tự động bắt được data
+        request.setAttribute("UPCOMING_BOOKINGS", upcoming);
+        request.setAttribute("PAST_BOOKINGS", past);
+    }
 %>
 
 <!DOCTYPE html>

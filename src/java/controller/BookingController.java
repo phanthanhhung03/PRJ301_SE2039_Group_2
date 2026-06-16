@@ -65,6 +65,7 @@ public class BookingController extends HttpServlet {
             Booking booking = new Booking();
             booking.setVehicleID(vehicleID);
             booking.setBookingDate(bookingDate);
+            booking.setTimeSlot(timeStr);
             booking.setServiceType(serviceType);
             booking.setBookingStatus("Pending"); // Lịch mới tạo mặc định ở trạng thái Chờ duyệt
             booking.setNotes(notes);
