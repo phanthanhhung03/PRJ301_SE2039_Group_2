@@ -8,6 +8,7 @@ public class Booking {
     private int bookingID;
     private int vehicleID;
     private Timestamp bookingDate;
+    private String timeSlot;
     private String serviceType;
     private String bookingStatus;
     private String notes;
@@ -63,6 +64,14 @@ public class Booking {
 
     public void setBookingDate(Timestamp bookingDate) {
         this.bookingDate = bookingDate;
+    }
+
+    public String getTimeSlot() {
+        return timeSlot;
+    }
+
+    public void setTimeSlot(String timeSlot) {
+        this.timeSlot = timeSlot;
     }
 
     public String getServiceType() {

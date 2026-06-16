@@ -46,7 +46,7 @@
                                 <option value="2" data-name="51G-888.88">51G-888.88 - Honda City (Black)</option>
                             </select>
                         </div>
-                        <a href="#" class="booking-page__add-link">+ Register a new vehicle</a>
+                        <a href="${pageContext.request.contextPath}/MainController?action=viewAddVehicle" class="booking-page__add-link">+ Register a new vehicle</a>
                     </div>
 
                     <div class="grid-cols-2">
@@ -91,7 +91,11 @@
                             </div>
                         </div>
                     </div>
-
+                    <% if (request.getAttribute("BOOKING_ERROR") != null) {%>
+                        <div class="auth-card__alert auth-card__alert--error">
+                        &#9888; <%= request.getAttribute("BOOKING_ERROR")%>
+                        </div>
+                    <% }%>
                     <h2 class="booking-page__step-title">Step 2: Service Packages</h2>
                     <div class="service-grid">
                         <label class="service-card glass-panel">

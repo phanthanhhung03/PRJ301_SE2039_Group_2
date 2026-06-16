@@ -24,18 +24,19 @@ public class BookingDAO {
             if (cn != null) {
                 // BookingID và CreatedAt sẽ tự động sinh trong SQL Server, không cần Insert
                 String sql = "INSERT INTO Bookings "
-                           + "(VehicleID, BookingDate, ServiceType, BookingStatus, Notes, TotalAmount, DiscountAmount, FinalAmount) "
-                           + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                           + "(VehicleID, BookingDate, TimeSlot, ServiceType, BookingStatus, Notes, TotalAmount, DiscountAmount, FinalAmount) "
+                           + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 
                 st = cn.prepareStatement(sql);
                 st.setInt(1, booking.getVehicleID());
                 st.setTimestamp(2, booking.getBookingDate());
-                st.setString(3, booking.getServiceType());
-                st.setString(4, booking.getBookingStatus()); // Thường sẽ gán cứng là 'Pending' từ Controller
-                st.setString(5, booking.getNotes());
-                st.setDouble(6, booking.getTotalAmount());
-                st.setDouble(7, booking.getDiscountAmount());
-                st.setDouble(8, booking.getFinalAmount());
+                st.setString(3, booking.getTimeSlot());
+                st.setString(4, booking.getServiceType());
+                st.setString(5, booking.getBookingStatus()); // Thường sẽ gán cứng là 'Pending' từ Controller
+                st.setString(6, booking.getNotes());
+                st.setDouble(7, booking.getTotalAmount());
+                st.setDouble(8, booking.getDiscountAmount());
+                st.setDouble(9, booking.getFinalAmount());
 
                 // Nếu executeUpdate trả về số dòng thay đổi > 0 tức là Insert thành công
                 int rows = st.executeUpdate();
@@ -85,6 +86,7 @@ public class BookingDAO {
                     b.setBookingID(rs.getInt("BookingID"));
                     b.setVehicleID(rs.getInt("VehicleID"));
                     b.setBookingDate(rs.getTimestamp("BookingDate"));
+                    b.setTimeSlot(rs.getString("TimeSlot"));
                     b.setServiceType(rs.getString("ServiceType"));
                     b.setBookingStatus(rs.getString("BookingStatus"));
                     b.setNotes(rs.getString("Notes"));
@@ -140,6 +142,7 @@ public class BookingDAO {
                     b.setBookingID(rs.getInt("BookingID"));
                     b.setVehicleID(rs.getInt("VehicleID"));
                     b.setBookingDate(rs.getTimestamp("BookingDate"));
+                    b.setTimeSlot(rs.getString("TimeSlot"));
                     b.setServiceType(rs.getString("ServiceType"));
                     b.setBookingStatus(rs.getString("BookingStatus"));
                     b.setNotes(rs.getString("Notes"));
@@ -167,4 +170,40 @@ public class BookingDAO {
         }
         return list;
     }
+    
+    public boolean isSlotBooked(String dateStr, String timeSlot) {
+        boolean isBooked = false;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                // Ép kiểu BookingDate về DATE để so sánh chính xác với chuỗi YYYY-MM-DD từ form gửi lên
+                String sql = "SELECT COUNT(*) FROM Bookings "
+                        + "WHERE CAST(BookingDate AS DATE) = ? AND TimeSlot = ? AND BookingStatus != 'Cancelled'";
+            
+                st = cn.prepareStatement(sql);
+                st.setString(1, dateStr);
+                st.setString(2, timeSlot);
+                rs = st.executeQuery();
+
+                if (rs.next() && rs.getInt(1) > 0) {
+                    isBooked = true; // Đã có người đặt trước
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+                if (cn != null) cn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return isBooked;
+    }    
 }

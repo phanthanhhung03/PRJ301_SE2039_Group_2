@@ -90,4 +90,48 @@ document.addEventListener('DOMContentLoaded', function() {
     syncAllData(); // Lần 1: Chạy ngay lập tức khi load xong HTML
     setTimeout(syncAllData, 100); // Lần 2: Quét lại sau 0.1 giây để bắt dữ liệu Autocomplete
     setTimeout(syncAllData, 500); // Lần 3: Quét lần cuối sau 0.5 giây cho chắc chắn
+    
+    // 4. CODE CHẶN NGÀY GIỜ TRONG QUÁ KHỨ 
+    const dateInput = document.getElementById("bookingDate");
+    const timeInput = document.getElementById("bookingTime");
+
+    // Chỉ chạy khi ở trang có form Booking
+    if (dateInput && timeInput) {
+        
+        // Chặn ngày trong quá khứ 
+        const now = new Date();
+        const todayString = now.toISOString().split('T')[0];
+        dateInput.setAttribute('min', todayString);
+
+        // Hàm kiểm tra và chặn Giờ
+        function validateTime() {
+            const selectedDate = dateInput.value;
+            const selectedTime = timeInput.value;
+
+            if (!selectedDate) return;
+
+            const currentTime = new Date();
+            const currentDateString = currentTime.toISOString().split('T')[0];
+
+            // Nếu chọn ngày hôm nay
+            if (selectedDate === currentDateString) {
+                const currentHours = String(currentTime.getHours()).padStart(2, '0');
+                const currentMinutes = String(currentTime.getMinutes()).padStart(2, '0');
+                const currentTimeString = `${currentHours}:${currentMinutes}`;
+
+                timeInput.setAttribute('min', currentTimeString);
+
+                // Cảnh báo nếu giờ đã lỡ chọn nằm trong quá khứ
+                if (selectedTime && selectedTime < currentTimeString) {
+                    alert("You cannot book an appointment in a past time slot!");
+                    timeInput.value = ""; 
+                }
+            } else {
+                timeInput.removeAttribute('min');
+            }
+        }
+
+        dateInput.addEventListener('change', validateTime);
+        timeInput.addEventListener('change', validateTime);
+    }
 });
