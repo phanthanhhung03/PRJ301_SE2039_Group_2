@@ -134,6 +134,14 @@ public class Booking {
         return vehicleName;
     }
 
+    public String getTimeSlot() {
+        return timeSlot;
+    }
+
+    public void setTimeSlot(String timeSlot) {
+        this.timeSlot = timeSlot;
+    }
+
     public void setVehicleName(String vehicleName) {
         this.vehicleName = vehicleName;
     }

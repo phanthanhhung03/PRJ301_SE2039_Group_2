@@ -1,12 +1,33 @@
+<%@page import="java.util.List"%>
+<%@page import="dto.Vehicle"%>
+<%@page import="dao.VehicleDAO"%>
+<%@page import="dto.Customer"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+    // Lấy thông tin khách hàng đang đăng nhập từ Session
+    Customer currentUser = (Customer) session.getAttribute("USER");
+    
+    if (currentUser != null) {
+        // Gọi thẳng VehicleDAO ngay trong JSP
+        VehicleDAO vDao = new VehicleDAO();
+        
+        // Gọi hàm lấy danh sách xe (Bạn nhớ kiểm tra lại tên hàm này trong VehicleDAO của bạn cho đúng nhé)
+        List<Vehicle> myCars = vDao.getVehiclesByCustomerId(currentUser.getCusId()); 
+        
+        // Nhét danh sách này vào request để JSTL bên dưới có thể in ra
+        request.setAttribute("VEHICLE_LIST", myCars);
+    }
+    
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Booking | AutoWashPro</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css?v=4">
+    <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
 
@@ -42,8 +63,11 @@
                         <div class="form-group__input-wrapper">
                             <select id="vehicleSelect" name="vehicleID" class="form-group__input form-group__select" required>
                                 <option value="" disabled selected>-- Choose a registered vehicle --</option>
-                                <option value="1" data-name="59A-123.45">59A-123.45 - Toyota Vios (White)</option>
-                                <option value="2" data-name="51G-888.88">51G-888.88 - Honda City (Black)</option>
+                                <c:forEach items="${VEHICLE_LIST}" var="car">
+                                    <option value="${car.vehicleID}">
+                                        ${car.licensePlate} - ${car.brand} ${car.model} (${car.color})
+                                    </option>
+                                </c:forEach>
                             </select>
                         </div>
                         <a href="${pageContext.request.contextPath}/MainController?action=viewAddVehicle" class="booking-page__add-link">+ Register a new vehicle</a>
