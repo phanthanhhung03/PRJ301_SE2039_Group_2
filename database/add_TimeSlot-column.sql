@@ -1,2 +1,0 @@
-ALTER TABLE Bookings
-ADD TimeSlot VARCHAR(10) NULL;
