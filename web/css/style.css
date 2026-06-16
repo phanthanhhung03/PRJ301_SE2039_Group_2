@@ -2311,6 +2311,15 @@ button, input, select, textarea {
     .service-card:hover .service-card__content {
         background-color: var(--color-surface-hover);
     }
+    
+    .service-card--selected {
+        border-color: var(--color-accent-blue) !important;
+        box-shadow: var(--glow-blue) !important;
+    }
+
+    .service-card--selected .service-card__content {
+        background: rgba(0, 118, 255, 0.05);
+    }
 
     .booking-page__summary-section {
         position: sticky;
