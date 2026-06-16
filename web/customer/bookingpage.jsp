@@ -18,6 +18,7 @@
         // Nhét danh sách này vào request để JSTL bên dưới có thể in ra
         request.setAttribute("VEHICLE_LIST", myCars);
     }
+    
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,7 +43,7 @@
             </div>
 
             <div class="site-header__actions">
-                <span class="status-badge status-badge--tier">Tier: Gold</span>
+                <span class="status-badge status-badge--tier"><%= currentUser.getTierId().getTierName() %></span>
             </div>
         </div>
     </header>

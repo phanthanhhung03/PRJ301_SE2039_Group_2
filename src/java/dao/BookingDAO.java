@@ -24,18 +24,19 @@ public class BookingDAO {
             if (cn != null) {
                 // BookingID và CreatedAt sẽ tự động sinh trong SQL Server, không cần Insert
                 String sql = "INSERT INTO Bookings "
-                           + "(VehicleID, BookingDate, ServiceType, BookingStatus, Notes, TotalAmount, DiscountAmount, FinalAmount) "
-                           + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                           + "(VehicleID, BookingDate, TimeSlot, ServiceType, BookingStatus, Notes, TotalAmount, DiscountAmount, FinalAmount) "
+                           + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 
                 st = cn.prepareStatement(sql);
                 st.setInt(1, booking.getVehicleID());
                 st.setTimestamp(2, booking.getBookingDate());
-                st.setString(3, booking.getServiceType());
-                st.setString(4, booking.getBookingStatus()); // Thường sẽ gán cứng là 'Pending' từ Controller
-                st.setString(5, booking.getNotes());
-                st.setDouble(6, booking.getTotalAmount());
-                st.setDouble(7, booking.getDiscountAmount());
-                st.setDouble(8, booking.getFinalAmount());
+                st.setString(3, booking.getTimeSlot());
+                st.setString(4, booking.getServiceType());
+                st.setString(5, booking.getBookingStatus()); // Thường sẽ gán cứng là 'Pending' từ Controller
+                st.setString(6, booking.getNotes());
+                st.setDouble(7, booking.getTotalAmount());
+                st.setDouble(8, booking.getDiscountAmount());
+                st.setDouble(9, booking.getFinalAmount());
 
                 // Nếu executeUpdate trả về số dòng thay đổi > 0 tức là Insert thành công
                 int rows = st.executeUpdate();
@@ -85,6 +86,7 @@ public class BookingDAO {
                     b.setBookingID(rs.getInt("BookingID"));
                     b.setVehicleID(rs.getInt("VehicleID"));
                     b.setBookingDate(rs.getTimestamp("BookingDate"));
+                    b.setTimeSlot(rs.getString("TimeSlot"));
                     b.setServiceType(rs.getString("ServiceType"));
                     b.setBookingStatus(rs.getString("BookingStatus"));
                     b.setNotes(rs.getString("Notes"));
@@ -140,6 +142,7 @@ public class BookingDAO {
                     b.setBookingID(rs.getInt("BookingID"));
                     b.setVehicleID(rs.getInt("VehicleID"));
                     b.setBookingDate(rs.getTimestamp("BookingDate"));
+                    b.setTimeSlot(rs.getString("TimeSlot"));
                     b.setServiceType(rs.getString("ServiceType"));
                     b.setBookingStatus(rs.getString("BookingStatus"));
                     b.setNotes(rs.getString("Notes"));
