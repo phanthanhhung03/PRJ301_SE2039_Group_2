@@ -361,13 +361,17 @@ public class CustomerDAO {
             if (cn != null) {
 
                 String sql
-                        = "SELECT TOP 5 "
-                        + "CustomerID, "
-                        + "FullName, "
-                        + "CurrentPoints, "
-                        + "TotalSpend "
-                        + "FROM Customers "
-                        + "ORDER BY TotalSpend DESC";
+                        = "SELECT TOP 3 "
+                        + "c.CustomerID, "
+                        + "c.FullName, "
+                        + "c.CurrentPoints, "
+                        + "c.TotalSpend, "
+                        + "t.TierID, "
+                        + "t.TierName "
+                        + "FROM Customers c "
+                        + "JOIN CustomerTiers t ON c.TierID = t.TierID "
+                        + "WHERE c.Status = 1 "
+                        + "ORDER BY c.TotalSpend DESC";
 
                 st = cn.prepareStatement(sql);
 
@@ -381,6 +385,12 @@ public class CustomerDAO {
                     c.setFullName(table.getString("FullName"));
                     c.setCurrentPoint(table.getInt("CurrentPoints"));
                     c.setTotalSpend(table.getDouble("TotalSpend"));
+
+                    CustomerTier tier = new CustomerTier();
+                    tier.setTierID(table.getInt("TierID"));
+                    tier.setTierName(table.getString("TierName"));
+
+                    c.setTierId(tier);
 
                     list.add(c);
                 }

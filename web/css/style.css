@@ -2043,7 +2043,8 @@ button, input, select, textarea {
 
 .admin-tier-overview__table {
     width: 100%;
-    table-layout: fixed;
+    table-layout: auto;
+    height: auto;
 }
 
 .admin-tier-overview__table th,
@@ -2148,6 +2149,14 @@ button, input, select, textarea {
 
 .admin-tier-overview__progress-fill--member {
     background: var(--color-accent-blue);
+}
+.admin-bottom-card {
+    height: 100%;
+}
+
+.admin-bottom-card .data-table td:last-child,
+.admin-bottom-card .data-table th:last-child {
+    text-align: center;
 }
 
 /* ==========================================================================

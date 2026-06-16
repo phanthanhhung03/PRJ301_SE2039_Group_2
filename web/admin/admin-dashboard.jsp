@@ -4,11 +4,29 @@
     Author     : Asus
 --%>
 
+<%@page import="dto.Promotion"%>
+<%@page import="dto.Customer"%>
 <%@page import="dto.Admin"%>
+<%@page import="java.util.Map"%>
+<%@page import="java.util.List"%>
+<%@page import="dto.CustomerTier"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <%
     Admin admin = (Admin) session.getAttribute("ADMIN_USER");
+
+    List<CustomerTier> tierList = (List<CustomerTier>) request.getAttribute("tierList");
+
+    Map<Integer, Integer> customerTierCountMap = (Map<Integer, Integer>) request.getAttribute("customerTierCountMap");
+
+    Map<Integer, Double> percentageMap = (Map<Integer, Double>) request.getAttribute("percentageMap");
+
+    List<Customer> topCustomers = (List<Customer>) request.getAttribute("topCustomers");
+
+    List<Promotion> promotionList = (List<Promotion>) request.getAttribute("promotionList");
+
+    Map<Integer, String> targetTierMap = (Map<Integer, String>) request.getAttribute("targetTierMap");
+
 %>
 <html lang="en">
     <head>
@@ -16,13 +34,25 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Admin Dashboard | AutoWashPro Staff</title>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+        <style>
+            .main_dashboard {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1.5rem;
+            }
+
+            .main_dashboard > div {
+                width: calc(100% );
+            }
+        </style>
     </head>
     <body>
+
 
         <!-- STAFF TOP NAVIGATION -->
         <header class="site-header">
             <div class="site-header__container main-wrapper">
-                <a href="admin-dashboard.html" class="site-header__logo">
+                <a href="admin-dashboard.jsp" class="site-header__logo">
                     <div class="site-header__logo-icon" style="background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-cyan));"></div>
                     <div class="site-header__logo-text">ADMIN<span>PANEL</span></div>
                 </a>
@@ -116,9 +146,10 @@
             </section>
 
             <!-- LIVE DATA VIEWS -->
-            <div class="grid-cols-2" style="margin-bottom: var(--spacing-xl);">
 
-                <!-- Left Column: Booking Overview -->
+            <div class="main_dashboard" style="margin-bottom: var(--spacing-xl);">
+
+                <!--  Booking Overview -->
                 <div class="glass-panel" style="padding: var(--spacing-lg); border-radius: var(--radius-xl);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-md);">
                         <h2 style="font-size:1.25rem;">Live Booking Desk</h2>
@@ -165,19 +196,22 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Customer Tier Overview -->
+                <!--Customer Tier Overview -->
                 <div class="glass-panel admin-tier-overview"
-                     style="padding: var(--spacing-lg); border-radius: var(--radius-xl);">
+                     style="    padding: var(--spacing-lg);
+                     border-radius: var(--radius-xl);
+                     display: flex;
+                     flex-direction: column;">
 
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-md);">
                         <h2 style="font-size:1.25rem;">Customer Tier Overview</h2>
-                        <a href="MainController?action=viewCustomerManagement" class="btn btn--secondary btn--sm">
+                        <a href="MainController?action=LoyaltyManagement" class="btn btn--secondary btn--sm">
                             View Details
                         </a>
                     </div>
 
-                    <div class="data-table-wrapper">
-                        <table class="data-table admin-tier-overview__table">
+                    <div class="data-table-wrapper " style="flex: 1;">
+                        <table class="data-table admin-tier-overview__table" style="height: 100%;">
                             <thead>
                                 <tr>
                                     <th>Tier</th>
@@ -189,112 +223,201 @@
 
                             <tbody>
 
+                                <%
+                                    for (CustomerTier tier : tierList) {
+
+                                        int customerCount = customerTierCountMap.getOrDefault(tier.getTierID(), 0);
+
+                                        double percentage = percentageMap.getOrDefault(tier.getTierID(), 0.0);
+
+                                        String tierClass = tier.getTierName().toLowerCase();
+                                %>
+
                                 <tr>
+
                                     <td>
-                                        <span class="status-badge status-badge--platinum">
-                                            Platinum
+                                        <span class="status-badge status-badge--<%= tierClass%>">
+                                            <%= tier.getTierName()%>
                                         </span>
                                     </td>
-                                    <td>24</td>
-                                    <td>12%</td>
+
+                                    <td> 
+                                        <%= customerCount%>
+                                    </td>
+
+                                    <td>
+                                        <%= String.format("%.2f", percentage)%>%
+                                    </td>
+
                                     <td>
                                         <div class="admin-tier-overview__progress-bar">
-                                            <div class="admin-tier-overview__progress-fill admin-tier-overview__progress-fill--platinum"
-                                                 style="width:12%;">
+                                            <div class="admin-tier-overview__progress-fill
+                                                 admin-tier-overview__progress-fill--<%= tierClass%>"
+                                                 style="width:<%= percentage%>%;">
                                             </div>
                                         </div>
                                     </td>
-                                </tr>
 
-                                <tr>
-                                    <td>
-                                        <span class="status-badge status-badge--gold">
-                                            Gold
-                                        </span>
-                                    </td>
-                                    <td>48</td>
-                                    <td>24%</td>
-                                    <td>
-                                        <div class="admin-tier-overview__progress-bar">
-                                            <div class="admin-tier-overview__progress-fill admin-tier-overview__progress-fill--gold"
-                                                 style="width:24%;">
-                                            </div>
-                                        </div>
-                                    </td>
                                 </tr>
-
-                                <tr>
-                                    <td>
-                                        <span class="status-badge status-badge--silver">
-                                            Silver
-                                        </span>
-                                    </td>
-                                    <td>72</td>
-                                    <td>36%</td>
-                                    <td>
-                                        <div class="admin-tier-overview__progress-bar">
-                                            <div class="admin-tier-overview__progress-fill admin-tier-overview__progress-fill--silver"
-                                                 style="width:36%;">
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <span class="status-badge status-badge--member">
-                                            Member
-                                        </span>
-                                    </td>
-                                    <td>56</td>
-                                    <td>28%</td>
-                                    <td>
-                                        <div class="admin-tier-overview__progress-bar">
-                                            <div class="admin-tier-overview__progress-fill admin-tier-overview__progress-fill--member"
-                                                 style="width:28%;">
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
+                                <%
+                                    }
+                                %>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- RECENT ACTIVITY FEED -->
-                <section class="glass-panel" style="padding: var(--spacing-xl); border-radius: var(--radius-xl); margin-bottom: var(--spacing-xl);">
-                    <h2 style="font-size:1.25rem; margin-bottom:var(--spacing-lg);">Live Operations Log</h2>
 
-                    <div class="activity-timeline">
-                        <div class="activity-timeline__item">
-                            <div class="activity-timeline__dot activity-timeline__dot--booking"></div>
-                            <div class="activity-timeline__content">
-                                <span class="activity-timeline__time">Just Now</span>
-                                <span class="activity-timeline__title">Vehicle Checked In (RFID Gate 1)</span>
-                                <span class="activity-timeline__desc">Lexus LS 500h (Plate: 足立 330 す 78-90) scanned. System checked in booking ID #4928.</span>
-                            </div>
-                        </div>
 
-                        <div class="activity-timeline__item">
-                            <div class="activity-timeline__dot activity-timeline__dot--loyalty"></div>
-                            <div class="activity-timeline__content">
-                                <span class="activity-timeline__time">12 minutes ago</span>
-                                <span class="activity-timeline__title">Loyalty Reward Redeemed</span>
-                                <span class="activity-timeline__desc">Akira Tanaka redeemed 1,000 points for a free cabin sanitizer upgrade.</span>
-                            </div>
-                        </div>
 
-                        <div class="activity-timeline__item">
-                            <div class="activity-timeline__dot activity-timeline__dot--booking"></div>
-                            <div class="activity-timeline__content">
-                                <span class="activity-timeline__time">45 minutes ago</span>
-                                <span class="activity-timeline__title">New Booking Scheduled</span>
-                                <span class="activity-timeline__desc">Customer Kenji Takahashi booked a Signature Graphene detailing wash for June 04.</span>
-                            </div>
-                        </div>
+
+                <!-- TOP CUSTOMERS -->
+                <div class="glass-panel admin-bottom-card"
+                     style="padding: var(--spacing-lg);
+                     border-radius: var(--radius-xl);">
+
+                    <div style="
+                         display:flex;
+                         justify-content:space-between;
+                         align-items:center;
+                         margin-bottom:var(--spacing-md);">
+
+                        <h2 style="font-size:1.25rem;">
+                            Top Customers
+                        </h2>
+
+                        <a href="MainController?action=viewCustomerManagement"
+                           class="btn btn--secondary btn--sm">
+                            View All
+                        </a>
                     </div>
-                </section>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Tier</th>
+                                    <th>Total Spend</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <%
+                                    for (Customer c : topCustomers) {
+                                %>
+
+                                <tr>
+
+                                    <td><%= c.getFullName()%></td>
+
+                                    <td>
+                                        <span class="status-badge status-badge--<%= c.getTierId().getTierName().toLowerCase()%>">
+                                            <%= c.getTierId().getTierName()%>
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        $<%= String.format("%,.0f", c.getTotalSpend())%>
+                                    </td>
+
+                                </tr>
+
+                                <%
+                                    }
+                                %>
+
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                </div>
+
+                <!-- PROMOTION AUDIENCE -->
+                <div class="glass-panel admin-bottom-card"
+                     style="padding: var(--spacing-lg);
+                     border-radius: var(--radius-xl);">
+
+                    <div style="
+                         display:flex;
+                         justify-content:space-between;
+                         align-items:center;
+                         margin-bottom:var(--spacing-md);">
+
+                        <h2 style="font-size:1.25rem;">
+                            Promotion Audience
+                        </h2>
+
+                        <a href="MainController?action=LoyaltyManagement"
+                           class="btn btn--secondary btn--sm">
+                            Manage
+                        </a>
+
+                    </div>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Promotion</th>
+                                    <th>Discount</th>
+                                    <th>Bonus</th>
+                                    <th>Duration</th>
+                                    <th>Target</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <%
+                                    for (Promotion p : promotionList) {
+
+                                        String target = targetTierMap.getOrDefault(p.getPromotionID(), "-");
+
+
+                                %>
+
+                                <tr>
+
+                                    <td>
+                                        <%= p.getPromotionName()%>
+                                    </td>
+
+                                    <td>
+                                        <%= p.getDiscountPercent()%>%
+                                    </td>
+
+                                    <td>
+                                        +<%= p.getBonusPoints()%>
+                                    </td>
+
+                                    <td>
+                                        <%= p.getStartDate()%>
+                                        /
+                                        <%= p.getEndDate()%>
+                                    </td>
+
+                                    <td>
+                                        <%= target%>
+                                    </td>
+
+                                </tr>
+
+                                <%
+                                    }
+                                %>
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+
 
         </main>
 
