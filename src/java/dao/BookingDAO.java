@@ -197,4 +197,39 @@ public class BookingDAO {
         }
         return check;
     }
+    public boolean isSlotBooked(String dateStr, String timeSlot) {
+        boolean isBooked = false;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                // Ép kiểu BookingDate về DATE để so sánh chính xác với chuỗi YYYY-MM-DD từ form gửi lên
+                String sql = "SELECT COUNT(*) FROM Bookings "
+                        + "WHERE CAST(BookingDate AS DATE) = ? AND TimeSlot = ? AND BookingStatus != 'Cancelled'";
+            
+                st = cn.prepareStatement(sql);
+                st.setString(1, dateStr);
+                st.setString(2, timeSlot);
+                rs = st.executeQuery();
+
+                if (rs.next() && rs.getInt(1) > 0) {
+                    isBooked = true; // Đã có người đặt trước
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+                if (cn != null) cn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return isBooked;
+    }    
 }

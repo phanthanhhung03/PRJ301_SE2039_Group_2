@@ -117,7 +117,11 @@
                             </div>
                         </div>
                     </div>
-
+                    <% if (request.getAttribute("BOOKING_ERROR") != null) {%>
+                        <div class="auth-card__alert auth-card__alert--error">
+                        &#9888; <%= request.getAttribute("BOOKING_ERROR")%>
+                        </div>
+                    <% }%>
                     <h2 class="booking-page__step-title">Step 2: Service Packages</h2>
                     <div class="service-grid">
                         <label class="service-card glass-panel">
