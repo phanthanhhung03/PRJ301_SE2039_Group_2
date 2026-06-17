@@ -2089,6 +2089,15 @@ button, input, select, textarea {
     .admin-layout__main {
         padding: var(--spacing-lg);
     }
+    .booking-page__grid {
+        grid-template-columns: 1fr; /* Màn hình nhỏ dồn về 1 cột */
+    }
+
+    .booking-page__summary-section {
+        position: static; /* Tắt sticky trên mobile */
+        order: -1; /* Đẩy giỏ hàng lên trên cùng trên giao diện mobile */
+        margin-bottom: var(--spacing-xl);
+    }
 }
 
 /* Small screens (Phones) */
@@ -2154,4 +2163,224 @@ button, input, select, textarea {
         grid-template-columns: 1fr;
         gap: 0;
     }
+    
+    .service-grid {
+        grid-template-columns: 1fr; /* Các thẻ dịch vụ nằm dọc hết */
+    }
+
+    .service-card__content--flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
 }
+    
+    /* ==========================================================================
+   11. BOOKING PAGE SPECIFICS (DESKTOP)
+   ========================================================================== */
+
+    .booking-page {
+        padding-top: var(--spacing-xl);
+        padding-bottom: var(--spacing-huge);
+    }
+
+    .booking-page__intro {
+        text-align: center;
+        padding: var(--spacing-xl);
+        border-radius: var(--radius-xl);
+        margin-bottom: var(--spacing-xl);
+        border-top: 2px solid var(--color-accent-blue);
+    }
+
+    .booking-page__title {
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-sm);
+        letter-spacing: 0.05em;
+        background: linear-gradient(135deg, var(--color-text-primary), var(--color-accent-cyan));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .booking-page__grid {
+        display: grid;
+        grid-template-columns: 1fr 380px; 
+        gap: var(--spacing-xl);
+        align-items: start; 
+    }
+
+    .booking-page__form-section {
+        padding: var(--spacing-xxl);
+        border-radius: var(--radius-xl);
+    }
+
+    .booking-page__step-title {
+        font-size: 1.25rem;
+        color: var(--color-accent-cyan);
+        margin: var(--spacing-xl) 0 var(--spacing-md);
+        padding-bottom: var(--spacing-sm);
+        border-bottom: 1px dashed var(--color-border);
+    }
+
+    .booking-page__step-title:first-of-type {
+        margin-top: 0;
+    }
+
+    .booking-page__add-link {
+        display: inline-block;
+        margin-top: var(--spacing-sm);
+        font-size: 0.85rem;
+        color: var(--color-accent-blue);
+        font-weight: 600;
+    }
+
+    .booking-page__add-link:hover {
+        color: var(--color-accent-cyan);
+        text-decoration: underline;
+    }
+
+    .service-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .service-card {
+        position: relative;
+        cursor: pointer;
+        border-radius: var(--radius-lg);
+        transition: var(--transition-smooth);
+        display: block; 
+    }
+
+    .service-card--full {
+        grid-column: 1 / -1; 
+    }
+
+    .service-card__radio {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .service-card__content {
+        padding: var(--spacing-lg);
+        height: 100%;
+        border-radius: inherit;
+        border: 1px solid transparent; 
+        transition: var(--transition-smooth);
+    }
+
+    .service-card__content--flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .service-card__name {
+        font-size: 1.15rem;
+        margin-bottom: var(--spacing-xs);
+        color: var(--color-text-primary);
+    }
+
+    .service-card__name--premium {
+        color: var(--color-accent-blue);
+    }
+
+    .service-card__name--cyan {
+        color: var(--color-accent-cyan);
+    }
+
+    .service-card__desc {
+        font-size: 0.85rem;
+        color: var(--color-text-secondary);
+        margin-bottom: var(--spacing-md);
+        line-height: 1.4;
+    }
+
+    .service-card__price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-text-primary);
+    }
+
+    .service-card__price--cyan {
+        color: var(--color-accent-cyan);
+    }
+
+    .service-card:hover .service-card__content {
+        background-color: var(--color-surface-hover);
+    }
+    
+    .service-card--selected {
+        border-color: var(--color-accent-blue) !important;
+        box-shadow: var(--glow-blue) !important;
+    }
+
+    .service-card--selected .service-card__content {
+        background: rgba(0, 118, 255, 0.05);
+    }
+
+    .booking-page__summary-section {
+        position: sticky;
+        top: 100px; 
+    }
+
+    .order-summary {
+        padding: var(--spacing-xl);
+        border-radius: var(--radius-xl);
+        border-top: 2px solid var(--color-accent-cyan);
+    }
+
+    .order-summary__title {
+        font-size: 1.15rem;
+        letter-spacing: 0.1em;
+        margin-bottom: var(--spacing-lg);
+        text-align: center;
+    }
+
+    .order-summary__row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-sm) 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .order-summary__label {
+        font-size: 0.85rem;
+        color: var(--color-text-tertiary);
+    }
+
+    .order-summary__value {
+        font-size: 0.95rem;
+        color: var(--color-text-primary);
+        text-align: right;
+        max-width: 60%;
+    }
+
+    .order-summary__total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: var(--spacing-lg);
+        padding-top: var(--spacing-md);
+        border-top: 1px solid var(--color-border);
+    }
+
+    .order-summary__total {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--color-accent-cyan);
+    }
+
+    .order-summary__points {
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--color-text-secondary);
+        margin: var(--spacing-md) 0 var(--spacing-xl);
+    }
+
+    .order-summary__points strong {
+        color: var(--color-accent-gold);
+    }
