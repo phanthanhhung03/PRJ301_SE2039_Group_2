@@ -4,44 +4,102 @@
  */
 package controller;
 
+import dao.CustomerDAO;
+import dao.CustomerTierDAO;
+import dao.PromotionDAO;
+import dao.PromotionTierDAO;
+import dao.VehicleDAO;
+import dto.Admin;
+import dto.Customer;
+import dto.CustomerTier;
+import dto.Promotion;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-/**
- *
- * @author Admin
- */
-@WebServlet(name = "AdminDashboardController", urlPatterns = {"/AdminDashboardController"})
+@WebServlet(name = "AdminDashboardController",
+        urlPatterns = {"/AdminDashboardController"})
 public class AdminDashboardController extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try ( PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet AdminDashboardController</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet AdminDashboardController at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+
+        HttpSession session = request.getSession(false);
+        // Check Admin Login
+        if (session == null || session.getAttribute("ADMIN_USER") == null) {
+
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/MainController?action=viewAdminSignIn");
+
+            return;
+        }
+        Admin admin = (Admin) session.getAttribute("ADMIN_USER");
+
+        try {
+
+            CustomerDAO customerDAO = new CustomerDAO();
+            VehicleDAO vehicleDAO = new VehicleDAO();
+            CustomerTierDAO tierDAO = new CustomerTierDAO();
+            PromotionDAO promotionDAO = new PromotionDAO();
+            PromotionTierDAO promotionTierDAO = new PromotionTierDAO();
+
+            // Statistics
+            int totalCustomers = customerDAO.countCustomers();
+            int totalVehicles = vehicleDAO.countVehicles();
+            List<Customer> topCustomers = customerDAO.getTopCustomers();
+            List<Promotion> promotionList = promotionDAO.getAllPromotions();
+
+            // Tier Data
+            List<CustomerTier> tierList = tierDAO.getAllTiers();
+            Map<Integer, Integer> customerTierCountMap = tierDAO.getCustomerCountByTier();
+
+            Map<Integer, Double> percentageMap = new HashMap<>(); // Lay percentage de hien thi
+            for (CustomerTier tier : tierList) {
+
+                int customerCount = customerTierCountMap.getOrDefault(tier.getTierID(), 0);
+                double percentage = 0;
+                if (totalCustomers > 0) {
+                    percentage = customerCount * 100.0 / totalCustomers;
+                }
+
+                percentageMap.put(tier.getTierID(), percentage);
+            }
+
+            Map<Integer, String> targetTierMap = new HashMap<>(); // Lay tier target
+            for (Promotion p : promotionList) {
+                targetTierMap.put(p.getPromotionID(), promotionTierDAO.getTargetTierNames(p.getPromotionID()));
+            }
+
+            // Send Data To JSP
+            request.setAttribute("totalCustomers", totalCustomers);
+
+            request.setAttribute("totalVehicles", totalVehicles);
+
+            request.setAttribute("tierList", tierList);
+
+            request.setAttribute("customerTierCountMap", customerTierCountMap);
+
+            request.setAttribute("percentageMap", percentageMap);
+
+            request.setAttribute("topCustomers", topCustomers);
+
+            request.setAttribute("promotionList", promotionList);
+
+            request.setAttribute("targetTierMap",targetTierMap);
+
+            // Forward
+            request.getRequestDispatcher("/admin/admin-dashboard.jsp").forward(request, response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
