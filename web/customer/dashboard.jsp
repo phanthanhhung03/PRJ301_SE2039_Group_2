@@ -31,11 +31,11 @@
             "SUCCESS_MESSAGE");
     if (user != null) {
         BookingDAO bookingDao = new BookingDAO();
-        
+
         // Gọi hàm từ DAO (Lưu ý: đổi user.getCusId() thành hàm lấy ID thật của bạn nếu tên khác nhé)
         List<Booking> upcoming = bookingDao.getUpcomingBookings(user.getCusId());
         List<Booking> past = bookingDao.getPastBookings(user.getCusId());
-        
+
         // Đẩy thẳng vào request để các thẻ JSTL phía dưới tự động bắt được data
         request.setAttribute("UPCOMING_BOOKINGS", upcoming);
         request.setAttribute("PAST_BOOKINGS", past);
@@ -205,7 +205,6 @@
             <section class="dashboard-section" id="vehicles">
                 <div class="dashboard-section__header">
                     <h2 class="dashboard-section__title">Vehicles</h2>
-                    <a href="#" class="btn btn--secondary btn--sm">Manage Fleet</a>
                 </div>
 
                 <div class="grid-cols-3">
@@ -256,8 +255,8 @@
                                         class="vehicle-card__action-icon vehicle-card__action-icon--delete" 
                                         title="Remove Vehicle" 
                                         onclick="openRemoveModal(
-                                            <%= vehicle.getVehicleID()%>,
-                                            '<%= vehicle.getBrand()%> <%= vehicle.getModel()%> (<%= vehicle.getLicensePlate()%>)')">
+                                        <%= vehicle.getVehicleID()%>,
+                                                        '<%= vehicle.getBrand()%> <%= vehicle.getModel()%> (<%= vehicle.getLicensePlate()%>)')">
                                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                                 </button>
                             </div>
@@ -291,77 +290,77 @@
 
             <!-- SECTION 3: BOOKINGS MANAGEMENT -->
             <section class="dashboard-section" id="bookings">
-                    <div class="dashboard-section__header">
-                        <h2 class="dashboard-section__title">Bookings</h2>
-                        <a href="${pageContext.request.contextPath}/MainController?action=viewNewBooking" class="btn btn--primary btn--sm">Schedule Detailing</a>
+                <div class="dashboard-section__header">
+                    <h2 class="dashboard-section__title">Bookings</h2>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewNewBooking" class="btn btn--primary btn--sm">Schedule Detailing</a>
+                </div>
+
+                <div class="grid-cols-2">
+                    <div>
+                        <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Upcoming Schedule</h3>
+
+                        <c:choose>
+                            <c:when test="${empty UPCOMING_BOOKINGS}">
+                                <div class="empty-state-panel glass-panel" style="padding: 2rem; text-align: center; border: 1px dashed var(--color-border);">
+                                    <span style="color: var(--color-text-tertiary);">You have no upcoming appointments.</span>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <c:forEach items="${UPCOMING_BOOKINGS}" var="booking">
+                                    <div class="booking-card glass-panel">
+                                        <div class="booking-card__datetime">
+                                            <span class="booking-card__month"><fmt:formatDate value="${booking.bookingDate}" pattern="MMM"/></span>
+                                            <span class="booking-card__day"><fmt:formatDate value="${booking.bookingDate}" pattern="dd"/></span>
+                                            <span class="booking-card__time"><fmt:formatDate value="${booking.bookingDate}" pattern="hh:mm a"/></span>
+                                        </div>
+                                        <div class="booking-card__details">
+                                            <span class="booking-card__service">${booking.serviceType}</span>
+                                            <span class="booking-card__vehicle">${booking.vehicleName}</span>
+                                            <span style="font-size:0.8rem; color:var(--color-text-tertiary);">Notes: ${empty booking.notes ? 'None' : booking.notes}</span>
+                                        </div>
+                                        <div class="booking-card__meta">
+                                            <span class="status-badge status-badge--pending">${booking.bookingStatus}</span>
+                                            <a href="#" class="btn btn--danger btn--sm">Cancel</a>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
 
-                    <div class="grid-cols-2">
-                        <div>
-                            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Upcoming Schedule</h3>
-                            
-                            <c:choose>
-                                <c:when test="${empty UPCOMING_BOOKINGS}">
-                                    <div class="empty-state-panel glass-panel" style="padding: 2rem; text-align: center; border: 1px dashed var(--color-border);">
-                                        <span style="color: var(--color-text-tertiary);">You have no upcoming appointments.</span>
-                                    </div>
-                                </c:when>
-                                <c:otherwise>
-                                    <c:forEach items="${UPCOMING_BOOKINGS}" var="booking">
-                                        <div class="booking-card glass-panel">
-                                            <div class="booking-card__datetime">
-                                                <span class="booking-card__month"><fmt:formatDate value="${booking.bookingDate}" pattern="MMM"/></span>
-                                                <span class="booking-card__day"><fmt:formatDate value="${booking.bookingDate}" pattern="dd"/></span>
-                                                <span class="booking-card__time"><fmt:formatDate value="${booking.bookingDate}" pattern="hh:mm a"/></span>
-                                            </div>
-                                            <div class="booking-card__details">
-                                                <span class="booking-card__service">${booking.serviceType}</span>
-                                                <span class="booking-card__vehicle">${booking.vehicleName}</span>
-                                                <span style="font-size:0.8rem; color:var(--color-text-tertiary);">Notes: ${empty booking.notes ? 'None' : booking.notes}</span>
-                                            </div>
-                                            <div class="booking-card__meta">
-                                                <span class="status-badge status-badge--pending">${booking.bookingStatus}</span>
-                                                <a href="#" class="btn btn--danger btn--sm">Cancel</a>
-                                            </div>
-                                        </div>
-                                    </c:forEach>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
+                    <div>
+                        <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Wash History</h3>
 
-                        <div>
-                            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Wash History</h3>
-
-                            <c:choose>
-                                <c:when test="${empty PAST_BOOKINGS}">
-                                    <div class="empty-state-panel glass-panel" style="padding: 2rem; text-align: center; border: 1px dashed var(--color-border);">
-                                        <span style="color: var(--color-text-tertiary);">No wash history available.</span>
-                                    </div>
-                                </c:when>
-                                <c:otherwise>
-                                    <c:forEach items="${PAST_BOOKINGS}" var="history">
-                                        <div class="booking-card glass-panel">
-                                            <div class="booking-card__datetime">
-                                                <span class="booking-card__month"><fmt:formatDate value="${history.bookingDate}" pattern="MMM"/></span>
-                                                <span class="booking-card__day"><fmt:formatDate value="${history.bookingDate}" pattern="dd"/></span>
-                                                <span class="booking-card__time"><fmt:formatDate value="${history.bookingDate}" pattern="hh:mm a"/></span>
-                                            </div>
-                                            <div class="booking-card__details">
-                                                <span class="booking-card__service">${history.serviceType}</span>
-                                                <span class="booking-card__vehicle">${history.vehicleName}</span>
-                                            </div>
-                                            <div class="booking-card__meta">
-                                                <span class="status-badge ${history.bookingStatus == 'Cancelled' ? 'status-badge--cancelled' : 'status-badge--completed'}">
-                                                    ${history.bookingStatus}
-                                                </span>
-                                            </div>
+                        <c:choose>
+                            <c:when test="${empty PAST_BOOKINGS}">
+                                <div class="empty-state-panel glass-panel" style="padding: 2rem; text-align: center; border: 1px dashed var(--color-border);">
+                                    <span style="color: var(--color-text-tertiary);">No wash history available.</span>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <c:forEach items="${PAST_BOOKINGS}" var="history">
+                                    <div class="booking-card glass-panel">
+                                        <div class="booking-card__datetime">
+                                            <span class="booking-card__month"><fmt:formatDate value="${history.bookingDate}" pattern="MMM"/></span>
+                                            <span class="booking-card__day"><fmt:formatDate value="${history.bookingDate}" pattern="dd"/></span>
+                                            <span class="booking-card__time"><fmt:formatDate value="${history.bookingDate}" pattern="hh:mm a"/></span>
                                         </div>
-                                    </c:forEach>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
+                                        <div class="booking-card__details">
+                                            <span class="booking-card__service">${history.serviceType}</span>
+                                            <span class="booking-card__vehicle">${history.vehicleName}</span>
+                                        </div>
+                                        <div class="booking-card__meta">
+                                            <span class="status-badge ${history.bookingStatus == 'Cancelled' ? 'status-badge--cancelled' : 'status-badge--completed'}">
+                                                ${history.bookingStatus}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
-                </section>
+                </div>
+            </section>
 
             <!-- SECTION 4: RECENT ACTIVITY TIMELINE -->
             <section class="dashboard-section">
@@ -413,25 +412,45 @@
                         <!-- Account Information Form -->
                         <div>
                             <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Account Information</h3>
-                            <form action="#" method="POST" onsubmit="return false;">
+                            <form action="MainController" method="POST">
                                 <div class="form-group">
                                     <label class="form-group__label">Full Name</label>
-                                    <input type="text" class="form-group__input" value="Kenji Takahashi">
+                                    <input type="text"
+                                           class="form-group__input"
+                                           value="${not empty newName ? newName : user.fullName}"
+                                           name="newName"
+                                           placeholder="Enter your full name"
+                                           required
+                                           pattern="^[A-Za-z\u00C0-\u024F\s]{2,100}$">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-group__label">Phone Number</label>
-                                    <input type="tel" class="form-group__input" value="+81 90-1234-5678">
-                                </div>
-                                <div class="form-group">
+                                    <input type="tel"
+                                           class="form-group__input"
+                                           value="<%= user.getPhoneNumber()%>"
+                                           name="newPhoneNumber"
+                                           placeholder="Enter your phone number"
+                                           pattern="^(0[35789])\d{8}$"
+                                           required>
+                                           </div>
+                                           <div class="form-group">
                                     <label class="form-group__label">Email Address</label>
-                                    <input type="email" class="form-group__input" value="kenji@takahashi.co.jp" disabled>
+                                    <input type="email" class="form-group__input" value="<%= user.getEmail()%>" disabled>
                                     <span style="font-size:0.75rem; color:var(--color-text-tertiary);">Contact support to modify email credentials.</span>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-group__label">Billing Address</label>
-                                    <input type="text" class="form-group__input" value="3-5-1 Ginza, Chuo-ku, Tokyo">
+                                    <input type="text"
+                                           class="form-group__input"
+                                           value="<%= user.getAddress()%>"
+                                           name="newAddress"
+                                           placeholder="Enter your address"
+                                           required
+                                           pattern="^.{5,255}$">
                                 </div>
+                                <input type="hidden" name="action" value="updateProfile" />
                                 <button class="btn btn--primary">Update Profile</button>
+
                             </form>
                         </div>
 
