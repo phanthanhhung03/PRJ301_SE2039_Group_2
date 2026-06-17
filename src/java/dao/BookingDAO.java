@@ -170,4 +170,31 @@ public class BookingDAO {
         }
         return list;
     }
+    
+    public boolean cancelBooking(int bookingID) {
+        boolean check = false;
+        Connection cn = null;
+        PreparedStatement st = null;
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn != null) {
+                // Lưu ý: Thầy dùng 'BookingStatus' theo đúng thuộc tính setBookingStatus("Pending") trong DTO của em
+                String sql = "UPDATE Bookings SET BookingStatus = 'Cancelled' WHERE BookingID = ?";
+                st = cn.prepareStatement(sql);
+                st.setInt(1, bookingID);
+
+                check = st.executeUpdate() > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (st != null) st.close();
+                if (cn != null) cn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return check;
+    }
 }

@@ -31,62 +31,98 @@ public class BookingController extends HttpServlet {
         }
 
         try {
-            // 1. LẤY DỮ LIỆU TỪ FORM JSP GỬI LÊN
-            int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));
-            String dateStr = request.getParameter("bookingDate"); // Định dạng: YYYY-MM-DD
-            String timeStr = request.getParameter("bookingTime"); // Định dạng: HH:mm
-            String serviceType = request.getParameter("serviceType");
-            String notes = request.getParameter("notes");
+            // Lấy biến action từ form gửi lên để phân chia nhiệm vụ
+            String action = request.getParameter("action");
 
-            // 2. CHUYỂN ĐỔI NGÀY & GIỜ THÀNH JAVA.SQL.TIMESTAMP
-            // Ghép chuỗi ngày và giờ lại thành một định dạng chuẩn
-            String dateTimeStr = dateStr + " " + timeStr + ":00";
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date parsedDate = dateFormat.parse(dateTimeStr);
-            Timestamp bookingDate = new Timestamp(parsedDate.getTime());
-
-            // 3. TÍNH TOÁN GIÁ TIỀN GỐC (TOTAL AMOUNT) Ở BACKEND
-            double totalAmount = 0;
-            if (serviceType.equals("Basic Wash")) {
-                totalAmount = 150000;
-            } else if (serviceType.equals("Premium Wash")) {
-                totalAmount = 300000;
-            } else if (serviceType.equals("Ceramic Coating")) {
-                totalAmount = 2000000;
-            }
-
-            // 4. TÍNH TOÁN GIẢM GIÁ (DISCOUNT AMOUNT) THEO TIER CỦA CUSTOMER
-            // Mặc định lấy phần trăm giảm giá từ đối tượng Tier liên kết trong Database của em
-            double discountPercent = user.getTierId().getDiscountPercent(); // Ví dụ: Gold là 10.0
-            double discountAmount = totalAmount * (discountPercent / 100.0);
-            double finalAmount = totalAmount - discountAmount;
-
-            // 5. ĐÓNG GÓI DỮ LIỆU VÀO ĐỐI TƯỢNG BOOKING DTO (10 cột)
-            Booking booking = new Booking();
-            booking.setVehicleID(vehicleID);
-            booking.setBookingDate(bookingDate);
-            booking.setTimeSlot(timeStr);
-            booking.setServiceType(serviceType);
-            booking.setBookingStatus("Pending"); // Lịch mới tạo mặc định ở trạng thái Chờ duyệt
-            booking.setNotes(notes);
-            booking.setTotalAmount(totalAmount);
-            booking.setDiscountAmount(discountAmount);
-            booking.setFinalAmount(finalAmount);
-
-            // 6. GỌI DAO ĐỂ THỰC THI GHI VÀO SQL SERVER
-            BookingDAO dao = new BookingDAO();
-            boolean isSuccess = dao.insertBooking(booking);
-
-            if (isSuccess) {
-                // Đặt lịch thành công, cập nhật lại số lượng booking tạm thời trong session nếu cần
-                user.setTotalBooking(user.getTotalBooking() + 1);
+            // =========================================================
+            // NHÁNH 1: XỬ LÝ HỦY LỊCH (CANCEL BOOKING)
+            // =========================================================
+            if ("cancelBooking".equals(action)) {
+                int bookingID = Integer.parseInt(request.getParameter("bookingID"));
                 
-                // Đẩy người dùng về lại trang Dashboard chính thông qua Controller điều hướng dữ liệu
+                BookingDAO dao = new BookingDAO();
+                boolean isSuccess = dao.cancelBooking(bookingID);
+                
+                if (isSuccess) {
+                    // DÙNG SESSION ĐỂ GIỮ THÔNG BÁO KHÔNG BỊ MẤT KHI CHUYỂN TRANG
+                    session.setAttribute("MSG", "Your booking has been cancelled successfully!");
+                } else {
+                    session.setAttribute("ERROR", "Failed to cancel booking. Please try again.");
+                }
+                
+                // Hủy xong thì điều hướng quay trở lại trang Dashboard/History
                 response.sendRedirect("MainController?action=viewDashBoard");
-            } else {
-                // Nếu thất bại, có thể tạo biến báo lỗi truyền ngược lại trang booking
-                request.setAttribute("BOOKING_ERROR", "Failed to create appointment. Please try again.");
-                request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
+                return; 
+            }
+            
+            // =========================================================
+            // NHÁNH 2: TẠO LỊCH MỚI (Bọc trong else if cho an toàn)
+            // =========================================================
+            else if ("createBookingProcess".equals(action)) {
+                // 1. LẤY DỮ LIỆU TỪ FORM JSP GỬI LÊN
+                int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));
+                String dateStr = request.getParameter("bookingDate"); 
+                String timeStr = request.getParameter("bookingTime"); 
+                String serviceType = request.getParameter("serviceType");
+                String notes = request.getParameter("notes");
+
+                // --- BẮT ĐẦU CHỐT CHẶN BẢO MẬT ---
+                java.time.LocalDate inputDate = java.time.LocalDate.parse(dateStr);
+                java.time.LocalDate today = java.time.LocalDate.now();
+
+                if (inputDate.isBefore(today)) {
+                    request.setAttribute("BOOKING_ERROR", "Invalid booking date. Please select a future date.");
+                    request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
+                    return; 
+                }
+                // --- KẾT THÚC CHỐT CHẶN ---
+
+                // 2. CHUYỂN ĐỔI NGÀY & GIỜ THÀNH JAVA.SQL.TIMESTAMP
+                String dateTimeStr = dateStr + " " + timeStr + ":00";
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date parsedDate = dateFormat.parse(dateTimeStr);
+                
+                Timestamp bookingDate = new Timestamp(parsedDate.getTime());
+                
+                // 3. TÍNH TOÁN GIÁ TIỀN GỐC Ở BACKEND
+                double totalAmount = 0;
+                if (serviceType.equals("Normal Wash")) {
+                    totalAmount = 150000;
+                } else if (serviceType.equals("Premium Wash")) {
+                    totalAmount = 300000;
+                } else if (serviceType.equals("Ceramic Coating")) {
+                    totalAmount = 2000000;
+                }
+
+                // 4. TÍNH TOÁN GIẢM GIÁ 
+                double discountPercent = user.getTierId().getDiscountPercent(); 
+                double discountAmount = totalAmount * (discountPercent / 100.0);
+                double finalAmount = totalAmount - discountAmount;
+
+                // 5. ĐÓNG GÓI DỮ LIỆU VÀO DTO
+                Booking booking = new Booking();
+                booking.setVehicleID(vehicleID);
+                booking.setBookingDate(bookingDate);
+                booking.setTimeSlot(timeStr);
+                booking.setServiceType(serviceType);
+                booking.setBookingStatus("Pending"); 
+                booking.setNotes(notes);
+                booking.setTotalAmount(totalAmount);
+                booking.setDiscountAmount(discountAmount);
+                booking.setFinalAmount(finalAmount);
+
+                // 6. GỌI DAO ĐỂ THỰC THI
+                BookingDAO dao = new BookingDAO();
+                boolean isSuccess = dao.insertBooking(booking);
+
+                if (isSuccess) {
+                    user.setTotalBooking(user.getTotalBooking() + 1);
+                    session.setAttribute("MSG", "Booking created successfully!"); // Báo thành công
+                    response.sendRedirect("MainController?action=viewDashBoard");
+                } else {
+                    request.setAttribute("BOOKING_ERROR", "Failed to create appointment. Please try again.");
+                    request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
+                }
             }
 
         } catch (Exception e) {

@@ -321,7 +321,19 @@
                                             </div>
                                             <div class="booking-card__meta">
                                                 <span class="status-badge status-badge--pending">${booking.bookingStatus}</span>
-                                                <a href="#" class="btn btn--danger btn--sm">Cancel</a>
+
+                                                <c:if test="${booking.bookingStatus == 'Pending'}">
+                                                    <form action="${pageContext.request.contextPath}/BookingController" method="POST" style="display:inline;">
+                                                        <input type="hidden" name="action" value="cancelBooking">
+                                                        <input type="hidden" name="bookingID" value="${booking.bookingID}">
+
+                                                        <button type="submit" class="btn btn--danger btn--sm" 
+                                                                style="background: transparent; border: 1px solid #ef4444; color: #ef4444; cursor: pointer;"
+                                                                onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                                            Cancel
+                                                        </button>
+                                                    </form>
+                                                </c:if>
                                             </div>
                                         </div>
                                     </c:forEach>
