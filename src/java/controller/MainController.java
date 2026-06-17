@@ -73,15 +73,15 @@ public class MainController extends HttpServlet {
             case "viewDashBoard":
                 url = "/dashboard";
                 break;
-            
+
             case "viewNewBooking":
                 url = "/customer/bookingpage.jsp";
                 break;
-            
+
             case "createBookingProcess":
                 url = "/BookingController";
                 break;
-                
+
             case "viewAddVehicle":
                 url = "/customer/addVehicle.jsp";
                 break;
@@ -102,14 +102,20 @@ public class MainController extends HttpServlet {
             case "viewAdminDashboard":
                 url = "/AdminDashboardController";
                 break;
-
+            case "viewLoyaltyManagement":
+                url = "/LoyaltyManagementController";
+                break;
+            case "updateTier":
+                url = "/TierController";
+                break;
+                
             case "registerVehicle":
                 url = "/vehicle/register";
                 break;
             case "viewCustomerManagement":
                 url = "/admin/customer-management.jsp";
                 break;
-                
+
             //VEHICLE
             case "viewUpdateVehicle":
 

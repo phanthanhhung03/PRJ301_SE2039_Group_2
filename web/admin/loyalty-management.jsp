@@ -5,14 +5,18 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Loyalty Management | AutoWashPro Staff</title>
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+        <script src="${pageContext.request.contextPath}/js/loyalty-management.js"></script> 
     </head>
+
     <body>
 
         <!-- STAFF TOP NAVIGATION -->
@@ -23,15 +27,14 @@
                     <div class="site-header__logo-text">ADMIN<span>PANEL</span></div>
                 </a>
                 <nav class="site-header__navigation">
-                    <a href="admin-dashboard.html" class="site-header__nav-link">Dashboard</a>
-                    <a href="customer-management.html" class="site-header__nav-link">Customers</a>
+                    <a href="MainController?action=viewAdminDashboard" class="site-header__nav-link">Dashboard</a>
+                    <a href="MainController?action=viewCustomerManagement" class="site-header__nav-link">Customers</a>
                     <a href="booking-management.html" class="site-header__nav-link">Bookings</a>
-                    <a href="loyalty-management.html" class="site-header__nav-link site-header__nav-link--active">Loyalty</a>
-                    <a href="reports.html" class="site-header__nav-link">Reports</a>
+                    <a href="#" class="site-header__nav-link site-header__nav-link--active">Loyalty</a>
                 </nav>
                 <div class="site-header__actions">
                     <span class="status-badge status-badge--completed">Staff Portal</span>
-                    <a href="admin-login.html" class="btn btn--secondary btn--sm">Logout</a>
+                    <a href="MainController?action=logout" class="btn btn--secondary btn--sm">Logout</a>
                 </div>
             </div>
         </header>
@@ -42,53 +45,103 @@
             <!-- HEADER BLOCK -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-xl);">
                 <div>
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--color-accent-cyan); text-transform:uppercase; letter-spacing:0.1em;">Club Settings</span>
-                    <h1 style="font-size:2.0rem; margin-top:var(--spacing-xs);">Loyalty Program Engine</h1>
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--color-accent-cyan); text-transform:uppercase; letter-spacing:0.1em;">
+                        Loyalty Management
+                    </span>
+
+                    <h1 style="font-size:2.0rem; margin-top:var(--spacing-xs);">
+                        Customer Tier Overview
+                    </h1>
                 </div>
-                <a href="#" class="btn btn--gold btn--sm">Modify Club Rules</a>
             </div>
 
             <!-- TIER STRUCTURE CONFIGURATION -->
             <section style="margin-bottom: var(--spacing-xl);">
-                <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Membership Tiers Structure</h3>
+
+                <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">
+                    Membership Tiers Structure
+                </h3>
+
                 <div class="grid-cols-4">
-                    <!-- Standard -->
-                    <div class="glass-panel" style="padding:var(--spacing-lg); border-radius:var(--radius-lg); border-top: 3px solid var(--color-text-secondary);">
-                        <h4 style="font-size:1.1rem; color:var(--color-text-primary);">Elite Standard</h4>
-                        <p style="font-size:0.8rem; color:var(--color-text-tertiary); margin:var(--spacing-xs) 0 var(--spacing-md);">Basic user registration status</p>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-xs);">Multiplier: <strong>1.0x</strong></div>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-xs);">Threshold: <strong>0 pts</strong></div>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-md);">Discount: <strong>None</strong></div>
-                        <a href="#" class="btn btn--secondary btn--sm btn--block">Configure</a>
-                    </div>
-                    <!-- Elite Club -->
-                    <div class="glass-panel" style="padding:var(--spacing-lg); border-radius:var(--radius-lg); border-top: 3px solid var(--color-accent-blue);">
-                        <h4 style="font-size:1.1rem; color:var(--color-accent-blue);">Elite Club</h4>
-                        <p style="font-size:0.8rem; color:var(--color-text-tertiary); margin:var(--spacing-xs) 0 var(--spacing-md);">Medium detailing tier</p>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-xs);">Multiplier: <strong>1.2x</strong></div>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-xs);">Threshold: <strong>500 pts</strong></div>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-md);">Discount: <strong>5% off detail</strong></div>
-                        <a href="#" class="btn btn--secondary btn--sm btn--block">Configure</a>
-                    </div>
-                    <!-- Signature -->
-                    <div class="glass-panel" style="padding:var(--spacing-lg); border-radius:var(--radius-lg); border-top: 3px solid var(--color-accent-cyan);">
-                        <h4 style="font-size:1.1rem; color:var(--color-accent-cyan);">Signature Detailing</h4>
-                        <p style="font-size:0.8rem; color:var(--color-text-tertiary); margin:var(--spacing-xs) 0 var(--spacing-md);">Elite detailing membership</p>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-xs);">Multiplier: <strong>1.5x</strong></div>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-xs);">Threshold: <strong>1,500 pts</strong></div>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-md);">Discount: <strong>10% off detail</strong></div>
-                        <a href="#" class="btn btn--secondary btn--sm btn--block">Configure</a>
-                    </div>
-                    <!-- VIP Shogun -->
-                    <div class="glass-panel" style="padding:var(--spacing-lg); border-radius:var(--radius-lg); border-top: 3px solid var(--color-accent-gold); box-shadow:var(--glow-gold);">
-                        <h4 style="font-size:1.1rem; color:var(--color-accent-gold);">VIP Shogun</h4>
-                        <p style="font-size:0.8rem; color:var(--color-text-tertiary); margin:var(--spacing-xs) 0 var(--spacing-md);">Top tier luxury status</p>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-xs);">Multiplier: <strong>2.0x</strong></div>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-xs);">Threshold: <strong>4,000 pts</strong></div>
-                        <div style="font-size:0.85rem; margin-bottom:var(--spacing-md);">Discount: <strong>20% off + lounge</strong></div>
-                        <a href="#" class="btn btn--secondary btn--sm btn--block" style="border-color:var(--color-accent-gold); color:var(--color-accent-gold);">Configure</a>
-                    </div>
+
+                    <c:forEach var="tier" items="${tierList}">
+
+                        <div class="glass-panel"
+                             style="
+                             padding:var(--spacing-lg);
+                             border-radius:var(--radius-lg);
+                             border-top:3px solid var(--color-accent-cyan);">
+
+                            <!-- Tier Name -->
+                            <h4 style="font-size:1.1rem; color:var(--color-text-primary);">
+                                ${tier.tierName}
+                            </h4>
+
+                            <p style="
+                               font-size:0.8rem;
+                               color:var(--color-text-tertiary);
+                               margin:var(--spacing-xs) 0 var(--spacing-md);">
+
+                                Tier Level ${tier.priorityLevel}
+                            </p>
+
+                            <!-- Requirement -->
+                            <div style="
+                                 font-size:0.9rem;
+                                 font-weight:600;
+                                 margin-bottom:var(--spacing-sm);">
+                                Requirements
+                            </div>
+
+                            <div style="font-size:0.85rem; margin-bottom:var(--spacing-xs);">
+                                ${tier.minBookings} bookings
+                            </div>
+
+                            <div style="font-size:0.85rem; margin-bottom:var(--spacing-md);">
+                                <fmt:formatNumber value="${tier.minSpend}" pattern="#,###"/>
+                                VND spending
+                            </div>
+
+                            <!-- Benefits -->
+                            <div style="
+                                 font-size:0.9rem;
+                                 font-weight:600;
+                                 margin-bottom:var(--spacing-sm);">
+
+                                Benefits
+                            </div>
+
+                            <div style="font-size:0.85rem; margin-bottom:var(--spacing-xs);">
+                                ${tier.pointMultiplier}x point multiplier
+                            </div>
+
+                            <div style="font-size:0.85rem; margin-bottom:var(--spacing-md);">
+                                ${tier.discountPercent}% discount
+                            </div>
+
+                            <!-- Button -->
+                            <button
+                                class="btn btn--secondary btn--sm btn--block"
+
+                                data-tier-id="${tier.tierID}"
+                                data-tier-name="${tier.tierName}"
+                                data-min-bookings="${tier.minBookings}"
+                                data-min-spend="${tier.minSpend}"
+                                data-point-multiplier="${tier.pointMultiplier}"
+                                data-discount-percent="${tier.discountPercent}"
+
+                                onclick="openTierModal(this)">
+
+                                Configure Tier
+
+                            </button>
+
+                        </div>
+
+                    </c:forEach>
+
                 </div>
+
             </section>
 
             <!-- POINT RULES & REDEMPTIONS -->
@@ -248,10 +301,81 @@
             <div class="site-footer__container main-wrapper">
                 <div class="site-footer__bottom">
                     <p>&copy; 2026 AutoWashPro Operations Desk. Restricted Access.</p>
-                    <a href="index.html" class="site-footer__staff-link">Return to Customer Landing</a>
+                    <a href="MainController?action=logout" class="site-footer__staff-link">Return to Customer Landing</a>
                 </div>
             </div>
         </footer>
+
+
+        <!-- Modal for Configure Button -->
+        <div id="tierModal" class="tier-modal-overlay">
+
+            <div class="glass-panel tier-modal-box">
+
+                <div class="tier-modal-header">
+
+                    <h3>Configure Tier</h3>
+
+                    <button type="button"
+                            class="tier-modal-close"
+                            onclick="closeTierModal()">
+                        ✕
+                    </button>
+
+                </div>
+
+                <form action="MainController?action=updateTier" method="POST">
+
+                    <input type="hidden"
+                           id="modalTierID"
+                           name="tierID">
+
+                    <div class="tier-form-group">
+                        <label>Tier Name</label>
+                        <input type="text"
+                               id="tierName"
+                               readonly>
+                    </div>
+
+                    <div class="tier-form-group">
+                        <label>Minimum Bookings</label>
+                        <input type="number"
+                               id="minBookings"
+                               name="minBookings">
+                    </div>
+
+                    <div class="tier-form-group">
+                        <label>Minimum Spend</label>
+                        <input type="number"
+                               id="minSpend"
+                               name="minSpend">
+                    </div>
+
+                    <div class="tier-form-group">
+                        <label>Point Multiplier</label>
+                        <input type="number"
+                               step="0.1"
+                               id="pointMultiplier"
+                               name="pointMultiplier">
+                    </div>
+
+                    <div class="tier-form-group">
+                        <label>Discount Percent</label>
+                        <input type="number"
+                               step="0.1"
+                               id="discountPercent"
+                               name="discountPercent">
+                    </div>
+
+                    <button class="btn btn--gold btn--block">
+                        Save Changes
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
 
     </body>
 </html>
