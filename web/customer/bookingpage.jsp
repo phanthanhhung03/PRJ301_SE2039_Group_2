@@ -64,7 +64,7 @@
                             <select id="vehicleSelect" name="vehicleID" class="form-group__input form-group__select" required>
                                 <option value="" disabled selected>-- Choose a registered vehicle --</option>
                                 <c:forEach items="${VEHICLE_LIST}" var="car">
-                                    <option value="${car.vehicleID}">
+                                    <option value="${car.vehicleID}" data-name="${car.licensePlate} - ${car.model}">
                                         ${car.licensePlate} - ${car.brand} ${car.model} (${car.color})
                                     </option>
                                 </c:forEach>
@@ -77,7 +77,9 @@
                         <div class="form-group">
                             <label for="bookingDate" class="form-group__label">Date</label>
                             <div class="form-group__input-wrapper">
-                                <input type="date" id="bookingDate" name="bookingDate" class="form-group__input" required>
+                                <%-- Khai báo biến todayStr ở đây trước khi sử dụng ở dưới --%>
+                                <% String todayStr = java.time.LocalDate.now().toString(); %>
+                                <input type="date" id="bookingDate" name="bookingDate" class="form-group__input" min="<%= todayStr %>" required>
                             </div>
                         </div>
                         <div class="form-group">

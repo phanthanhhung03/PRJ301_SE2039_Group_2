@@ -20,7 +20,57 @@ document.addEventListener('DOMContentLoaded', function() {
     const summaryDiscount = document.getElementById('summaryDiscount');
 
     let currentServicePrice = 0;
+    
+    // === CODE MỚI: CHẶN NGÀY GIỜ QUÁ KHỨ ===
+    if (bookingDate && bookingTime) {
+        // Lấy ngày hiện tại chuẩn theo múi giờ máy tính
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`; // Định dạng YYYY-MM-DD
+        
+        // 1. Chặn chọn ngày quá khứ trong bộ lịch
+        bookingDate.setAttribute('min', todayStr);
 
+        // 2. Hàm kiểm tra và khóa các Slot giờ đã trôi qua nếu chọn ngày hôm nay
+        function validateTimeSlots() {
+            if (bookingDate.value === todayStr) {
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+
+                Array.from(bookingTime.options).forEach(option => {
+                    if (option.value) { // Bỏ qua dòng placeholder "-- Select a slot --"
+                        const [optHour, optMinute] = option.value.split(':').map(Number);
+                        // Nếu giờ option < giờ hiện tại (hoặc bằng giờ nhưng phút < phút hiện tại) -> Khóa lại
+                        if (optHour < currentHour || (optHour === currentHour && optMinute <= currentMinute)) {
+                            option.disabled = true;
+                        } else {
+                            option.disabled = false;
+                        }
+                    }
+                });
+                
+                // Nếu slot khách đang chọn vô tình bị khóa (do thời gian vừa trôi qua), reset lại ô chọn giờ
+                if (bookingTime.options[bookingTime.selectedIndex] && bookingTime.options[bookingTime.selectedIndex].disabled) {
+                    bookingTime.selectedIndex = 0; 
+                    if(summaryTime) summaryTime.innerText = "--:--"; // Reset luôn bên Hóa đơn
+                }
+            } else {
+                // Nếu chọn ngày tương lai, mở khóa tất cả các slot giờ
+                Array.from(bookingTime.options).forEach(option => {
+                    option.disabled = false;
+                });
+            }
+        }
+
+        // Gắn sự kiện để mỗi lần đổi ngày là quét lại slot giờ
+        bookingDate.addEventListener('change', validateTimeSlots);
+        
+        // Chạy ngay lần đầu tiên khi vừa load trang
+        validateTimeSlots(); 
+    }
+    // ========================================
     // --- HÀM 1: CẬP NHẬT XE ---
     function updateVehicle() {
         if (vehicleSelect && summaryVehicle && vehicleSelect.selectedIndex > 0) {
