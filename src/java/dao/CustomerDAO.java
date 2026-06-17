@@ -6,7 +6,9 @@ import dto.CustomerTier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -296,27 +298,125 @@ public class CustomerDAO {
     }
 
     public int countCustomers() {
+
         int total = 0;
         Connection cn = null;
         PreparedStatement st = null;
         ResultSet table = null;
+
         try {
             cn = dbutils.DBUtils.getConnection();
             if (cn != null) {
-                String sql = "SELECT COUNT(*) FROM Customer";
+                String sql
+                        = "SELECT COUNT(*) AS TotalCustomers "
+                        + "FROM Customers "
+                        + "WHERE Status = ?";
+
                 st = cn.prepareStatement(sql);
+                st.setBoolean(1, true);
                 table = st.executeQuery();
-                if(table.next()){
-                    total = table.getInt(1);
+
+                if (table.next()) {
+                    total = table.getInt("TotalCustomers");
                 }
-                table.close();
-                st.close();
-                cn.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            try {
+
+                if (table != null) {
+                    table.close();
+                }
+
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return total;
+    }
+
+    public List<Customer> getTopCustomers() {
+
+        List<Customer> list = new ArrayList<>();
+
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet table = null;
+
+        try {
+
+            cn = dbutils.DBUtils.getConnection();
+
+            if (cn != null) {
+
+                String sql
+                        = "SELECT TOP 3 "
+                        + "c.CustomerID, "
+                        + "c.FullName, "
+                        + "c.CurrentPoints, "
+                        + "c.TotalSpend, "
+                        + "t.TierID, "
+                        + "t.TierName "
+                        + "FROM Customers c "
+                        + "JOIN CustomerTiers t ON c.TierID = t.TierID "
+                        + "WHERE c.Status = 1 "
+                        + "ORDER BY c.TotalSpend DESC";
+
+                st = cn.prepareStatement(sql);
+
+                table = st.executeQuery();
+
+                while (table.next()) {
+
+                    Customer c = new Customer();
+
+                    c.setCusId(table.getInt("CustomerID"));
+                    c.setFullName(table.getString("FullName"));
+                    c.setCurrentPoint(table.getInt("CurrentPoints"));
+                    c.setTotalSpend(table.getDouble("TotalSpend"));
+
+                    CustomerTier tier = new CustomerTier();
+                    tier.setTierID(table.getInt("TierID"));
+                    tier.setTierName(table.getString("TierName"));
+
+                    c.setTierId(tier);
+
+                    list.add(c);
+                }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+
+            try {
+
+                if (table != null) {
+                    table.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        return total;
+
+        return list;
     }
 }
