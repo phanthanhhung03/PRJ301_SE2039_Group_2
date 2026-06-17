@@ -23,11 +23,10 @@
                     <div class="site-header__logo-text">ADMIN<span>PANEL</span></div>
                 </a>
                 <nav class="site-header__navigation">
-                    <a href="admin-dashboard.html" class="site-header__nav-link">Dashboard</a>
-                    <a href="customer-management.html" class="site-header__nav-link site-header__nav-link--active">Customers</a>
+                    <a href="MainController?action=viewAdminDashboard" class="site-header__nav-link">Dashboard</a>
+                    <a href="#" class="site-header__nav-link site-header__nav-link--active">Customers</a>
                     <a href="booking-management.html" class="site-header__nav-link">Bookings</a>
                     <a href="loyalty-management.html" class="site-header__nav-link">Loyalty</a>
-                    <a href="reports.html" class="site-header__nav-link">Reports</a>
                 </nav>
                 <div class="site-header__actions">
                     <span class="status-badge status-badge--completed">Staff Portal</span>

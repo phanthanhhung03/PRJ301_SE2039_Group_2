@@ -353,7 +353,7 @@ public class VehicleDAO {
             st.setString(2, model);
             st.setString(3, color);
             st.setInt(4, vehicleId);
-            
+
             result = st.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -384,14 +384,14 @@ public class VehicleDAO {
                 System.out.println("CANNOT CONNECT TO SQL");
                 return result;
             }
-            String sql = 
-                    "UPDATE [dbo].[Vehicles] "
+            String sql
+                    = "UPDATE [dbo].[Vehicles] "
                     + "SET [Status] = 0 "
                     + "WHERE [VehicleID] = ? AND [Status] = 1";
 
             st = cn.prepareStatement(sql);
             st.setInt(1, vehicleId);
-            
+
             result = st.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -411,4 +411,55 @@ public class VehicleDAO {
         }
         return result;
     }
+
+    public int countVehicles() {
+
+        int total = 0;
+
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet table = null;
+
+        try {
+
+            cn = dbutils.DBUtils.getConnection();
+
+            if (cn != null) {
+
+                String sql
+                        = "SELECT COUNT(*) "
+                        + "FROM Vehicles "
+                        + "WHERE Status = 1";
+
+                st = cn.prepareStatement(sql);
+
+                table = st.executeQuery();
+
+                if (table.next()) {
+                    total = table.getInt(1);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            try {
+                if (table != null) {
+                    table.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return total;
+    }
+    
 }
