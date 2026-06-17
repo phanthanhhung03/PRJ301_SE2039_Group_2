@@ -27,10 +27,11 @@ public class Booking {
     }
 
     // 2. Hàm khởi tạo đầy đủ tham số
-    public Booking(int bookingID, int vehicleID, Timestamp bookingDate, String serviceType, String bookingStatus, String notes, double totalAmount, double discountAmount, double finalAmount, Timestamp createdAt, String vehicleName) {
+    public Booking(int bookingID, int vehicleID, Timestamp bookingDate, String timeSlot, String serviceType, String bookingStatus, String notes, double totalAmount, double discountAmount, double finalAmount, Timestamp createdAt, String vehicleName) {
         this.bookingID = bookingID;
         this.vehicleID = vehicleID;
         this.bookingDate = bookingDate;
+        this.timeSlot = timeSlot;
         this.serviceType = serviceType;
         this.bookingStatus = bookingStatus;
         this.notes = notes;
@@ -40,7 +41,7 @@ public class Booking {
         this.createdAt = createdAt;
         this.vehicleName = vehicleName;
     }
-
+    
     // 3. Getters và Setters
     public int getBookingID() {
         return bookingID;
@@ -64,6 +65,14 @@ public class Booking {
 
     public void setBookingDate(Timestamp bookingDate) {
         this.bookingDate = bookingDate;
+    }
+
+    public String getTimeSlot() {
+        return timeSlot;
+    }
+
+    public void setTimeSlot(String timeSlot) {
+        this.timeSlot = timeSlot;
     }
 
     public String getServiceType() {
@@ -124,14 +133,6 @@ public class Booking {
 
     public String getVehicleName() {
         return vehicleName;
-    }
-
-    public String getTimeSlot() {
-        return timeSlot;
-    }
-
-    public void setTimeSlot(String timeSlot) {
-        this.timeSlot = timeSlot;
     }
 
     public void setVehicleName(String vehicleName) {

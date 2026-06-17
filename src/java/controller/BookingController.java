@@ -37,14 +37,33 @@ public class BookingController extends HttpServlet {
             String timeStr = request.getParameter("bookingTime"); // Định dạng: HH:mm
             String serviceType = request.getParameter("serviceType");
             String notes = request.getParameter("notes");
-
+            
             // 2. CHUYỂN ĐỔI NGÀY & GIỜ THÀNH JAVA.SQL.TIMESTAMP
             // Ghép chuỗi ngày và giờ lại thành một định dạng chuẩn
             String dateTimeStr = dateStr + " " + timeStr + ":00";
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date parsedDate = dateFormat.parse(dateTimeStr);
             Timestamp bookingDate = new Timestamp(parsedDate.getTime());
-
+            
+            //KIỂM TRA THỜI GIAN TRONG QUÁ KHỨ
+            Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+            // Hàm before() sẽ trả về true nếu thời gian khách chọn nhỏ hơn thời gian hiện tại
+            if (bookingDate.before(currentTime)) {
+                request.setAttribute("BOOKING_ERROR", "Cannot book an appointment in the past. Please select a valid time!");
+                request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
+                return; // Dừng lại ngay lập tức
+            }
+            BookingDAO isbooked = new BookingDAO();
+            //KIỂM TRA TRÙNG LỊCH
+            boolean isBooked = isbooked.isSlotBooked(dateStr, timeStr);
+            if (isBooked) {
+                // Tạo thông báo lỗi gửi về lại giao diện
+                request.setAttribute("BOOKING_ERROR", "This time slot has already been booked. Please choose a different time!");
+                // Forward người dùng về lại trang đặt lịch
+                request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
+                return; // CHỐT: Dừng toàn bộ luồng xử lý phía dưới, không insert bậy bạ vào DB
+            }
+        
             // 3. TÍNH TOÁN GIÁ TIỀN GỐC (TOTAL AMOUNT) Ở BACKEND
             double totalAmount = 0;
             if (serviceType.equals("Basic Wash")) {
