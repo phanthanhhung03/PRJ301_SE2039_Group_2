@@ -73,7 +73,15 @@ public class MainController extends HttpServlet {
             case "viewDashBoard":
                 url = "/dashboard";
                 break;
-
+            
+            case "viewNewBooking":
+                url = "/customer/bookingpage.jsp";
+                break;
+            
+            case "createBookingProcess":
+                url = "/BookingController";
+                break;
+                
             case "viewAddVehicle":
                 url = "/customer/addVehicle.jsp";
                 break;
