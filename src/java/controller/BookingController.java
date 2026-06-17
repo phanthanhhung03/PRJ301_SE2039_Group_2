@@ -63,8 +63,14 @@
                     String timeStr = request.getParameter("bookingTime"); 
                     String serviceType = request.getParameter("serviceType");
                     String notes = request.getParameter("notes");
+                    
+                    // 2. CHUYỂN ĐỔI NGÀY & GIỜ THÀNH JAVA.SQL.TIMESTAMP
+                    String dateTimeStr = dateStr + " " + timeStr + ":00";
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date parsedDate = dateFormat.parse(dateTimeStr);
+                    Timestamp bookingDate = new Timestamp(parsedDate.getTime());
 
-                    // --- BẮT ĐẦU CHỐT CHẶN BẢO MẬT NGÀY THÁNG (Của Nguyên) ---
+                    // BẮT ĐẦU CHỐT CHẶN BẢO MẬT NGÀY THÁNG
                     java.time.LocalDate inputDate = java.time.LocalDate.parse(dateStr);
                     java.time.LocalDate today = java.time.LocalDate.now();
 
@@ -73,8 +79,24 @@
                         request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
                         return; 
                     }
+                    // KIỂM TRA GIỚI HẠN ÐAT LICH THEO TIER
+                    int maxDays = 3;
+                    String tierName = user.getTierId().getTierName();
+                    if ("Silver".equalsIgnoreCase(tierName)) maxDays = 5;
+                    else if ("Gold".equalsIgnoreCase(tierName)) maxDays = 10;
+                    else if ("Platinum".equalsIgnoreCase(tierName)) maxDays = 15;
 
-                    // --- CHỐT CHẶN TRÙNG LỊCH (Tính năng của bạn em thêm vào) ---
+                    // Tính toán thời gian giới hạn cuối cùng (Max allowed time)
+                    long maxMillis = System.currentTimeMillis() + (maxDays * 24L * 60L * 60L * 1000L);
+                    Timestamp maxAllowedTime = new Timestamp(maxMillis);
+
+                    // Hàm after() trả về true nếu ngày khách gửi lên nằm xa hơn ngày giới hạn
+                    if (bookingDate.after(maxAllowedTime)) {
+                        request.setAttribute("BOOKING_ERROR", tierName + " tier privileges only allow booking up to " + maxDays + " days in advance.");
+                        request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
+                        return; // Dừng hệ thống
+                    }
+                    // CHỐT CHẶN TRÙNG LỊCH 
                     BookingDAO checkDao = new BookingDAO();
                     boolean isBooked = checkDao.isSlotBooked(dateStr, timeStr);
                     if (isBooked) {
@@ -82,12 +104,6 @@
                         request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
                         return; 
                     }
-
-                    // 2. CHUYỂN ĐỔI NGÀY & GIỜ THÀNH JAVA.SQL.TIMESTAMP
-                    String dateTimeStr = dateStr + " " + timeStr + ":00";
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date parsedDate = dateFormat.parse(dateTimeStr);
-                    Timestamp bookingDate = new Timestamp(parsedDate.getTime());
 
                     // 3. TÍNH TOÁN GIÁ TIỀN GỐC Ở BACKEND
                     double totalAmount = 0;
