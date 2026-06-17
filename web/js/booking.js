@@ -148,11 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Chỉ chạy khi ở trang có form Booking
     if (dateInput && timeInput) {
         
-        // Chặn ngày trong quá khứ 
-        const now = new Date();
-        const todayString = now.toISOString().split('T')[0];
-        dateInput.setAttribute('min', todayString);
-
+        
         // Hàm kiểm tra và chặn Giờ
         function validateTime() {
             const selectedDate = dateInput.value;

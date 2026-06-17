@@ -7,7 +7,7 @@
 <%
     // Lấy thông tin khách hàng đang đăng nhập từ Session
     Customer currentUser = (Customer) session.getAttribute("USER");
-    
+    int maxAdvanceDays = 3; // Mặc định cho hạng Member
     if (currentUser != null) {
         // Gọi thẳng VehicleDAO ngay trong JSP
         VehicleDAO vDao = new VehicleDAO();
@@ -17,6 +17,15 @@
         
         // Nhét danh sách này vào request để JSTL bên dưới có thể in ra
         request.setAttribute("VEHICLE_LIST", myCars);
+        
+        String tierName = currentUser.getTierId().getTierName();
+        if ("Silver".equalsIgnoreCase(tierName)) {
+            maxAdvanceDays = 5;
+        } else if ("Gold".equalsIgnoreCase(tierName)) {
+            maxAdvanceDays = 10;
+        } else if ("Platinum".equalsIgnoreCase(tierName)) {
+            maxAdvanceDays = 15;
+        }
     }
     
 %>
@@ -78,8 +87,11 @@
                             <label for="bookingDate" class="form-group__label">Date</label>
                             <div class="form-group__input-wrapper">
                                 <%-- Khai báo biến todayStr ở đây trước khi sử dụng ở dưới --%>
-                                <% String todayStr = java.time.LocalDate.now().toString(); %>
-                                <input type="date" id="bookingDate" name="bookingDate" class="form-group__input" min="<%= todayStr %>" required>
+                                <% 
+                                    String todayStr = java.time.LocalDate.now().toString(); 
+                                    String maxDateStr = java.time.LocalDate.now().plusDays(maxAdvanceDays).toString();
+                                %>
+                                <input type="date" id="bookingDate" name="bookingDate" class="form-group__input" min="<%= todayStr %>" max="<%= maxDateStr %>" required>
                             </div>
                         </div>
                         <div class="form-group">

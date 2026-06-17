@@ -293,7 +293,7 @@
             <section class="dashboard-section" id="bookings">
                     <div class="dashboard-section__header">
                         <h2 class="dashboard-section__title">Bookings</h2>
-                        <a href="${pageContext.request.contextPath}/MainController?action=viewNewBooking" class="btn btn--primary btn--sm">Schedule Detailing</a>
+                        <a href="${pageContext.request.contextPath}/MainController?action=viewNewBooking" class="btn btn--primary btn--sm">BOOKING HERE</a>
                     </div>
 
                     <div class="grid-cols-2">
