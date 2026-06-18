@@ -1,3 +1,5 @@
+<%@page import="dto.Promotion"%>
+<%@page import="dao.PromotionDAO"%>
 <%@page import="java.util.List"%>
 <%@page import="dto.Vehicle"%>
 <%@page import="dao.VehicleDAO"%>
@@ -27,7 +29,11 @@
             maxAdvanceDays = 15;
         }
     }
-    
+    // Gọi DAO để lấy danh sách voucher hợp lệ của Tier này
+    // Giả sử em có PromotionDAO và hàm getVouchersByTier
+    PromotionDAO pDao = new PromotionDAO();
+    List<Promotion> myVouchers = pDao.getActiveVouchersByTier(currentUser.getTierId().getTierID()); 
+    request.setAttribute("VOUCHER_LIST", myVouchers);
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,7 +70,7 @@
                 <div class="booking-page__form-section glass-panel">
                     <form id="bookingForm" action="${pageContext.request.contextPath}/MainController" method="POST">
                     <input type="hidden" name="action" value="createBookingProcess">
-
+                    <input type="hidden" id="tierDiscountPercent" value="${sessionScope.USER.tierId.discountPercent}">
                     <h2 class="booking-page__step-title">Step 1: Vehicle & Schedule</h2>
                     
                     <div class="form-group">
@@ -155,19 +161,21 @@
                         </label>
                     </div>
 
-                    <h2 class="booking-page__step-title">Step 3: Rewards & Free Wash</h2>
+                    <h2 class="booking-page__step-title">Step 3: Choose Your Promotion</h2>
                     <div class="form-group">
-                        <input type="hidden" id="userTotalPoints" value="${not empty sessionScope.USER ? sessionScope.USER.currentPoint : 0}">
-                        
-                        <div class="form-group__checkbox" id="pointPaymentWrapper" style="display: none; padding: var(--spacing-md); background: rgba(0, 118, 255, 0.1); border: 1px solid var(--color-accent-blue); border-radius: var(--radius-md);">
-                            <input type="checkbox" id="usePointsCheckbox" name="usePoints" class="form-group__checkbox-input" value="true">
-                            <label for="usePointsCheckbox" class="form-group__checkbox-label" id="usePointsLabel" style="color: var(--color-text-primary); font-weight: 600;">
-                                Redeem Free Wash (-0 pts)
-                            </label>
+                        <label for="voucherSelect" class="form-group__label">Available Vouchers for your ${sessionScope.USER.tierId.tierName} Tier</label>
+                        <div class="form-group__input-wrapper">
+                           <select id="voucherSelect" name="promoCode" class="form-group__input form-group__select">
+                                <option value="0" data-discount="0">-- No voucher selected --</option>
+                                <c:forEach items="${VOUCHER_LIST}" var="voucher">
+                                    <option value="${voucher.promotionID}" data-discount="${voucher.discountPercent}">
+                                            ${voucher.promotionName} - Giảm ${voucher.discountPercent}%                                        
+                                        </option>
+                                </c:forEach>
+                            </select>
                         </div>
-                        
-                        <span id="pointStatusMessage" style="font-size: 0.85rem; color: var(--color-text-tertiary); display: block; margin-top: var(--spacing-sm);">
-                            Please select a service package to see if you qualify for a free wash.
+                        <span id="voucherStatusMessage" style="font-size: 0.85rem; color: var(--color-text-tertiary); display: block; margin-top: var(--spacing-sm);">
+                            Select a voucher to see your savings.
                         </span>
                     </div>
 

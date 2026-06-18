@@ -5,6 +5,7 @@
 package dao;
 
 import dbutils.DBUtils;
+import dto.CustomerTier;
 import dto.Promotion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -298,5 +299,85 @@ public class PromotionDAO {
         }
 
         return p;
+    }
+    
+    
+    // Thêm hàm này vào PromotionDAO.java
+        public List<Promotion> getActiveVouchersByTier(int tierID) { // CÁCH TỐT NHẤT LÀ ĐỔI THAM SỐ THÀNH int
+        List<Promotion> list = new ArrayList<>();
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                // Join Promotions với PromotionTiers để lọc theo TierID
+                String sql = "SELECT p.* FROM Promotions p " +
+                             "JOIN PromotionTiers pt ON p.PromotionID = pt.PromotionID " +
+                             "WHERE pt.TierID = ? " +
+                             "AND p.Status = 1 " +
+                             "AND CAST(GETDATE() AS DATE) BETWEEN p.StartDate AND p.EndDate";
+
+                st = cn.prepareStatement(sql);
+                // SỬA LỖI Ở ĐÂY: Sử dụng setInt()
+                st.setInt(1, tierID); 
+                
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+                    Promotion p = new Promotion();
+                    p.setPromotionID(rs.getInt("PromotionID"));
+                    p.setPromotionName(rs.getString("PromotionName"));
+                    p.setDescription(rs.getString("Description"));
+                    p.setDiscountPercent(rs.getDouble("DiscountPercent"));
+                    p.setBonusPoints(rs.getInt("BonusPoints"));
+                    // Map thêm các trường khác để đối tượng Promotion đầy đủ dữ liệu
+                    p.setAdminID(rs.getInt("AdminID"));
+                    p.setStartDate(rs.getDate("StartDate"));
+                    p.setEndDate(rs.getDate("EndDate"));
+                    p.setStatus(rs.getBoolean("Status"));
+                    p.setCreatedAt(rs.getDate("CreatedAt"));
+                    
+                    list.add(p);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Đóng kết nối để tránh rò rỉ bộ nhớ
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+                if (cn != null) cn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
+    }
+    
+    // Thêm hàm này vào PromotionDAO.java
+    public boolean isVoucherValidForTier(int promotionID, int tierID) {
+        boolean isValid = false;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT 1 FROM PromotionTiers WHERE PromotionID = ? AND TierID = ?";
+                st = cn.prepareStatement(sql);
+                st.setInt(1, promotionID);
+                st.setInt(2, tierID);
+                rs = st.executeQuery();
+                if (rs.next()) {
+                    isValid = true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return isValid;
     }
 }

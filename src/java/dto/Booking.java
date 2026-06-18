@@ -1,4 +1,4 @@
-package dto; // Nhớ đổi tên package nếu của em là 'model'
+package dto;
 
 import java.sql.Timestamp;
 
