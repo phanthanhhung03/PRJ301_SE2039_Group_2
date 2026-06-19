@@ -4,6 +4,7 @@
     Author     : Asus
 --%>
 
+<%@page import="dto.Vehicle"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <!DOCTYPE html>
@@ -29,6 +30,10 @@
 
     <body>
 
+        <%
+            Vehicle ocrVehicle = (Vehicle) request.getAttribute("ocrVehicle");
+        %>
+
         <main class="main-wrapper main-wrapper--narrow">
             <div class="auth-card glass-panel">
 
@@ -46,7 +51,9 @@
                 </div>
                 <% }%>
 
-                <form action="MainController" method="POST">
+                <form id="vehicleForm"
+                      action="MainController"
+                      method="POST">
 
                     <div class="form-row">
                         <!-- License Plate -->
@@ -62,7 +69,10 @@
                                        required
                                        maxlength="15"
                                        pattern="[0-9]{2}[A-Z][0-9]?-[0-9]{4,5}"
-                                       title="Example: 51A-12345 or 59A1-12345">
+                                       title="Example: 51A-12345 or 59A1-12345"
+                                       value="<%= ocrVehicle != null
+                                               ? ocrVehicle.getLicensePlate()
+                                               : ""%>">
                             </div>
                         </div>
 
@@ -76,17 +86,61 @@
                                         class="form-group__input form-group__select"
                                         required>
                                     <option value="">Select Brand</option>
-                                    <option value="Toyota">Toyota</option>
-                                    <option value="Honda">Honda</option>
-                                    <option value="Mazda">Mazda</option>
-                                    <option value="Hyundai">Hyundai</option>
-                                    <option value="Kia">Kia</option>
-                                    <option value="Ford">Ford</option>
-                                    <option value="BMW">BMW</option>
-                                    <option value="Mercedes-Benz">Mercedes-Benz</option>
-                                    <option value="Audi">Audi</option>
-                                    <option value="Lexus">Lexus</option>
-                                    <option value="VinFast">VinFast</option>
+                                    <option value="Toyota" 
+                                            <%= ocrVehicle != null
+                                                    && "Toyota".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        Toyota
+                                    </option>
+                                    <option value="Honda">
+                                        <%= ocrVehicle != null
+                                                && "Honda".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        Honda
+                                    </option>
+                                    <option value="Mazda">
+                                        <%= ocrVehicle != null
+                                                && "Mazda".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        Mazda
+                                    </option>
+                                    <option value="Hyundai">
+                                        <%= ocrVehicle != null
+                                                && "Hyundai".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        Hyundai
+                                    </option>
+                                    <option value="Kia">
+                                        <%= ocrVehicle != null
+                                                && "Kia".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        Kia
+                                    </option>
+                                    <option value="Ford">
+                                        <%= ocrVehicle != null
+                                                && "Ford".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        Ford
+                                    </option>
+                                    <option value="BMW">
+                                        <%= ocrVehicle != null
+                                                && "BMW".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        BMW
+                                    </option>
+                                    <option value="Mercedes-Benz">
+                                        <%= ocrVehicle != null
+                                                && "Mercedes-Benz".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        Mercedes-Benz
+                                    </option>
+                                    <option value="Audi">
+                                        <%= ocrVehicle != null
+                                                && "Audi".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        Audi
+                                    </option>
+                                    <option value="Lexus">
+                                        <%= ocrVehicle != null
+                                                && "Lexus".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        Lexus
+                                    </option>
+                                    <option value="VinFast">
+                                        <%= ocrVehicle != null
+                                                && "VinFast".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        VinFast
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -133,20 +187,36 @@
 
                     <!-- Actions -->
                     <div style="margin-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+
                         <!-- OCR Scan Button -->
                         <button type="button"
-                                class="btn btn--secondary btn--block">
+                                class="btn btn--secondary btn--block"
+                                onclick="document.getElementById('registrationFile').click()">
+
                             📷 Scan Vehicle Registration
+
                         </button>
 
                         <!-- Submit -->
                         <button type="submit"
-                                class="btn btn--primary btn--block"
-                                name="action"
-                                value="registerVehicle">
+                                class="btn btn--primary btn--block">
                             Register Vehicle
                         </button>
                     </div>
+
+                </form>
+
+                <!-- OCR Form -->
+                <form id="ocrForm"
+                      action="ScanVehicleRegistrationController"
+                      method="POST"
+                      enctype="multipart/form-data">
+
+                    <input type="file"
+                           id="registrationFile"
+                           name="registrationFile"
+                           accept="image/*"
+                           hidden>
 
                 </form>
 
@@ -159,6 +229,16 @@
 
             </div>
         </main>
+        <script>
+            document.getElementById("registrationFile")
+                    .addEventListener("change", function () {
 
+                        if (this.files.length > 0) {
+
+                            document.getElementById("ocrForm")
+                                    .submit();
+                        }
+                    });
+        </script>
     </body>
 </html>

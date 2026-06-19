@@ -4,9 +4,8 @@
  */
 package controller;
 
-import dao.VehicleDAO;
-import dto.Vehicle;
 import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,55 +16,41 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Asus
  */
-@WebServlet(name = "UpdateVehicle", urlPatterns = {"/UpdateVehicle"})
-public class UpdateVehicle extends HttpServlet {
+@WebServlet(name = "UpdateProfileController", urlPatterns = {"/updateProfile"})
+public class UpdateProfileController extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        int vehicleId = Integer.parseInt(request.getParameter("vehicleID"));
-        String brand = request.getParameter("brand");
-        String model = request.getParameter("model");
-        if (model != null) {
-            model = model.trim();
 
-            if (!model.isEmpty()) {
-                model = model.substring(0, 1).toUpperCase()
-                        + model.substring(1).toLowerCase();
-            }
+        String newName = request.getParameter("newName");
+        String newPhoneNumber = request.getParameter("newPhoneNumber");
+        String newAddress = request.getParameter("newAddress");
+
+        boolean hasError = false;
+
+        if (newName == null || newName.trim().isEmpty()) {
+            request.setAttribute("nameError", "Full name is required.");
+            hasError = true;
         }
-        String color = request.getParameter("color");
 
-        VehicleDAO dao = new VehicleDAO();
-        int result = dao.updateVehicle(vehicleId, brand, model, color);
+        if (newPhoneNumber == null || newPhoneNumber.trim().isEmpty()) {
+            request.setAttribute("phoneError", "Phone number is required.");
+            hasError = true;
+        }
 
-        if (result > 0) {
-            request.getSession().setAttribute(
-                    "SUCCESS_MESSAGE",
-                    "Vehicle updated successfully.");
+        if (newAddress == null || newAddress.trim().isEmpty()) {
+            request.setAttribute("addressError", "Address is required.");
+            hasError = true;
+        }
 
-            response.sendRedirect(
-                    request.getContextPath()
-                    + "/MainController?action=viewDashboard");
-
-            return;
-
-        } else {
-
-            Vehicle vehicle
-                    = dao.getActiveVehicleById(vehicleId);
-
-            request.setAttribute(
-                    "VEHICLE",
-                    vehicle);
-
-            request.setAttribute(
-                    "ERROR",
-                    "Failed to update vehicle.");
-
-            request.getRequestDispatcher(
-                    "/customer/updateVehicle.jsp")
+        request.setAttribute("newName", newName);
+        request.setAttribute("newPhoneNumber", newPhoneNumber);
+        request.setAttribute("newAddress", newAddress);
+        if (hasError) {
+            request.getRequestDispatcher("dashboard.jsp")
                     .forward(request, response);
+            return;
         }
 
     }
