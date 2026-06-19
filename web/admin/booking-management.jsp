@@ -27,6 +27,7 @@
                     <a href="customer-management.html" class="site-header__nav-link">Customers</a>
                     <a href="booking-management.html" class="site-header__nav-link site-header__nav-link--active">Bookings</a>
                     <a href="loyalty-management.html" class="site-header__nav-link">Loyalty</a>
+                    <a href="MainController?action=viewPromotionManagement" class="site-header__nav-link"> Promotions </a>
                 </nav>
                 <div class="site-header__actions">
                     <span class="status-badge status-badge--completed">Staff Portal</span>

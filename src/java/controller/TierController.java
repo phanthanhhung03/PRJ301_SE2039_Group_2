@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
 @WebServlet(name = "TierController", urlPatterns = {"/TierController"})
 public class TierController extends HttpServlet {
 
@@ -58,8 +59,7 @@ public class TierController extends HttpServlet {
                     e.printStackTrace();
                 }
 
-                // 🔥 FIX QUAN TRỌNG: redirect thẳng, KHÔNG đi vòng MainController
-                response.sendRedirect(request.getContextPath() + "/LoyaltyManagementController");
+                response.sendRedirect("MainController?action=viewLoyaltyManagement");
                 return;
             }
         }

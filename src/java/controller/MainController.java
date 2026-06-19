@@ -116,6 +116,10 @@ public class MainController extends HttpServlet {
                 url = "/admin/customer-management.jsp";
                 break;
 
+            case "viewPromotionManagement":
+                url = "/PromotionManagementController";
+                break;
+
             //VEHICLE
             case "viewUpdateVehicle":
 

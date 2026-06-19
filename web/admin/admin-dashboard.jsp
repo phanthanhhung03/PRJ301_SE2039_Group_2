@@ -61,6 +61,8 @@
                     <a href="MainController?action=viewCustomerManagement" class="site-header__nav-link">Customers</a>
                     <a href="booking-management.jsp" class="site-header__nav-link">Bookings</a>
                     <a href="MainController?action=viewLoyaltyManagement" class="site-header__nav-link">Loyalty</a>
+                    <a href="MainController?action=viewPromotionManagement" class="site-header__nav-link"> Promotions
+                    </a>
                 </nav>
                 <div class="site-header__actions">
                     <span class="status-badge status-badge--completed">Staff Portal</span>
@@ -351,7 +353,7 @@
                             Promotion Audience
                         </h2>
 
-                        <a href="#"
+                        <a href="MainController?action=viewPromotionManagement"
                            class="btn btn--secondary btn--sm">
                             Manage
                         </a>
