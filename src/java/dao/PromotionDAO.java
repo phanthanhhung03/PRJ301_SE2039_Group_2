@@ -302,8 +302,8 @@ public class PromotionDAO {
     }
     
     
-    // Thêm hàm này vào PromotionDAO.java
-        public List<Promotion> getActiveVouchersByTier(int tierID) { // CÁCH TỐT NHẤT LÀ ĐỔI THAM SỐ THÀNH int
+    // 
+        public List<Promotion> getActiveVouchersByTier(int tierID) { 
         List<Promotion> list = new ArrayList<>();
         Connection cn = null;
         PreparedStatement st = null;
@@ -320,7 +320,6 @@ public class PromotionDAO {
                              "AND CAST(GETDATE() AS DATE) BETWEEN p.StartDate AND p.EndDate";
 
                 st = cn.prepareStatement(sql);
-                // SỬA LỖI Ở ĐÂY: Sử dụng setInt()
                 st.setInt(1, tierID); 
                 
                 rs = st.executeQuery();
@@ -345,7 +344,6 @@ public class PromotionDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // Đóng kết nối để tránh rò rỉ bộ nhớ
             try {
                 if (rs != null) rs.close();
                 if (st != null) st.close();
@@ -357,7 +355,7 @@ public class PromotionDAO {
         return list;
     }
     
-    // Thêm hàm này vào PromotionDAO.java
+    // check voucher khi booking
     public boolean isVoucherValidForTier(int promotionID, int tierID) {
         boolean isValid = false;
         Connection cn = null;
@@ -377,6 +375,14 @@ public class PromotionDAO {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+                if (cn != null) cn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return isValid;
     }
