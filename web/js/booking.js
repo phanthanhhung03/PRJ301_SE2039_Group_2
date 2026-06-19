@@ -7,10 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const userTotalPointsInput = document.getElementById('userTotalPoints');
     const userTotalPoints = userTotalPointsInput ? (parseInt(userTotalPointsInput.value) || 0) : 0;
     
-    const pointPaymentWrapper = document.getElementById('pointPaymentWrapper');
-    const usePointsCheckbox = document.getElementById('usePointsCheckbox');
-    const usePointsLabel = document.getElementById('usePointsLabel');
-    const pointStatusMessage = document.getElementById('pointStatusMessage');
+    const voucherSelect = document.getElementById('voucherSelect');
+    const voucherStatusMessage = document.getElementById('voucherStatusMessage');
     
     const summaryVehicle = document.getElementById('summaryVehicle');
     const summaryService = document.getElementById('summaryService');
@@ -83,46 +81,54 @@ document.addEventListener('DOMContentLoaded', function() {
         let checkedRadio = Array.from(serviceRadios).find(r => r.checked);
 
         if (checkedRadio) {
-            // Đổi viền CSS xanh
+            // 1. Đổi viền CSS xanh cho gói dịch vụ được chọn
             document.querySelectorAll('.service-card').forEach(c => c.classList.remove('service-card--selected'));
             checkedRadio.closest('.service-card').classList.add('service-card--selected');
 
-            // Cập nhật tên dịch vụ
-            if (summaryService) summaryService.innerText = checkedRadio.value;
+            // 2. BẮT CHỮ VÀ HIỂN THỊ LÊN BILL BÊN PHẢI (Chỗ b đang thiếu)
+            if (summaryService) {
+                summaryService.innerText = checkedRadio.value; // Lấy chữ 'Premium Wash' từ thuộc tính value
+            }
+
+            // 3. Lấy giá tiền gốc
             currentServicePrice = parseInt(checkedRadio.getAttribute('data-price')) || 0;
 
-            // Xử lý thông báo điểm thưởng
-            if(pointPaymentWrapper && usePointsLabel && pointStatusMessage && usePointsCheckbox) {
-                if (userTotalPoints >= currentServicePrice) {
-                    pointPaymentWrapper.style.display = 'flex';
-                    usePointsLabel.innerHTML = `Redeem Free Wash (<strong>-${currentServicePrice.toLocaleString('vi-VN')} pts</strong>)`;
-                    pointStatusMessage.style.color = '#34d399';
-                    pointStatusMessage.innerHTML = `You have <strong>${userTotalPoints.toLocaleString('vi-VN')} pts</strong>. You qualify for a free wash!`;
+            // 4. Lấy % giảm giá của Tier từ input hidden (mặc định)
+            let tierInput = document.getElementById('tierDiscountPercent');
+            let tierPercent = tierInput ? (parseFloat(tierInput.value) || 0) : 0;
+            
+            // 5. Lấy % giảm giá của Voucher (nếu có chọn)
+            let voucherPercent = 0;
+            if (voucherSelect) {
+                let selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
+                voucherPercent = parseFloat(selectedOption.getAttribute('data-discount')) || 0;                   
+            }
+            
+            // 6. TÍNH TOÁN CỘNG DỒN TRÊN GIAO DIỆN
+            let tierDiscountAmount = (currentServicePrice * tierPercent) / 100;
+            let voucherDiscountAmount = (currentServicePrice * voucherPercent) / 100;
+            
+            // Tổng tiền được giảm = Mặc định hạng + Voucher
+            let totalDiscountAmount = tierDiscountAmount + voucherDiscountAmount;
+            
+            // Không để tiền bị âm
+            let finalTotal = Math.max(0, currentServicePrice - totalDiscountAmount);
+
+            // 7. Hiển thị phần giảm giá trong bảng Summary
+            if (summaryDiscountRow && summaryDiscount) {
+                if (totalDiscountAmount > 0) {
+                    summaryDiscountRow.style.display = 'flex';
+                    // Hiển thị tổng số tiền đã được giảm
+                    summaryDiscount.innerText = "-" + totalDiscountAmount.toLocaleString('vi-VN') + " đ";
                 } else {
-                    pointPaymentWrapper.style.display = 'none';
-                    usePointsCheckbox.checked = false;
-                    pointStatusMessage.style.color = 'var(--color-text-tertiary)';
-                    pointStatusMessage.innerHTML = `You have <strong>${userTotalPoints.toLocaleString('vi-VN')} pts</strong>. You need <strong>${currentServicePrice.toLocaleString('vi-VN')} pts</strong> for this service.`;
+                    summaryDiscountRow.style.display = 'none';
                 }
             }
+            
+            // 8. Cập nhật tổng tiền và điểm tích lũy
+            if (summaryTotal) summaryTotal.innerText = finalTotal.toLocaleString('vi-VN') + " đ";
+            if (summaryPoints) summaryPoints.innerText = "+" + Math.floor(finalTotal / 1000).toLocaleString('vi-VN') + " pts";
         }
-
-        // Tính toán tổng tiền cuối cùng
-        let isUsingPoints = usePointsCheckbox && usePointsCheckbox.checked;
-        let currentDiscount = isUsingPoints ? currentServicePrice : 0;
-        let finalTotal = Math.max(0, currentServicePrice - currentDiscount);
-
-        if(summaryDiscountRow && summaryDiscount) {
-            if(currentDiscount > 0) {
-                summaryDiscountRow.style.display = 'flex';
-                summaryDiscount.innerText = "-" + currentDiscount.toLocaleString('vi-VN') + " đ";
-            } else {
-                summaryDiscountRow.style.display = 'none';
-            }
-        }
-
-        if(summaryTotal) summaryTotal.innerText = finalTotal.toLocaleString('vi-VN') + " đ";
-        if(summaryPoints) summaryPoints.innerText = "+" + Math.floor(finalTotal / 1000).toLocaleString('vi-VN') + " pts";
     }
 
     // --- HÀM TỔNG HỢP: ĐỒNG BỘ TOÀN BỘ GIAO DIỆN ---
@@ -148,11 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Chỉ chạy khi ở trang có form Booking
     if (dateInput && timeInput) {
         
-        // Chặn ngày trong quá khứ 
-        const now = new Date();
-        const todayString = now.toISOString().split('T')[0];
-        dateInput.setAttribute('min', todayString);
-
+        
         // Hàm kiểm tra và chặn Giờ
         function validateTime() {
             const selectedDate = dateInput.value;
