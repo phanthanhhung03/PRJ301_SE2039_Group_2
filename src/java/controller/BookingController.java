@@ -33,20 +33,54 @@
             try {
                 // Lấy biến action từ form gửi lên để phân chia nhiệm vụ
                 String action = request.getParameter("action");
-
+                
                 // =========================================================
-                // NHÁNH 1: XỬ LÝ HỦY LỊCH (Tính năng của Nguyên)
+                // NHÁNH 1: XỬ LÝ HỦY LỊCH 
                 // =========================================================
                 if ("cancelBooking".equals(action)) {
                     int bookingID = Integer.parseInt(request.getParameter("bookingID"));
-
                     BookingDAO dao = new BookingDAO();
-                    boolean isSuccess = dao.cancelBooking(bookingID);
 
-                    if (isSuccess) {
-                        session.setAttribute("MSG", "Your booking has been cancelled successfully!");
+                    // 1. LẤY THÔNG TIN BOOKING ĐỂ CHECK GIỜ
+                    Booking b = dao.getBookingByID(bookingID); 
+
+                    if (b != null) {
+                        // Tính toán thời gian chênh lệch (Tính bằng mili-giây)
+                        long currentTime = System.currentTimeMillis();
+                        long bookingTime = b.getBookingDate().getTime(); 
+                        
+                        long timeDiff = bookingTime - currentTime;
+                        // Đổi từ mili-giây ra số Giờ (Hours)
+                        long hoursDiff = timeDiff / (1000 * 60 * 60);
+
+                        // 2. THỰC HIỆN HỦY LỊCH (Đổi Status thành Cancelled)
+                        boolean isSuccess = dao.cancelBooking(bookingID);
+
+                        if (isSuccess) {
+                            // 3. CHECK ĐIỀU KIỆN PHẠT: Hủy khi còn chưa tới 24h
+                            if (hoursDiff < 24 && hoursDiff >= 0) {
+                                // Phạt 10 điểm, dùng Math.max để điểm không bao giờ bị âm
+                                int currentPoints = user.getCurrentPoint();
+                                int newPoints = Math.max(0, currentPoints - 10);
+                                
+                                // Cập nhật lại Object User trong Session
+                                user.setCurrentPoint(newPoints);
+                                session.setAttribute("USER", user);
+                                
+                                // Cập nhật vào Database (B cần tạo hàm updatePoint này trong CustomerDAO)
+                                dao.CustomerDAO cDao = new dao.CustomerDAO();
+                                cDao.updateCustomerPoint(user.getCusId(), newPoints); 
+                                
+                                session.setAttribute("MSG", "Booking cancelled successfully! Notice: 10 points were deducted for late cancellation (< 24 hours).");
+                            } else {
+                                // Hủy sớm hơn 24h -> An toàn, không bị phạt
+                                session.setAttribute("MSG", "Your booking has been cancelled successfully!");
+                            }
+                        } else {
+                            session.setAttribute("ERROR", "Failed to cancel booking. Please try again.");
+                        }
                     } else {
-                        session.setAttribute("ERROR", "Failed to cancel booking. Please try again.");
+                        session.setAttribute("ERROR", "Booking not found!");
                     }
 
                     response.sendRedirect("MainController?action=viewDashBoard");
@@ -80,11 +114,11 @@
                         return; 
                     }
                     // KIỂM TRA GIỚI HẠN ÐAT LICH THEO TIER
-                    int maxDays = 3;
+                    int maxDays = 7;
                     String tierName = user.getTierId().getTierName();
-                    if ("Silver".equalsIgnoreCase(tierName)) maxDays = 5;
-                    else if ("Gold".equalsIgnoreCase(tierName)) maxDays = 10;
-                    else if ("Platinum".equalsIgnoreCase(tierName)) maxDays = 15;
+                    if ("Silver".equalsIgnoreCase(tierName)) maxDays = 10;
+                    else if ("Gold".equalsIgnoreCase(tierName)) maxDays = 12;
+                    else if ("Platinum".equalsIgnoreCase(tierName)) maxDays = 14;
 
                     // Tính toán thời gian giới hạn cuối cùng (Max allowed time)
                     long maxMillis = System.currentTimeMillis() + (maxDays * 24L * 60L * 60L * 1000L);
@@ -111,10 +145,8 @@
                         totalAmount = 150000;
                     } else if (serviceType.equals("Premium Wash")) {
                         totalAmount = 300000;
-                    } else if (serviceType.equals("Ceramic Coating")) {
-                        totalAmount = 2000000;
-                    }
-
+                    } 
+                    
                     // 4. TÍNH TOÁN GIẢM GIÁ (TIER + VOUCHER)
                     double discountAmount = 0;
 
