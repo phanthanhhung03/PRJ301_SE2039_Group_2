@@ -86,6 +86,7 @@ public class MainController extends HttpServlet {
                 url = "/customer/addVehicle.jsp";
                 break;
 
+            // ADMIN
             case "viewAdminSignIn":
                 if (request.getSession().getAttribute("ADMIN_USER") != null) {
                     response.sendRedirect("MainController?action=viewAdminDashboard");
@@ -105,12 +106,15 @@ public class MainController extends HttpServlet {
             case "registerVehicle":
                 url = "/vehicle/register";
                 break;
-
+            case "viewCustomerManagement":
+                url = "/admin/customer-management.jsp";
+                break;
+                
             //VEHICLE
             case "viewUpdateVehicle":
 
                 int vehicleID = Integer.parseInt(
-                                request.getParameter("vehicleID"));
+                        request.getParameter("vehicleID"));
 
                 VehicleDAO dao = new VehicleDAO();
 
@@ -124,20 +128,20 @@ public class MainController extends HttpServlet {
 
                 } else {
 
-                    request.getSession() .setAttribute(
-                                    "ERROR_MESSAGE",
-                                    "Vehicle not found.");
+                    request.getSession().setAttribute(
+                            "ERROR_MESSAGE",
+                            "Vehicle not found.");
 
                     url = "/dashboard";
 
                 }
 
                 break;
-                
+
             case "updateVehicle":
                 url = "/UpdateVehicle";
                 break;
-                
+
             case "removeVehicle":
                 url = "RemoveVehicle";
                 break;

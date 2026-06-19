@@ -286,6 +286,15 @@ button, input, select, textarea {
     align-items: center;
     gap: var(--spacing-md);
 }
+.site-header__center-title {
+    white-space: nowrap; /* Lệnh cấm rớt dòng */
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-text-primary);
+    letter-spacing: 0.05em;
+    text-align: center;
+    flex: 1; /* Tự động đẩy Logo và Tier badge ra 2 mép */
+}
 
 /* dashboard-section Component */
 .dashboard-section {
@@ -2037,146 +2046,129 @@ button, input, select, textarea {
     gap: var(--spacing-md);
 }
 
-
 /* ==========================================================================
-   10. RESPONSIVE BREAKPOINTS (MEDIA QUERIES)
+   ADMIN DASHBOARD - CUSTOMER TIER OVERVIEW
    ========================================================================== */
 
-/* Large screens (Desktop) */
-@media (min-width: 992px) {
-    /* Navigation scroll and layout defaults are optimized for desktop */
+.admin-tier-overview__table {
+    width: 100%;
+    table-layout: auto;
+    height: auto;
 }
 
-/* Medium screens (Tablets) */
-@media (max-width: 991px) {
-    .grid-cols-4, .grid-cols-3 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .site-footer__grid {
-        grid-template-columns: 1fr 1fr;
-        gap: var(--spacing-xl);
-    }
-
-    .admin-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .admin-layout__sidebar {
-        height: auto;
-        position: relative;
-        border-right: none;
-        border-bottom: 1px solid var(--color-border);
-        padding: var(--spacing-md) var(--spacing-lg);
-    }
-
-    .admin-layout__nav {
-        flex-direction: row;
-        flex-wrap: wrap;
-        margin-top: var(--spacing-md);
-        gap: var(--spacing-sm);
-    }
-
-    .admin-layout__nav-link {
-        padding: 0.5rem var(--spacing-sm);
-    }
-
-    .admin-layout__nav-link--active {
-        border-left: none;
-        border-bottom: 2px solid var(--color-accent-cyan);
-    }
-
-    .admin-layout__main {
-        padding: var(--spacing-lg);
-    }
-    .booking-page__grid {
-        grid-template-columns: 1fr; /* Màn hình nhỏ dồn về 1 cột */
-    }
-
-    .booking-page__summary-section {
-        position: static; /* Tắt sticky trên mobile */
-        order: -1; /* Đẩy giỏ hàng lên trên cùng trên giao diện mobile */
-        margin-bottom: var(--spacing-xl);
-    }
+.admin-tier-overview__table th,
+.admin-tier-overview__table td {
+    vertical-align: middle;
 }
 
-/* Small screens (Phones) */
-@media (max-width: 575px) {
-    :root {
-        --spacing-xxl: 2.0rem;
-        --spacing-xl: 1.5rem;
-    }
-
-    .grid-cols-4, .grid-cols-3, .grid-cols-2 {
-        grid-template-columns: 1fr;
-    }
-
-    .hero-section__title {
-        font-size: 2.25rem;
-    }
-
-    .hero-section__actions {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .btn {
-        width: 100%;
-    }
-
-    .site-header__navigation {
-        display: none; /* Hide header text navigation links on mobile for simplicity */
-    }
-
-    .site-footer__grid {
-        grid-template-columns: 1fr;
-    }
-
-    .booking-card {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-md);
-        text-align: center;
-    }
-
-    .booking-card__datetime {
-        align-self: center;
-        width: 100%;
-    }
-
-    .booking-card__meta {
-        justify-content: center;
-        width: 100%;
-    }
-
-    .auth-card {
-        padding: var(--spacing-xl) var(--spacing-md);
-        margin: var(--spacing-xl) auto;
-    }
-
-    .membership-card__footer {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: var(--spacing-sm);
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
-    
-    .service-grid {
-        grid-template-columns: 1fr; /* Các thẻ dịch vụ nằm dọc hết */
-    }
-
-    .service-card__content--flex {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-sm);
-    }
+.admin-tier-overview__table th {
+    text-align: center;
 }
-    
-    /* ==========================================================================
-   11. BOOKING PAGE SPECIFICS (DESKTOP)
+
+.admin-tier-overview__table th:first-child,
+.admin-tier-overview__table td:first-child {
+    text-align: left;
+}
+
+/* Column Widths */
+.admin-tier-overview__table th:nth-child(1),
+.admin-tier-overview__table td:nth-child(1) {
+    width: 25%;
+}
+
+.admin-tier-overview__table th:nth-child(2),
+.admin-tier-overview__table td:nth-child(2) {
+    width: 15%;
+    text-align: center;
+}
+
+.admin-tier-overview__table th:nth-child(3),
+.admin-tier-overview__table td:nth-child(3) {
+    width: 15%;
+    text-align: center;
+}
+
+.admin-tier-overview__table th:nth-child(4),
+.admin-tier-overview__table td:nth-child(4) {
+    width: 45%;
+}
+
+/* Progress Bar */
+.admin-tier-overview__progress-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+}
+
+.admin-tier-overview__progress-fill {
+    height: 100%;
+    border-radius: var(--radius-pill);
+    transition: width 0.4s ease;
+}
+
+/* Badge Size */
+.status-badge--platinum,
+.status-badge--gold,
+.status-badge--silver,
+.status-badge--member {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.65rem;
+    font-weight: 600;
+}
+
+/* Tier Badge Colors */
+.status-badge--platinum {
+    background: rgba(229, 228, 226, 0.12);
+    border: 1px solid #e5e4e2;
+    color: #e5e4e2;
+}
+
+.status-badge--gold {
+    background: rgba(226, 184, 61, 0.12);
+    border: 1px solid #e2b83d;
+    color: #e2b83d;
+}
+
+.status-badge--silver {
+    background: rgba(192, 192, 192, 0.12);
+    border: 1px solid #c0c0c0;
+    color: #c0c0c0;
+}
+
+.status-badge--member {
+    background: rgba(0, 118, 255, 0.12);
+    border: 1px solid var(--color-accent-blue);
+    color: var(--color-accent-blue);
+}
+
+/* Progress Colors */
+.admin-tier-overview__progress-fill--platinum {
+    background: #e5e4e2;
+}
+
+.admin-tier-overview__progress-fill--gold {
+    background: #e2b83d;
+}
+
+.admin-tier-overview__progress-fill--silver {
+    background: #c0c0c0;
+}
+
+.admin-tier-overview__progress-fill--member {
+    background: var(--color-accent-blue);
+}
+.admin-bottom-card {
+    height: 100%;
+}
+
+.admin-bottom-card .data-table td:last-child,
+.admin-bottom-card .data-table th:last-child {
+    text-align: center;
+}
+ /* ==========================================================================
+   10. BOOKING PAGE SPECIFICS (DESKTOP)
    ========================================================================== */
 
     .booking-page {
@@ -2384,3 +2376,155 @@ button, input, select, textarea {
     .order-summary__points strong {
         color: var(--color-accent-gold);
     }
+
+/* ==========================================================================
+   11. RESPONSIVE BREAKPOINTS (MEDIA QUERIES)
+   ========================================================================== */
+
+/* Large screens (Desktop) */
+@media (min-width: 992px) {
+    /* Navigation scroll and layout defaults are optimized for desktop */
+}
+
+/* Medium screens (Tablets) */
+@media (max-width: 991px) {
+    .grid-cols-4, .grid-cols-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .site-footer__grid {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xl);
+    }
+
+    .admin-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-layout__sidebar {
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    .admin-layout__nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        margin-top: var(--spacing-md);
+        gap: var(--spacing-sm);
+    }
+
+    .admin-layout__nav-link {
+        padding: 0.5rem var(--spacing-sm);
+    }
+
+    .admin-layout__nav-link--active {
+        border-left: none;
+        border-bottom: 2px solid var(--color-accent-cyan);
+    }
+
+    .admin-layout__main {
+        padding: var(--spacing-lg);
+    }
+    .booking-page__grid {
+        grid-template-columns: 1fr; /* Màn hình nhỏ dồn về 1 cột */
+    }
+
+    .booking-page__summary-section {
+        position: static; /* Tắt sticky trên mobile */
+        order: -1; /* Đẩy giỏ hàng lên trên cùng trên giao diện mobile */
+        margin-bottom: var(--spacing-xl);
+    }
+}
+
+
+
+/* Small screens (Phones) */
+@media (max-width: 575px) {
+    :root {
+        --spacing-xxl: 2.0rem;
+        --spacing-xl: 1.5rem;
+    }
+
+    .grid-cols-4, .grid-cols-3, .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-section__title {
+        font-size: 2.25rem;
+    }
+
+    .hero-section__actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .site-header__navigation {
+        display: none; /* Hide header text navigation links on mobile for simplicity */
+    }
+
+    .site-footer__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-card {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+        text-align: center;
+    }
+
+    .booking-card__datetime {
+        align-self: center;
+        width: 100%;
+    }
+
+    .booking-card__meta {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .auth-card {
+        padding: var(--spacing-xl) var(--spacing-md);
+        margin: var(--spacing-xl) auto;
+    }
+
+    .membership-card__footer {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: var(--spacing-sm);
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    
+    .service-grid {
+        grid-template-columns: 1fr; /* Các thẻ dịch vụ nằm dọc hết */
+    }
+
+    .service-card__content--flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    /* Tối ưu Header riêng cho Mobile (Dán vào trong @media max-width: 575px) */
+    .site-header__logo-text {
+        display: none; /* Chỉ hiện logo icon, giấu chữ AUTOWASHPRO để tiết kiệm chỗ */
+    }
+    
+    .site-header__center-title {
+        font-size: 0.95rem; /* Thu nhỏ chữ NEW BOOKING lại một chút xíu */
+    }
+    
+    .site-header__actions .status-badge {
+        font-size: 0.65rem; /* Thu nhỏ chữ Tier lại */
+        padding: 0.2rem 0.5rem;
+    }
+}
