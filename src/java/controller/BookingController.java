@@ -45,12 +45,11 @@
                     Booking b = dao.getBookingByID(bookingID); 
 
                     if (b != null) {
-                        // Tính toán thời gian chênh lệch (Tính bằng mili-giây)
+                        // Tính toán thời gian chênh lệch
                         long currentTime = System.currentTimeMillis();
                         long bookingTime = b.getBookingDate().getTime(); 
                         
                         long timeDiff = bookingTime - currentTime;
-                        // Đổi từ mili-giây ra số Giờ (Hours)
                         long hoursDiff = timeDiff / (1000 * 60 * 60);
 
                         // 2. THỰC HIỆN HỦY LỊCH (Đổi Status thành Cancelled)
@@ -67,7 +66,7 @@
                                 user.setCurrentPoint(newPoints);
                                 session.setAttribute("USER", user);
                                 
-                                // Cập nhật vào Database (B cần tạo hàm updatePoint này trong CustomerDAO)
+                                // Cập nhật vào Database
                                 dao.CustomerDAO cDao = new dao.CustomerDAO();
                                 cDao.updateCustomerPoint(user.getCusId(), newPoints); 
                                 

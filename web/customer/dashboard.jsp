@@ -297,7 +297,7 @@
 
         <a href="${pageContext.request.contextPath}/MainController?action=viewNewBooking"
            class="btn btn--primary btn--sm">
-            Schedule Detailing
+            Booking here
         </a>
     </div>
 
