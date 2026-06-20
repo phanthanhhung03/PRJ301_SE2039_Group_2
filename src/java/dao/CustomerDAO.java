@@ -419,4 +419,96 @@ public class CustomerDAO {
 
         return list;
     }
+    
+    // CẬP NHẬT ĐIỂM (Dùng khi phạt hủy lịch sát giờ)
+    public boolean updateCustomerPoint(int cusID, int newPoints) {
+        boolean check = false;
+        Connection cn = null;
+        PreparedStatement st = null;
+
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "UPDATE Customers SET CurrentPoints = ? WHERE CustomerID = ?";
+                st = cn.prepareStatement(sql);
+                st.setInt(1, newPoints);
+                st.setInt(2, cusID);
+                
+                check = st.executeUpdate() > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (st != null) st.close();
+                if (cn != null) cn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return check;
+    }
+    // ADMIN MANAGER
+    // ==========================================================
+    // TRƯỜNG HỢP 1: HOÀN THÀNH ĐƠN (Cộng Điểm + Doanh thu + Số lượt)
+    // ==========================================================
+    public boolean updateCustomerAfterCompleted(int cusID, double finalAmount) {
+        boolean check = false;
+        java.sql.Connection cn = null;
+        java.sql.PreparedStatement st = null;
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn != null) {
+                // Tính điểm: Cứ 1000đ = 1 điểm (Bạn có thể đổi logic này nếu muốn)
+                int earnedPoints = (int) Math.floor(finalAmount / 1000);
+                
+                String sql = "UPDATE Customers SET "
+                           + "TotalSpend = ISNULL(TotalSpend, 0) + ?, "     // Cộng dồn doanh thu
+                           + "CurrentPoints = ISNULL(CurrentPoints, 0) + ?, " // Cộng dồn điểm
+                           + "TotalBookings = ISNULL(TotalBookings, 0) + 1 "  // Tăng 1 lượt booking
+                           + "WHERE CustomerID = ?";
+                
+                st = cn.prepareStatement(sql);
+                st.setDouble(1, finalAmount);
+                st.setInt(2, earnedPoints);
+                st.setInt(3, cusID);
+                
+                check = st.executeUpdate() > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try { if (st != null) st.close(); if (cn != null) cn.close(); } catch (Exception e) { }
+        }
+        return check;
+    }
+
+    // ==========================================================
+    // TRƯỜNG HỢP 2: HỦY ĐƠN (Trừ 20 điểm + Tăng Số lượt)
+    // ==========================================================
+    public boolean updateCustomerAfterCancelled(int cusID) {
+        boolean check = false;
+        java.sql.Connection cn = null;
+        java.sql.PreparedStatement st = null;
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn != null) {
+                // Dùng CASE WHEN trong SQL để điểm không bao giờ bị rớt xuống số âm
+                String sql = "UPDATE Customers SET "
+                           + "CurrentPoints = CASE WHEN ISNULL(CurrentPoints, 0) - 20 < 0 THEN 0 ELSE ISNULL(CurrentPoints, 0) - 20 END, "
+                           + "TotalBookings = ISNULL(TotalBookings, 0) + 1 " 
+                           + "WHERE CustomerID = ?";
+                
+                st = cn.prepareStatement(sql);
+                st.setInt(1, cusID);
+                
+                check = st.executeUpdate() > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try { if (st != null) st.close(); if (cn != null) cn.close(); } catch (Exception e) { }
+        }
+        return check;
+    }
 }

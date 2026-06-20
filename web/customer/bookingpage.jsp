@@ -9,7 +9,7 @@
 <%
     // Lấy thông tin khách hàng đang đăng nhập từ Session
     Customer currentUser = (Customer) session.getAttribute("USER");
-    int maxAdvanceDays = 3; // Mặc định cho hạng Member
+    int maxAdvanceDays = 7; // Mặc định cho hạng Member
     if (currentUser != null) {
         // Gọi thẳng VehicleDAO ngay trong JSP
         VehicleDAO vDao = new VehicleDAO();
@@ -22,11 +22,11 @@
         
         String tierName = currentUser.getTierId().getTierName();
         if ("Silver".equalsIgnoreCase(tierName)) {
-            maxAdvanceDays = 5;
-        } else if ("Gold".equalsIgnoreCase(tierName)) {
             maxAdvanceDays = 10;
+        } else if ("Gold".equalsIgnoreCase(tierName)) {
+            maxAdvanceDays = 12;
         } else if ("Platinum".equalsIgnoreCase(tierName)) {
-            maxAdvanceDays = 15;
+            maxAdvanceDays = 14;
         }
     }
     // Gọi DAO để lấy danh sách voucher hợp lệ của Tier này
@@ -68,7 +68,7 @@
         <main class="main-wrapper booking-page">
             <div class="booking-page__grid">
                 <div class="booking-page__form-section glass-panel">
-                    <form id="bookingForm" action="${pageContext.request.contextPath}/MainController" method="POST">
+                    <form id="bookingForm" action="${pageContext.request.contextPath}/BookingController" method="POST">
                     <input type="hidden" name="action" value="createBookingProcess">
                     <input type="hidden" id="tierDiscountPercent" value="${sessionScope.USER.tierId.discountPercent}">
                     <h2 class="booking-page__step-title">Step 1: Vehicle & Schedule</h2>

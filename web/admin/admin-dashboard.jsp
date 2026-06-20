@@ -10,6 +10,7 @@
 <%@page import="java.util.Map"%>
 <%@page import="java.util.List"%>
 <%@page import="dto.CustomerTier"%>
+<%@page import="dto.Booking"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <%
@@ -26,7 +27,8 @@
     List<Promotion> promotionList = (List<Promotion>) request.getAttribute("promotionList");
 
     Map<Integer, String> targetTierMap = (Map<Integer, String>) request.getAttribute("targetTierMap");
-
+    
+    List<Booking> upcomingBookings = (List<Booking>) request.getAttribute("upcomingBookings");
 %>
 <html lang="en">
     <head>
@@ -59,7 +61,7 @@
                 <nav class="site-header__navigation">
                     <a href="#" class="site-header__nav-link site-header__nav-link--active">Dashboard</a>
                     <a href="MainController?action=viewCustomerManagement" class="site-header__nav-link">Customers</a>
-                    <a href="booking-management.jsp" class="site-header__nav-link">Bookings</a>
+                    <a href="MainController?action=viewAdminBookings" class="site-header__nav-link">Bookings</a>
                     <a href="MainController?action=viewLoyaltyManagement" class="site-header__nav-link">Loyalty</a>
                     <a href="MainController?action=viewPromotionManagement" class="site-header__nav-link"> Promotions
                     </a>
@@ -81,7 +83,7 @@
                 <h1 style="font-size: 2.0rem; margin-top: var(--spacing-xs); margin-bottom: var(--spacing-sm);">Welcome back  <%= admin.getFullName()%> </h1>
                 <p style="max-width: 700px; color: var(--color-text-secondary); font-size: 0.95rem;">System status is nominal. RFID gate scanning is online, 4 wash bays are currently active, and premium detaiil logs are synced.</p>
                 <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
-                    <a href="booking-management.html" class="btn btn--primary btn--sm">View Today's Bookings</a>
+                    <a href="MainController?action=viewAdminBookings" class="btn btn--primary btn--sm">View Today's Bookings</a>
                     <a href="reports.html" class="btn btn--secondary btn--sm">Generate Shift Report</a>
                 </div>
             </section>
@@ -155,7 +157,7 @@
                 <div class="glass-panel" style="padding: var(--spacing-lg); border-radius: var(--radius-xl);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-md);">
                         <h2 style="font-size:1.25rem;">Live Booking Desk</h2>
-                        <a href="booking-management.html" class="btn btn--secondary btn--sm">View All</a>
+                        <a href="MainController?action=viewAdminBookings" class="btn btn--secondary btn--sm">View All</a>
                     </div>
 
                     <div class="data-table-wrapper">
@@ -163,36 +165,42 @@
                             <thead>
                                 <tr>
                                     <th>Customer</th>
-                                    <th>Bay / Time</th>
+                                    <th>Vehicle / Time</th>
                                     <th>Service</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                <%
+                                    if (upcomingBookings != null && !upcomingBookings.isEmpty()) {
+                                        for (Booking b : upcomingBookings) {
+                                %>
                                 <tr>
-                                    <td style="font-weight:600; color:var(--color-text-primary);">Kenji T.</td>
-                                    <td>Bay 3 @ 10:30 AM</td>
-                                    <td>Graphene Coating</td>
-                                    <td><span class="status-badge status-badge--pending">Confirmed</span></td>
+                                    <td style="font-weight:600; color:var(--color-text-primary);">
+                                        <%= b.getCustomerName() %>
+                                    </td>
+                                    <td>
+                                        <%= b.getVehicleName() %> @ <%= b.getTimeSlot() %>
+                                    </td>
+                                    <td>
+                                        <%= b.getServiceType() %>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-badge--pending"><%= b.getBookingStatus() %></span>
+                                    </td>
                                 </tr>
+                                <%
+                                        }
+                                    } else {
+                                %>
                                 <tr>
-                                    <td style="font-weight:600; color:var(--color-text-primary);">Keiko M.</td>
-                                    <td>Bay 1 @ 11:00 AM</td>
-                                    <td>Ceramic Wash</td>
-                                    <td><span class="status-badge status-badge--pending">Pending</span></td>
+                                    <td colspan="4" style="text-align:center; padding: var(--spacing-md); color: var(--color-text-tertiary);">
+                                        No upcoming bookings found.
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <td style="font-weight:600; color:var(--color-text-primary);">Satoshi K.</td>
-                                    <td>Bay 2 @ 09:15 AM</td>
-                                    <td>Interior Detailing</td>
-                                    <td><span class="status-badge status-badge--completed">Active</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight:600; color:var(--color-text-primary);">Yukiko H.</td>
-                                    <td>Bay 4 @ 08:30 AM</td>
-                                    <td>Express Wash</td>
-                                    <td><span class="status-badge status-badge--completed">Completed</span></td>
-                                </tr>
+                                <%
+                                    }
+                                %>
                             </tbody>
                         </table>
                     </div>
