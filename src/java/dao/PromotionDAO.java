@@ -354,6 +354,7 @@ public class PromotionDAO {
         if (!isPromotionValid(promotionID)) {
             return null;
         }
+        
 
         return getPromotionByID(promotionID);
     }
@@ -394,11 +395,6 @@ public class PromotionDAO {
     // Checking if customer's tier meets the minimum tier required by promotion
     public boolean isCustomerEligibleByTier(int customerID, int promotionID) {
 
-    
-    
-    // 
-        public List<Promotion> getActiveVouchersByTier(int tierID) { 
-        List<Promotion> list = new ArrayList<>();
         Connection cn = null;
         PreparedStatement st = null;
         ResultSet rs = null;
@@ -507,6 +503,9 @@ public class PromotionDAO {
     // Helper: close JDBC resources safely
     // -----------------------------------------------------------------------
 
+    // -----------------------------------------------------------------------
+    // Helper: close JDBC resources safely
+    // -----------------------------------------------------------------------
     private void closeAll(Connection cn, PreparedStatement st, ResultSet rs) {
         try {
             if (rs != null) {
@@ -517,35 +516,6 @@ public class PromotionDAO {
             }
             if (cn != null) {
                 cn.close();
-            if (cn != null) {
-                // Join Promotions với PromotionTiers để lọc theo TierID
-                String sql = "SELECT p.* FROM Promotions p " +
-                             "JOIN PromotionTiers pt ON p.PromotionID = pt.PromotionID " +
-                             "WHERE pt.TierID = ? " +
-                             "AND p.Status = 1 " +
-                             "AND CAST(GETDATE() AS DATE) BETWEEN p.StartDate AND p.EndDate";
-
-                st = cn.prepareStatement(sql);
-                st.setInt(1, tierID); 
-                
-                rs = st.executeQuery();
-
-                while (rs.next()) {
-                    Promotion p = new Promotion();
-                    p.setPromotionID(rs.getInt("PromotionID"));
-                    p.setPromotionName(rs.getString("PromotionName"));
-                    p.setDescription(rs.getString("Description"));
-                    p.setDiscountPercent(rs.getDouble("DiscountPercent"));
-                    p.setBonusPoints(rs.getInt("BonusPoints"));
-                    // Map thêm các trường khác để đối tượng Promotion đầy đủ dữ liệu
-                    p.setAdminID(rs.getInt("AdminID"));
-                    p.setStartDate(rs.getDate("StartDate"));
-                    p.setEndDate(rs.getDate("EndDate"));
-                    p.setStatus(rs.getBoolean("Status"));
-                    p.setCreatedAt(rs.getDate("CreatedAt"));
-                    
-                    list.add(p);
-                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -558,38 +528,5 @@ public class PromotionDAO {
                 e.printStackTrace();
             }
         }
-        return list;
-    }
-    
-    // check voucher khi booking
-    public boolean isVoucherValidForTier(int promotionID, int tierID) {
-        boolean isValid = false;
-        Connection cn = null;
-        PreparedStatement st = null;
-        ResultSet rs = null;
-        try {
-            cn = DBUtils.getConnection();
-            if (cn != null) {
-                String sql = "SELECT 1 FROM PromotionTiers WHERE PromotionID = ? AND TierID = ?";
-                st = cn.prepareStatement(sql);
-                st.setInt(1, promotionID);
-                st.setInt(2, tierID);
-                rs = st.executeQuery();
-                if (rs.next()) {
-                    isValid = true;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (st != null) st.close();
-                if (cn != null) cn.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return isValid;
     }
 }
