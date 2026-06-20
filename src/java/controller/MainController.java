@@ -74,9 +74,17 @@ public class MainController extends HttpServlet {
                 url = "/dashboard";
                 break;
 
-            case "viewNewBooking":
+            case "viewNewBooking": {
+                int vehicleID = Integer.parseInt(
+                        request.getParameter("vehicleId"));
+
+                VehicleDAO dao = new VehicleDAO();
+
+                Vehicle vehicle = dao.getActiveVehicleById(vehicleID);
+                request.setAttribute("VEHICLE", vehicle);
                 url = "/customer/bookingpage.jsp";
                 break;
+            }
 
             case "createBookingProcess":
                 url = "/BookingController";
@@ -108,7 +116,7 @@ public class MainController extends HttpServlet {
             case "updateTier":
                 url = "/TierController";
                 break;
-                
+
             case "registerVehicle":
                 url = "/vehicle/register";
                 break;

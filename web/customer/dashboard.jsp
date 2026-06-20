@@ -205,7 +205,6 @@
             <section class="dashboard-section" id="vehicles">
                 <div class="dashboard-section__header">
                     <h2 class="dashboard-section__title">Vehicles</h2>
-                    <a href="#" class="btn btn--secondary btn--sm">Manage Fleet</a>
                 </div>
 
                 <div class="grid-cols-3">
@@ -271,8 +270,7 @@
                             </div>
                             <span class="vehicle-card__plate">${vehicle.licensePlate}</span>
                             <div class="vehicle-card__actions">
-                                <a href="#" class="btn btn--secondary btn--sm">Detail Log</a>
-                                <a href="#" class="btn btn--primary btn--sm">Book Wash</a>
+                                <a href="${pageContext.request.contextPath}/MainController?action=viewNewBooking&vehicleId=${vehicle.vehicleID}" class="btn btn--primary btn--sm">Book Wash</a>
                             </div>
                         </div>
                     </c:forEach>
