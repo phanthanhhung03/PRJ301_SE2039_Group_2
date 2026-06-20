@@ -435,7 +435,7 @@
                                     <label class="form-group__label">Full Name</label>
                                     <input type="text"
                                            class="form-group__input"
-                                           value="${not empty newName ? newName : user.fullName}"
+                                           value="${USER.fullName}"
                                            name="newName"
                                            placeholder="Enter your full name"
                                            required
@@ -445,7 +445,7 @@
                                     <label class="form-group__label">Phone Number</label>
                                     <input type="tel"
                                            class="form-group__input"
-                                           value="<%= user.getPhoneNumber()%>"
+                                           value="${USER.phoneNumber}"
                                            name="newPhoneNumber"
                                            placeholder="Enter your phone number"
                                            pattern="^(0[35789])\d{8}$"
@@ -453,14 +453,14 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-group__label">Email Address</label>
-                                    <input type="email" class="form-group__input" value="<%= user.getEmail()%>" disabled>
+                                    <input type="email" class="form-group__input" value="${USER.email}" disabled>
                                     <span style="font-size:0.75rem; color:var(--color-text-tertiary);">Contact support to modify email credentials.</span>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-group__label">Billing Address</label>
                                     <input type="text"
                                            class="form-group__input"
-                                           value="<%= user.getAddress()%>"
+                                           value="${USER.address}"
                                            name="newAddress"
                                            placeholder="Enter your address"
                                            required
@@ -512,6 +512,7 @@
             </section>
 
         </main>
+
 
         <!-- FOOTER -->
         <footer class="site-footer" style="margin-top: var(--spacing-xxl);">

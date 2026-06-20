@@ -85,70 +85,70 @@
                                         class="form-group__input form-group__select"
                                         required>
                                     <option value="">Select Brand</option>
-                                    <option value="Toyota">     
-                                            <c:if test="${ocrVehicle.brand eq 'Toyota'}">
-                                                selected
-                                            </c:if>
+                                    <option value="Toyota"    
+                                        <c:if test="${ocrVehicle.brand eq 'TOYOTA'}">
+                                            selected
+                                        </c:if>>
                                         Toyota
                                     </option>
-                                    <option value="Honda">
-                                        <c:if test="${ocrVehicle.brand eq 'Honda'}">
+                                    <option value="Honda"
+                                        <c:if test="${ocrVehicle.brand eq 'HONDA'}">
                                             selected
-                                        </c:if>
+                                        </c:if>>
                                         Honda
                                     </option>
-                                    <option value="Mazda">
-                                        <c:if test="${ocrVehicle.brand eq 'Mazda'}">
+                                    <option value="Mazda"
+                                        <c:if test="${ocrVehicle.brand eq 'MAZDA'}">
                                             selected
-                                        </c:if>
+                                        </c:if>>
                                         Mazda
                                     </option>
-                                    <option value="Hyundai">
-                                        <c:if test="${ocrVehicle.brand eq 'Hyundai'}">
+                                    <option value="Hyundai"
+                                        <c:if test="${ocrVehicle.brand eq 'HYUNDAI'}">
                                             selected
-                                        </c:if>
+                                        </c:if>>
                                         Hyundai
                                     </option>
-                                    <option value="Kia">
-                                        <c:if test="${ocrVehicle.brand eq 'Kia'}">
+                                    <option value="Kia"
+                                        <c:if test="${ocrVehicle.brand eq 'KIA'}">
                                             selected
-                                        </c:if>
+                                        </c:if>>
                                         Kia
                                     </option>
-                                    <option value="Ford">
-                                        <c:if test="${ocrVehicle.brand eq 'Ford'}">
+                                    <option value="Ford"
+                                        <c:if test="${ocrVehicle.brand eq 'FORD'}">
                                             selected
-                                        </c:if>
+                                        </c:if>>
                                         Ford
                                     </option>
-                                    <option value="BMW">
+                                    <option value="BMW"
                                         <c:if test="${ocrVehicle.brand eq 'BMW'}">
                                             selected
-                                        </c:if>
+                                        </c:if>>
                                         BMW
                                     </option>
-                                    <option value="Mercedes-Benz">
-                                        <c:if test="${ocrVehicle.brand eq 'Mercedes-Benz'}">
+                                    <option value="Mercedes-Benz"
+                                        <c:if test="${ocrVehicle.brand eq 'MERCEDES-BENZ'}">
                                             selected
-                                        </c:if>
+                                        </c:if>>
                                         Mercedes-Benz
                                     </option>
-                                    <option value="Audi">
-                                        <c:if test="${ocrVehicle.brand eq 'Audi'}">
+                                    <option value="Audi"
+                                        <c:if test="${ocrVehicle.brand eq 'AUDI'}">
                                             selected
-                                        </c:if>
+                                        </c:if>>
                                         Audi
                                     </option>
-                                    <option value="Lexus">
-                                        <c:if test="${ocrVehicle.brand eq 'Lexus'}">
+                                    <option value="Lexus"
+                                        <c:if test="${ocrVehicle.brand eq 'LEXUS'}">
                                             selected
-                                        </c:if>
+                                        </c:if>>
                                         Lexus
                                     </option>
-                                    <option value="VinFast">
-                                        <c:if test="${ocrVehicle.brand eq 'VinFast'}">
+                                    <option value="VinFast"
+                                        <c:if test="${ocrVehicle.brand eq 'VINFAST'}">
                                             selected
-                                        </c:if>
+                                        </c:if>>
                                         VinFast
                                     </option>
                                 </select>
@@ -207,6 +207,7 @@
 
                         </button>
 
+                        <input type="hidden" name="action" value="addVehicle">
                         <!-- Submit -->
                         <button type="submit"
                                 class="btn btn--primary btn--block">
