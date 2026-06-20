@@ -32,6 +32,8 @@
     // Gọi DAO để lấy danh sách voucher hợp lệ của Tier này
     // Giả sử em có PromotionDAO và hàm getVouchersByTier
     PromotionDAO pDao = new PromotionDAO();
+    List<Promotion> myVouchers = pDao.getActiveVouchersByTier(currentUser.getTierId().getTierID()); 
+    request.setAttribute("VOUCHER_LIST", myVouchers);
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -79,7 +81,7 @@
                                         class="form-group__input form-group__select"
                                         required>
 
-                                    <option value="" disabled>
+                                    <option value="">
                                         -- Choose a registered vehicle --
                                     </option>
 

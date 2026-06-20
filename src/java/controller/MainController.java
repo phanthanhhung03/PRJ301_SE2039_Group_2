@@ -75,13 +75,16 @@ public class MainController extends HttpServlet {
                 break;
 
             case "viewNewBooking": {
-                int vehicleID = Integer.parseInt(
-                        request.getParameter("vehicleId"));
+                if (request.getParameter("vehicleId") != null) {
+                    int vehicleID = Integer.parseInt(
+                            request.getParameter("vehicleId"));
 
-                VehicleDAO dao = new VehicleDAO();
+                    VehicleDAO dao = new VehicleDAO();
 
-                Vehicle vehicle = dao.getActiveVehicleById(vehicleID);
-                request.setAttribute("VEHICLE", vehicle);
+                    Vehicle vehicle = dao.getActiveVehicleById(vehicleID);
+                    request.setAttribute("VEHICLE", vehicle);
+                }
+
                 url = "/customer/bookingpage.jsp";
                 break;
             }
@@ -128,11 +131,9 @@ public class MainController extends HttpServlet {
                 url = "/AdminBookingController"; // Bắt buộc phải qua đây để lấy Data (ALL_BOOKINGS) trước!
                 break;
 
-
             case "viewPromotionManagement":
                 url = "/PromotionManagementController";
                 break;
-
 
             //VEHICLE
             case "addVehicle":
