@@ -44,17 +44,17 @@ public class AdminBookingController extends HttpServlet {
 
                 if (isUpdated) {
                     // Lấy chi tiết đơn đặt lịch để lấy số tiền FinalAmount chính xác
-                    Booking b = bDao.getBookingByID(bID);
-                    if (b != null) {
-                        if ("Completed".equals(newStatus)) {
+                        Booking b = bDao.getBookingByID(bID);
+                        if (b != null) {
+                            if ("Completed".equals(newStatus)) {
                             // Luồng 1: Hoàn thành -> Tăng chi tiêu, cộng điểm, tăng số lượt rửa
-                            cDao.updateCustomerAfterCompleted(customerID, b.getFinalAmount());
-                        } else if ("Cancelled".equals(newStatus)) {
+                                cDao.updateCustomerAfterCompleted(customerID, b.getFinalAmount());
+                            } else if ("Cancelled".equals(newStatus)) {
                             // Luồng 2: Hủy lịch sát giờ -> Phạt trừ 20 điểm, tăng số lượt
-                            cDao.updateCustomerAfterCancelled(customerID);
+                                cDao.updateCustomerAfterCancelled(customerID);
+                            }
                         }
                     }
-                }
                 
                 // Xử lý xong quay trở lại luồng hiển thị danh sách đơn cho Admin
                 response.sendRedirect("MainController?action=viewAdminBookings");

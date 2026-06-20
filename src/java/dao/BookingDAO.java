@@ -317,6 +317,14 @@ public class BookingDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            // FIX BUG #2: Đóng connection để tránh connection leak
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+                if (cn != null) cn.close();
+            } catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
         }
         return list;
     }
@@ -365,7 +373,14 @@ public class BookingDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // Nhớ đóng connection (rs.close, st.close, cn.close)
+            // FIX BUG #3: Đóng connection để tránh connection leak
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+                if (cn != null) cn.close();
+            } catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
         }
         return list;
     }
