@@ -120,9 +120,11 @@ public class MainController extends HttpServlet {
                 url = "/AdminBookingController"; // Bắt buộc phải qua đây để lấy Data (ALL_BOOKINGS) trước!
                 break;
 
+
             case "viewPromotionManagement":
                 url = "/PromotionManagementController";
                 break;
+
 
             //VEHICLE
             case "addVehicle":

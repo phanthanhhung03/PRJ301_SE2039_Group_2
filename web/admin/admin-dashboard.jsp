@@ -61,7 +61,7 @@
                 <nav class="site-header__navigation">
                     <a href="#" class="site-header__nav-link site-header__nav-link--active">Dashboard</a>
                     <a href="MainController?action=viewCustomerManagement" class="site-header__nav-link">Customers</a>
-                    <a href="booking-management.jsp" class="site-header__nav-link">Bookings</a>
+                    <a href="MainController?action=viewAdminBookings" class="site-header__nav-link">Bookings</a>
                     <a href="MainController?action=viewLoyaltyManagement" class="site-header__nav-link">Loyalty</a>
                     <a href="MainController?action=viewPromotionManagement" class="site-header__nav-link"> Promotions
                     </a>
@@ -83,7 +83,7 @@
                 <h1 style="font-size: 2.0rem; margin-top: var(--spacing-xs); margin-bottom: var(--spacing-sm);">Welcome back  <%= admin.getFullName()%> </h1>
                 <p style="max-width: 700px; color: var(--color-text-secondary); font-size: 0.95rem;">System status is nominal. RFID gate scanning is online, 4 wash bays are currently active, and premium detaiil logs are synced.</p>
                 <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
-                    <a href="booking-management.html" class="btn btn--primary btn--sm">View Today's Bookings</a>
+                    <a href="MainController?action=viewAdminBookings" class="btn btn--primary btn--sm">View Today's Bookings</a>
                     <a href="reports.html" class="btn btn--secondary btn--sm">Generate Shift Report</a>
                 </div>
             </section>
