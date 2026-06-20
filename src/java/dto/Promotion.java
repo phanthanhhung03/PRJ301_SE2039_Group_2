@@ -32,6 +32,8 @@ public class Promotion {
 
     private Date createdAt;
 
+    private String targetType;
+
     public Promotion() {
     }
 
@@ -127,5 +129,13 @@ public class Promotion {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
     }
 }

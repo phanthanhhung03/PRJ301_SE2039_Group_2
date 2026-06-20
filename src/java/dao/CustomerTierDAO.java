@@ -190,4 +190,30 @@ public class CustomerTierDAO {
         return result;
     }
 
+    public boolean updateTier(CustomerTier tier) {
+        String sql = "UPDATE CustomerTiers\n"
+                + "        SET minBookings = ?,\n"
+                + "            minSpend = ?,\n"
+                + "            pointMultiplier = ?,\n"
+                + "            discountPercent = ?\n"
+                + "        WHERE tierID = ?";
+
+        try (
+                 Connection conn = dbutils.DBUtils.getConnection();  
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, tier.getMinBookings());
+            ps.setDouble(2, tier.getMinSpend());
+            ps.setDouble(3, tier.getPointMultiplier());
+            ps.setDouble(4, tier.getDiscountPercent());
+            ps.setInt(5, tier.getTierID());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }

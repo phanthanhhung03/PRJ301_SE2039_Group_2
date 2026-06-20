@@ -1990,60 +1990,233 @@ button, input, select, textarea {
     text-transform: uppercase;
 }
 
-/* Confirmation Modal Overlay Styles */
-.modal-overlay {
+/* ==========================================================================
+   LOYALTY TIER CONFIGURATION MODAL
+   ========================================================================== */
+
+.tier-modal-overlay {
+
+    display: flex;
+
     position: fixed;
     inset: 0;
-    z-index: 10000;
-    background: rgba(8, 8, 10, 0.65);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
+
+    width: 100vw;
+    height: 100vh;
+
     justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    align-items: center;
+
+    background: rgba(0, 0, 0, 0.75);
+
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+
+    animation: modalFadeIn .25s ease;
+
+    z-index: 999999;
 }
 
-.modal-overlay--show {
-    opacity: 1;
-    pointer-events: auto;
-}
+/* Modal Box */
 
-.modal-content {
-    background: rgba(21, 21, 28, 0.9);
-    border: 1px solid var(--color-border);
+.tier-modal-box {
+
+    background: rgba(21, 21, 28, 0.92);
+
+    border: 1px solid rgba(226, 184, 61, 0.25);
+
     border-radius: var(--radius-xl);
-    padding: var(--spacing-xl);
-    max-width: 450px;
-    width: 90%;
-    box-shadow: var(--shadow-card), 0 20px 50px rgba(0, 0, 0, 0.6);
-    transform: scale(0.9);
-    transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    padding: 28px;
+
+    width: 600px;
+    max-width: 90%;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(226, 184, 61, 0.08);
+
+    animation: modalPop .3s ease forwards;
 }
 
-.modal-overlay--show .modal-content {
-    transform: scale(1);
+/* Header */
+
+.tier-modal-header {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    position: relative;
+
+    margin-bottom: 24px;
+    padding-bottom: 14px;
 }
 
-.modal-title {
-    font-size: 1.5rem;
-    margin-bottom: var(--spacing-md);
+.tier-modal-header::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+
+    width: 70px;
+    height: 3px;
+
+    border-radius: 999px;
+
+    background: linear-gradient(
+        90deg,
+        var(--color-accent-gold),
+        var(--color-accent-cyan)
+        );
+}
+
+.tier-modal-header h3 {
+
+    font-size: 1.3rem;
+    font-weight: 700;
+
     color: var(--color-text-primary);
 }
 
-.modal-desc {
-    font-size: 0.95rem;
+/* Close Button */
+
+.tier-modal-close {
+
+    width: 38px;
+    height: 38px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+
     color: var(--color-text-secondary);
-    margin-bottom: var(--spacing-xl);
-    line-height: 1.6;
+
+    cursor: pointer;
+
+    font-size: 1.1rem;
+
+    transition: all .25s ease;
 }
 
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--spacing-md);
+.tier-modal-close:hover {
+
+    background: rgba(255,255,255,.08);
+
+    color: white;
+
+    transform: rotate(90deg);
+}
+
+/* Form */
+
+.tier-form-group {
+
+    margin-bottom: 18px;
+}
+
+.tier-form-group label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: .9rem;
+    font-weight: 600;
+
+    color: var(--color-text-primary);
+}
+
+.tier-form-group input {
+
+    width: 100%;
+
+    padding: 12px 14px;
+
+    border-radius: 10px;
+
+    background: rgba(255,255,255,.03);
+
+    border: 1px solid var(--color-border);
+
+    color: var(--color-text-primary);
+
+    transition: all .2s ease;
+}
+
+.tier-form-group input:focus {
+
+    outline: none;
+
+    border-color: var(--color-accent-cyan);
+
+    box-shadow:
+        0 0 0 3px rgba(0,240,255,.08),
+        0 0 15px rgba(0,240,255,.15);
+}
+
+.tier-form-group input[readonly] {
+
+    background: rgba(226,184,61,.08);
+
+    border-color: rgba(226,184,61,.25);
+
+    color: var(--color-accent-gold);
+
+    font-weight: 600;
+}
+
+/* Save Button */
+
+.btn--gold {
+
+    transition: all .25s ease;
+}
+
+.btn--gold:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 25px rgba(226,184,61,.25);
+}
+
+/* Animations */
+
+@keyframes modalFadeIn {
+
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalPop {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(20px)
+            scale(.95);
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
 }
 
 /* ==========================================================================
@@ -2167,215 +2340,287 @@ button, input, select, textarea {
 .admin-bottom-card .data-table th:last-child {
     text-align: center;
 }
- /* ==========================================================================
-   10. BOOKING PAGE SPECIFICS (DESKTOP)
+
+/* ==========================================================================
+   ADMIN LOYALTY MANAGEMENT - CUSTOMER TIER OVERVIEW
    ========================================================================== */
 
-    .booking-page {
-        padding-top: var(--spacing-xl);
-        padding-bottom: var(--spacing-huge);
-    }
+.tier-modal-overlay {
 
-    .booking-page__intro {
-        text-align: center;
-        padding: var(--spacing-xl);
-        border-radius: var(--radius-xl);
-        margin-bottom: var(--spacing-xl);
-        border-top: 2px solid var(--color-accent-blue);
-    }
+    display: none;
 
-    .booking-page__title {
-        font-size: 2.5rem;
-        margin-bottom: var(--spacing-sm);
-        letter-spacing: 0.05em;
-        background: linear-gradient(135deg, var(--color-text-primary), var(--color-accent-cyan));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
+    position: fixed;
+    inset: 0;
 
-    .booking-page__grid {
-        display: grid;
-        grid-template-columns: 1fr 380px; 
-        gap: var(--spacing-xl);
-        align-items: start; 
-    }
+    background: rgba(0,0,0,0.75);
 
-    .booking-page__form-section {
-        padding: var(--spacing-xxl);
-        border-radius: var(--radius-xl);
-    }
+    justify-content: center;
+    align-items: center;
 
-    .booking-page__step-title {
-        font-size: 1.25rem;
-        color: var(--color-accent-cyan);
-        margin: var(--spacing-xl) 0 var(--spacing-md);
-        padding-bottom: var(--spacing-sm);
-        border-bottom: 1px dashed var(--color-border);
-    }
+    z-index: 99999;
+}
 
-    .booking-page__step-title:first-of-type {
-        margin-top: 0;
-    }
+.tier-modal-box {
 
-    .booking-page__add-link {
-        display: inline-block;
-        margin-top: var(--spacing-sm);
-        font-size: 0.85rem;
-        color: var(--color-accent-blue);
-        font-weight: 600;
-    }
+    width: 600px;
+    max-width: 90%;
 
-    .booking-page__add-link:hover {
-        color: var(--color-accent-cyan);
-        text-decoration: underline;
-    }
+    padding: 24px;
+}
 
-    .service-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-md);
-        margin-bottom: var(--spacing-lg);
-    }
+.tier-modal-header {
 
-    .service-card {
-        position: relative;
-        cursor: pointer;
-        border-radius: var(--radius-lg);
-        transition: var(--transition-smooth);
-        display: block; 
-    }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-    .service-card--full {
-        grid-column: 1 / -1; 
-    }
+    margin-bottom: 20px;
+}
 
-    .service-card__radio {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-    }
+.tier-modal-close {
 
-    .service-card__content {
-        padding: var(--spacing-lg);
-        height: 100%;
-        border-radius: inherit;
-        border: 1px solid transparent; 
-        transition: var(--transition-smooth);
-    }
+    border: none;
+    background: none;
 
-    .service-card__content--flex {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+    cursor: pointer;
 
-    .service-card__name {
-        font-size: 1.15rem;
-        margin-bottom: var(--spacing-xs);
-        color: var(--color-text-primary);
-    }
+    font-size: 1.2rem;
+    color: white;
+}
 
-    .service-card__name--premium {
-        color: var(--color-accent-blue);
-    }
+.tier-form-group {
 
-    .service-card__name--cyan {
-        color: var(--color-accent-cyan);
-    }
+    margin-bottom: 16px;
+}
 
-    .service-card__desc {
-        font-size: 0.85rem;
-        color: var(--color-text-secondary);
-        margin-bottom: var(--spacing-md);
-        line-height: 1.4;
-    }
+.tier-form-group label {
 
-    .service-card__price {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--color-text-primary);
-    }
+    display: block;
+    margin-bottom: 6px;
 
-    .service-card__price--cyan {
-        color: var(--color-accent-cyan);
-    }
+    font-weight: 600;
+}
 
-    .service-card:hover .service-card__content {
-        background-color: var(--color-surface-hover);
-    }
-    
-    .service-card--selected {
-        border-color: var(--color-accent-blue) !important;
-        box-shadow: var(--glow-blue) !important;
-    }
+.tier-form-group input {
 
-    .service-card--selected .service-card__content {
-        background: rgba(0, 118, 255, 0.05);
-    }
+    width: 100%;
 
-    .booking-page__summary-section {
-        position: sticky;
-        top: 100px; 
-    }
+    padding: 10px;
 
-    .order-summary {
-        padding: var(--spacing-xl);
-        border-radius: var(--radius-xl);
-        border-top: 2px solid var(--color-accent-cyan);
-    }
+    border: 1px solid rgba(255,255,255,0.2);
 
-    .order-summary__title {
-        font-size: 1.15rem;
-        letter-spacing: 0.1em;
-        margin-bottom: var(--spacing-lg);
-        text-align: center;
-    }
+    border-radius: 8px;
+}
 
-    .order-summary__row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: var(--spacing-sm) 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
+/* ==========================================================================
+  10. BOOKING PAGE SPECIFICS (DESKTOP)
+  ========================================================================== */
 
-    .order-summary__label {
-        font-size: 0.85rem;
-        color: var(--color-text-tertiary);
-    }
+.booking-page {
+    padding-top: var(--spacing-xl);
+    padding-bottom: var(--spacing-huge);
+}
 
-    .order-summary__value {
-        font-size: 0.95rem;
-        color: var(--color-text-primary);
-        text-align: right;
-        max-width: 60%;
-    }
+.booking-page__intro {
+    text-align: center;
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--spacing-xl);
+    border-top: 2px solid var(--color-accent-blue);
+}
 
-    .order-summary__total-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: var(--spacing-lg);
-        padding-top: var(--spacing-md);
-        border-top: 1px solid var(--color-border);
-    }
+.booking-page__title {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-sm);
+    letter-spacing: 0.05em;
+    background: linear-gradient(135deg, var(--color-text-primary), var(--color-accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 
-    .order-summary__total {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--color-accent-cyan);
-    }
+.booking-page__grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: var(--spacing-xl);
+    align-items: start;
+}
 
-    .order-summary__points {
-        text-align: center;
-        font-size: 0.85rem;
-        color: var(--color-text-secondary);
-        margin: var(--spacing-md) 0 var(--spacing-xl);
-    }
+.booking-page__form-section {
+    padding: var(--spacing-xxl);
+    border-radius: var(--radius-xl);
+}
 
-    .order-summary__points strong {
-        color: var(--color-accent-gold);
-    }
+.booking-page__step-title {
+    font-size: 1.25rem;
+    color: var(--color-accent-cyan);
+    margin: var(--spacing-xl) 0 var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px dashed var(--color-border);
+}
+
+.booking-page__step-title:first-of-type {
+    margin-top: 0;
+}
+
+.booking-page__add-link {
+    display: inline-block;
+    margin-top: var(--spacing-sm);
+    font-size: 0.85rem;
+    color: var(--color-accent-blue);
+    font-weight: 600;
+}
+
+.booking-page__add-link:hover {
+    color: var(--color-accent-cyan);
+    text-decoration: underline;
+}
+
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.service-card {
+    position: relative;
+    cursor: pointer;
+    border-radius: var(--radius-lg);
+    transition: var(--transition-smooth);
+    display: block;
+}
+
+.service-card--full {
+    grid-column: 1 / -1;
+}
+
+.service-card__radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.service-card__content {
+    padding: var(--spacing-lg);
+    height: 100%;
+    border-radius: inherit;
+    border: 1px solid transparent;
+    transition: var(--transition-smooth);
+}
+
+.service-card__content--flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.service-card__name {
+    font-size: 1.15rem;
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-text-primary);
+}
+
+.service-card__name--premium {
+    color: var(--color-accent-blue);
+}
+
+.service-card__name--cyan {
+    color: var(--color-accent-cyan);
+}
+
+.service-card__desc {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.4;
+}
+
+.service-card__price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.service-card__price--cyan {
+    color: var(--color-accent-cyan);
+}
+
+.service-card:hover .service-card__content {
+    background-color: var(--color-surface-hover);
+}
+
+.service-card--selected {
+    border-color: var(--color-accent-blue) !important;
+    box-shadow: var(--glow-blue) !important;
+}
+
+.service-card--selected .service-card__content {
+    background: rgba(0, 118, 255, 0.05);
+}
+
+.booking-page__summary-section {
+    position: sticky;
+    top: 100px;
+}
+
+.order-summary {
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-xl);
+    border-top: 2px solid var(--color-accent-cyan);
+}
+
+.order-summary__title {
+    font-size: 1.15rem;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+}
+
+.order-summary__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.order-summary__label {
+    font-size: 0.85rem;
+    color: var(--color-text-tertiary);
+}
+
+.order-summary__value {
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+    text-align: right;
+    max-width: 60%;
+}
+
+.order-summary__total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+}
+
+.order-summary__total {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-accent-cyan);
+}
+
+.order-summary__points {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    margin: var(--spacing-md) 0 var(--spacing-xl);
+}
+
+.order-summary__points strong {
+    color: var(--color-accent-gold);
+}
 
 /* ==========================================================================
    11. RESPONSIVE BREAKPOINTS (MEDIA QUERIES)
@@ -2504,7 +2749,7 @@ button, input, select, textarea {
         grid-template-columns: 1fr;
         gap: 0;
     }
-    
+
     .service-grid {
         grid-template-columns: 1fr; /* Các thẻ dịch vụ nằm dọc hết */
     }
@@ -2518,11 +2763,11 @@ button, input, select, textarea {
     .site-header__logo-text {
         display: none; /* Chỉ hiện logo icon, giấu chữ AUTOWASHPRO để tiết kiệm chỗ */
     }
-    
+
     .site-header__center-title {
         font-size: 0.95rem; /* Thu nhỏ chữ NEW BOOKING lại một chút xíu */
     }
-    
+
     .site-header__actions .status-badge {
         font-size: 0.65rem; /* Thu nhỏ chữ Tier lại */
         padding: 0.2rem 0.5rem;

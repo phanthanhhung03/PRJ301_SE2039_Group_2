@@ -102,12 +102,22 @@ public class MainController extends HttpServlet {
             case "viewAdminDashboard":
                 url = "/AdminDashboardController";
                 break;
-
+            case "viewLoyaltyManagement":
+                url = "/LoyaltyManagementController";
+                break;
+            case "updateTier":
+                url = "/TierController";
+                break;
+                
             case "registerVehicle":
                 url = "/vehicle/register";
                 break;
             case "viewCustomerManagement":
                 url = "/admin/customer-management.jsp";
+                break;
+
+            case "viewPromotionManagement":
+                url = "/PromotionManagementController";
                 break;
 
             //VEHICLE
