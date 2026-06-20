@@ -4,7 +4,13 @@
     Author     : Asus
 --%>
 
+<%@page import="dto.Vehicle"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
+<c:if test="${empty USER}">
+    <c:redirect url="MainController?action=viewSignIn"/>
+</c:if>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -40,13 +46,15 @@
                     Add your vehicle information to start booking premium wash services.
                 </p>
 
-                <% if (request.getAttribute("ERROR") != null) {%>
-                <div class="auth-card__alert auth-card__alert--error">
-                    &#9888; <%= request.getAttribute("ERROR")%>
-                </div>
-                <% }%>
+                <c:if test="${not empty ERROR}">
+                    <div class="auth-card__alert auth-card__alert--error">
+                        &#9888; ${ERROR}
+                    </div>
+                </c:if>
 
-                <form action="MainController" method="POST">
+                <form id="vehicleForm"
+                      action="MainController"
+                      method="POST">
 
                     <div class="form-row">
                         <!-- License Plate -->
@@ -62,7 +70,8 @@
                                        required
                                        maxlength="15"
                                        pattern="[0-9]{2}[A-Z][0-9]?-[0-9]{4,5}"
-                                       title="Example: 51A-12345 or 59A1-12345">
+                                       title="Example: 51A-12345 or 59A1-12345"
+                                       value="${ocrVehicle.licensePlate}">
                             </div>
                         </div>
 
@@ -76,17 +85,72 @@
                                         class="form-group__input form-group__select"
                                         required>
                                     <option value="">Select Brand</option>
-                                    <option value="Toyota">Toyota</option>
-                                    <option value="Honda">Honda</option>
-                                    <option value="Mazda">Mazda</option>
-                                    <option value="Hyundai">Hyundai</option>
-                                    <option value="Kia">Kia</option>
-                                    <option value="Ford">Ford</option>
-                                    <option value="BMW">BMW</option>
-                                    <option value="Mercedes-Benz">Mercedes-Benz</option>
-                                    <option value="Audi">Audi</option>
-                                    <option value="Lexus">Lexus</option>
-                                    <option value="VinFast">VinFast</option>
+                                    <option value="Toyota"    
+                                        <c:if test="${ocrVehicle.brand eq 'TOYOTA'}">
+                                            selected
+                                        </c:if>>
+                                        Toyota
+                                    </option>
+                                    <option value="Honda"
+                                        <c:if test="${ocrVehicle.brand eq 'HONDA'}">
+                                            selected
+                                        </c:if>>
+                                        Honda
+                                    </option>
+                                    <option value="Mazda"
+                                        <c:if test="${ocrVehicle.brand eq 'MAZDA'}">
+                                            selected
+                                        </c:if>>
+                                        Mazda
+                                    </option>
+                                    <option value="Hyundai"
+                                        <c:if test="${ocrVehicle.brand eq 'HYUNDAI'}">
+                                            selected
+                                        </c:if>>
+                                        Hyundai
+                                    </option>
+                                    <option value="Kia"
+                                        <c:if test="${ocrVehicle.brand eq 'KIA'}">
+                                            selected
+                                        </c:if>>
+                                        Kia
+                                    </option>
+                                    <option value="Ford"
+                                        <c:if test="${ocrVehicle.brand eq 'FORD'}">
+                                            selected
+                                        </c:if>>
+                                        Ford
+                                    </option>
+                                    <option value="BMW"
+                                        <c:if test="${ocrVehicle.brand eq 'BMW'}">
+                                            selected
+                                        </c:if>>
+                                        BMW
+                                    </option>
+                                    <option value="Mercedes-Benz"
+                                        <c:if test="${ocrVehicle.brand eq 'MERCEDES-BENZ'}">
+                                            selected
+                                        </c:if>>
+                                        Mercedes-Benz
+                                    </option>
+                                    <option value="Audi"
+                                        <c:if test="${ocrVehicle.brand eq 'AUDI'}">
+                                            selected
+                                        </c:if>>
+                                        Audi
+                                    </option>
+                                    <option value="Lexus"
+                                        <c:if test="${ocrVehicle.brand eq 'LEXUS'}">
+                                            selected
+                                        </c:if>>
+                                        Lexus
+                                    </option>
+                                    <option value="VinFast"
+                                        <c:if test="${ocrVehicle.brand eq 'VINFAST'}">
+                                            selected
+                                        </c:if>>
+                                        VinFast
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -133,20 +197,37 @@
 
                     <!-- Actions -->
                     <div style="margin-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+
                         <!-- OCR Scan Button -->
                         <button type="button"
-                                class="btn btn--secondary btn--block">
+                                class="btn btn--secondary btn--block"
+                                onclick="document.getElementById('registrationFile').click()">
+
                             📷 Scan Vehicle Registration
+
                         </button>
 
+                        <input type="hidden" name="action" value="addVehicle">
                         <!-- Submit -->
                         <button type="submit"
-                                class="btn btn--primary btn--block"
-                                name="action"
-                                value="registerVehicle">
+                                class="btn btn--primary btn--block">
                             Register Vehicle
                         </button>
                     </div>
+
+                </form>
+
+                <!-- OCR Form -->
+                <form id="ocrForm"
+                      action="ScanVehicleRegistrationController"
+                      method="POST"
+                      enctype="multipart/form-data">
+
+                    <input type="file"
+                           id="registrationFile"
+                           name="registrationFile"
+                           accept="image/*"
+                           hidden>
 
                 </form>
 
@@ -159,6 +240,16 @@
 
             </div>
         </main>
+        <script>
+            document.getElementById("registrationFile")
+                    .addEventListener("change", function () {
 
+                        if (this.files.length > 0) {
+
+                            document.getElementById("ocrForm")
+                                    .submit();
+                        }
+                    });
+        </script>
     </body>
 </html>

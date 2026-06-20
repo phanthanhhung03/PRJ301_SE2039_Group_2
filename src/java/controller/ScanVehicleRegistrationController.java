@@ -1,73 +1,62 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
-import dao.VehicleDAO;
 import dto.Vehicle;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+import service.OcrSpaceService;
 
-/**
- *
- * @author Asus
- */
-@WebServlet(name = "UpdateVehicle", urlPatterns = {"/UpdateVehicle"})
-public class UpdateVehicle extends HttpServlet {
+@WebServlet(name = "ScanVehicleRegistrationController", urlPatterns = {"/ScanVehicleRegistrationController"})
+@MultipartConfig
+public class ScanVehicleRegistrationController extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        int vehicleId = Integer.parseInt(request.getParameter("vehicleID"));
-        String brand = request.getParameter("brand");
-        String model = request.getParameter("model");
-        if (model != null) {
-            model = model.trim();
 
-            if (!model.isEmpty()) {
-                model = model.substring(0, 1).toUpperCase()
-                        + model.substring(1).toLowerCase();
-            }
-        }
-        String color = request.getParameter("color");
+        try {
 
-        VehicleDAO dao = new VehicleDAO();
-        int result = dao.updateVehicle(vehicleId, brand, model, color);
+            Part file = request.getPart("registrationFile");
 
-        if (result > 0) {
-            request.getSession().setAttribute(
-                    "SUCCESS_MESSAGE",
-                    "Vehicle updated successfully.");
+            File tempFile = File.createTempFile(
+                    "ocr_",
+                    ".png");
 
-            response.sendRedirect(
-                    request.getContextPath()
-                    + "/MainController?action=viewDashboard");
+            Files.copy(
+                    file.getInputStream(),
+                    tempFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
 
-            return;
-
-        } else {
+            OcrSpaceService service
+                    = new OcrSpaceService();
 
             Vehicle vehicle
-                    = dao.getActiveVehicleById(vehicleId);
+                    = service.extractVehicle(tempFile);
 
             request.setAttribute(
-                    "VEHICLE",
+                    "ocrVehicle",
                     vehicle);
+
+        } catch (Exception e) {
 
             request.setAttribute(
                     "ERROR",
-                    "Failed to update vehicle.");
+                    "Failed to scan registration document.");
 
-            request.getRequestDispatcher(
-                    "/customer/updateVehicle.jsp")
-                    .forward(request, response);
+            e.printStackTrace();
         }
 
+        request.getRequestDispatcher(
+                "/customer/addVehicle.jsp")
+                .forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
