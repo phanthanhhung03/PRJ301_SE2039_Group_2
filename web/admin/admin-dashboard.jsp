@@ -62,7 +62,9 @@
                     <a href="#" class="site-header__nav-link site-header__nav-link--active">Dashboard</a>
                     <a href="MainController?action=viewCustomerManagement" class="site-header__nav-link">Customers</a>
                     <a href="booking-management.jsp" class="site-header__nav-link">Bookings</a>
-                    <a href="loyalty-management.jsp" class="site-header__nav-link">Loyalty</a>
+                    <a href="MainController?action=viewLoyaltyManagement" class="site-header__nav-link">Loyalty</a>
+                    <a href="MainController?action=viewPromotionManagement" class="site-header__nav-link"> Promotions
+                    </a>
                 </nav>
                 <div class="site-header__actions">
                     <span class="status-badge status-badge--completed">Staff Portal</span>
@@ -213,7 +215,7 @@
 
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-md);">
                         <h2 style="font-size:1.25rem;">Customer Tier Overview</h2>
-                        <a href="MainController?action=LoyaltyManagement" class="btn btn--secondary btn--sm">
+                        <a href="MainController?action=viewLoyaltyManagement" class="btn btn--secondary btn--sm">
                             View Details
                         </a>
                     </div>
@@ -359,7 +361,7 @@
                             Promotion Audience
                         </h2>
 
-                        <a href="MainController?action=LoyaltyManagement"
+                        <a href="MainController?action=viewPromotionManagement"
                            class="btn btn--secondary btn--sm">
                             Manage
                         </a>

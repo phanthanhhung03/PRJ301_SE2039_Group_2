@@ -205,70 +205,77 @@
             <section class="dashboard-section" id="vehicles">
                 <div class="dashboard-section__header">
                     <h2 class="dashboard-section__title">Vehicles</h2>
+                    <a href="#" class="btn btn--secondary btn--sm">Manage Fleet</a>
                 </div>
 
                 <div class="grid-cols-3">
 
-                    <% if (vehiclesList == null || vehiclesList.isEmpty()) { %>
+                    <c:if test="${empty vehicleList}">
+                        <div class="vehicle-empty glass-panel">
 
-                    <div class="vehicle-empty glass-panel">
-
-                        <div class="vehicle-empty__icon">
-                            🚗
-                        </div>
-
-                        <h3 class="vehicle-empty__title">
-                            No Vehicles Registered
-                        </h3>
-
-                        <p class="vehicle-empty__description">
-                            Add your first vehicle to start booking premium wash services.
-                        </p>
-
-                    </div>
-
-                    <% } %>
-
-                    <% if (vehiclesList != null) { %>    
-                    <% for (Vehicle vehicle : vehiclesList) {%>
-                    <div class="vehicle-card glass-panel">
-                        <div class="vehicle-card__header">
-                            <div>
-                                <span class="vehicle-card__type">
-                                    <%= vehicle.getBrand()%>
-                                </span>
-                                <h3 class="vehicle-card__name">
-                                    <%= vehicle.getModel()%>
-                                </h3>
-                                <span class="vehicle-card__color">
-                                    <%= vehicle.getColor()%>
-                                </span>
+                            <div class="vehicle-empty__icon">
+                                🚗
                             </div>
-                            <div class="vehicle-card__header-actions">
-                                <span class="status-badge status-badge--completed" style="margin-right: var(--spacing-sm);">Active</span>
-                                <a href="${pageContext.request.contextPath}/MainController?action=viewUpdateVehicle&vehicleID=<%= vehicle.getVehicleID()%>" 
-                                   class="vehicle-card__action-icon vehicle-card__action-icon--edit" 
-                                   title="Edit Vehicle">
-                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                                </a>
-                                <button type="button" 
-                                        class="vehicle-card__action-icon vehicle-card__action-icon--delete" 
-                                        title="Remove Vehicle" 
-                                        onclick="openRemoveModal(
-                                        <%= vehicle.getVehicleID()%>,
-                                                        '<%= vehicle.getBrand()%> <%= vehicle.getModel()%> (<%= vehicle.getLicensePlate()%>)')">
-                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                                </button>
+
+                            <h3 class="vehicle-empty__title">
+                                No Vehicles Registered
+                            </h3>
+
+                            <p class="vehicle-empty__description">
+                                Add your first vehicle to start booking premium wash services.
+                            </p>
+
+                        </div>
+                    </c:if>
+
+                    <c:forEach var="vehicle" items="${vehicleList}">
+                        <div class="vehicle-card glass-panel">
+                            <div class="vehicle-card__header">
+                                <div>
+                                    <span class="vehicle-card__type">
+                                        ${vehicle.brand}
+                                    </span>
+                                    <h3 class="vehicle-card__name">
+                                        ${vehicle.model}
+                                    </h3>
+                                    <span class="vehicle-card__color">
+                                        ${vehicle.color}
+                                    </span>
+                                </div>
+                                <div class="vehicle-card__header-actions">
+                                    <span class="status-badge status-badge--completed" style="margin-right: var(--spacing-sm);">Active</span>
+                                    <a href="${pageContext.request.contextPath}/MainController?action=viewUpdateVehicle&vehicleID=${vehicle.vehicleID}"
+                                       class="vehicle-card__action-icon vehicle-card__action-icon--edit"
+                                       title="Edit Vehicle">
+                                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                    </a>
+                                    <button type="button"
+                                            class="vehicle-card__action-icon vehicle-card__action-icon--delete"
+                                            title="Remove Vehicle"
+                                            onclick="openRemoveModal(
+                                            ${vehicle.vehicleID},
+                                                            '${vehicle.brand} ${vehicle.model} (${vehicle.licensePlate})'
+                                                            )">
+
+                                        <svg width="14"
+                                             height="14"
+                                             fill="currentColor"
+                                             viewBox="0 0 24 24">
+
+                                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+
+                                        </svg>
+
+                                    </button>
+                                </div>
+                            </div>
+                            <span class="vehicle-card__plate">${vehicle.licensePlate}</span>
+                            <div class="vehicle-card__actions">
+                                <a href="#" class="btn btn--secondary btn--sm">Detail Log</a>
+                                <a href="#" class="btn btn--primary btn--sm">Book Wash</a>
                             </div>
                         </div>
-                        <span class="vehicle-card__plate"><%= vehicle.getLicensePlate()%></span>
-                        <div class="vehicle-card__actions">
-                            <a href="#" class="btn btn--secondary btn--sm">Detail Log</a>
-                            <a href="#" class="btn btn--primary btn--sm">Book Wash</a>
-                        </div>
-                    </div>
-                    <% } %>
-                    <% }%>
+                    </c:forEach>
 
                     <!-- Add New Vehicle Card -->
                     <a href="${pageContext.request.contextPath}/MainController?action=viewAddVehicle"
@@ -288,205 +295,91 @@
                 </div>
             </section>
 
-            ```jsp
-<!-- SECTION 3: BOOKINGS MANAGEMENT -->
-<section class="dashboard-section" id="bookings">
+            <!-- SECTION 3: BOOKINGS MANAGEMENT -->
+            <section class="dashboard-section" id="bookings">
+                <div class="dashboard-section__header">
+                    <h2 class="dashboard-section__title">Bookings</h2>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewNewBooking" class="btn btn--primary btn--sm">BOOKING HERE</a>
+                </div>
 
-    <div class="dashboard-section__header">
-        <h2 class="dashboard-section__title">Bookings</h2>
+                <div class="grid-cols-2">
+                    <div>
+                        <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Upcoming Schedule</h3>
 
-        <a href="${pageContext.request.contextPath}/MainController?action=viewNewBooking"
-           class="btn btn--primary btn--sm">
-            Booking here
-        </a>
-    </div>
+                        <c:choose>
+                            <c:when test="${empty UPCOMING_BOOKINGS}">
+                                <div class="empty-state-panel glass-panel" style="padding: 2rem; text-align: center; border: 1px dashed var(--color-border);">
+                                    <span style="color: var(--color-text-tertiary);">You have no upcoming appointments.</span>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <c:forEach items="${UPCOMING_BOOKINGS}" var="booking">
+                                    <div class="booking-card glass-panel">
+                                        <div class="booking-card__datetime">
+                                            <span class="booking-card__month"><fmt:formatDate value="${booking.bookingDate}" pattern="MMM"/></span>
+                                            <span class="booking-card__day"><fmt:formatDate value="${booking.bookingDate}" pattern="dd"/></span>
+                                            <span class="booking-card__time"><fmt:formatDate value="${booking.bookingDate}" pattern="hh:mm a"/></span>
+                                        </div>
+                                        <div class="booking-card__details">
+                                            <span class="booking-card__service">${booking.serviceType}</span>
+                                            <span class="booking-card__vehicle">${booking.vehicleName}</span>
+                                            <span style="font-size:0.8rem; color:var(--color-text-tertiary);">Notes: ${empty booking.notes ? 'None' : booking.notes}</span>
+                                        </div>
+                                        <div class="booking-card__meta">
+                                            <span class="status-badge status-badge--pending">${booking.bookingStatus}</span>
 
-    <div class="grid-cols-2">
+                                            <c:if test="${booking.bookingStatus == 'Pending'}">
+                                                <form action="${pageContext.request.contextPath}/BookingController" method="POST" style="display:inline;">
+                                                    <input type="hidden" name="action" value="cancelBooking">
+                                                    <input type="hidden" name="bookingID" value="${booking.bookingID}">
 
-        <!-- Upcoming Schedule -->
-        <div>
-
-            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">
-                Upcoming Schedule
-            </h3>
-
-            <c:choose>
-
-                <c:when test="${empty UPCOMING_BOOKINGS}">
-                    <div class="empty-state-panel glass-panel"
-                         style="padding: 2rem; text-align: center; border: 1px dashed var(--color-border);">
-
-                        <span style="color: var(--color-text-tertiary);">
-                            You have no upcoming appointments.
-                        </span>
-
+                                                    <button type="submit" class="btn btn--danger btn--sm" 
+                                                            style="background: transparent; border: 1px solid #ef4444; color: #ef4444; cursor: pointer;"
+                                                            onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                                        Cancel
+                                                    </button>
+                                                </form>
+                                            </c:if>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
-                </c:when>
 
-                <c:otherwise>
+                    <div>
+                        <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Wash History</h3>
 
-                    <c:forEach items="${UPCOMING_BOOKINGS}" var="booking">
-
-                        <div class="booking-card glass-panel">
-
-                            <div class="booking-card__datetime">
-                                <span class="booking-card__month">
-                                    <fmt:formatDate value="${booking.bookingDate}" pattern="MMM"/>
-                                </span>
-
-                                <span class="booking-card__day">
-                                    <fmt:formatDate value="${booking.bookingDate}" pattern="dd"/>
-                                </span>
-
-                                <span class="booking-card__time">
-                                    <fmt:formatDate value="${booking.bookingDate}" pattern="hh:mm a"/>
-                                </span>
-                            </div>
-
-                            <div class="booking-card__details">
-
-                                <span class="booking-card__service">
-                                    ${booking.serviceType}
-                                </span>
-
-                                <span class="booking-card__vehicle">
-                                    ${booking.vehicleName}
-                                </span>
-
-                                <span style="font-size:0.8rem; color:var(--color-text-tertiary);">
-                                    Notes:
-                                    ${empty booking.notes ? 'None' : booking.notes}
-                                </span>
-
-                            </div>
-
-                            <div class="booking-card__meta">
-
-                                <span class="status-badge status-badge--pending">
-                                    ${booking.bookingStatus}
-                                </span>
-
-                                <c:if test="${booking.bookingStatus eq 'Pending'}">
-
-                                    <form action="${pageContext.request.contextPath}/BookingController"
-                                          method="POST"
-                                          style="display:inline;">
-
-                                        <input type="hidden"
-                                               name="action"
-                                               value="cancelBooking">
-
-                                        <input type="hidden"
-                                               name="bookingID"
-                                               value="${booking.bookingID}">
-
-                                        <button type="submit"
-                                                class="btn btn--danger btn--sm"
-                                                style="background: transparent;
-                                                       border: 1px solid #ef4444;
-                                                       color: #ef4444;
-                                                       cursor: pointer;"
-                                                onclick="return confirm('Are you sure you want to cancel this booking?');">
-
-                                            Cancel
-
-                                        </button>
-
-                                    </form>
-
-                                </c:if>
-
-                            </div>
-
-                        </div>
-
-                    </c:forEach>
-
-                </c:otherwise>
-
-            </c:choose>
-
-        </div>
-
-        <!-- Wash History -->
-        <div>
-
-            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">
-                Wash History
-            </h3>
-
-            <c:choose>
-
-                <c:when test="${empty PAST_BOOKINGS}">
-                    <div class="empty-state-panel glass-panel"
-                         style="padding: 2rem; text-align: center; border: 1px dashed var(--color-border);">
-
-                        <span style="color: var(--color-text-tertiary);">
-                            No wash history available.
-                        </span>
-
+                        <c:choose>
+                            <c:when test="${empty PAST_BOOKINGS}">
+                                <div class="empty-state-panel glass-panel" style="padding: 2rem; text-align: center; border: 1px dashed var(--color-border);">
+                                    <span style="color: var(--color-text-tertiary);">No wash history available.</span>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <c:forEach items="${PAST_BOOKINGS}" var="history">
+                                    <div class="booking-card glass-panel">
+                                        <div class="booking-card__datetime">
+                                            <span class="booking-card__month"><fmt:formatDate value="${history.bookingDate}" pattern="MMM"/></span>
+                                            <span class="booking-card__day"><fmt:formatDate value="${history.bookingDate}" pattern="dd"/></span>
+                                            <span class="booking-card__time"><fmt:formatDate value="${history.bookingDate}" pattern="hh:mm a"/></span>
+                                        </div>
+                                        <div class="booking-card__details">
+                                            <span class="booking-card__service">${history.serviceType}</span>
+                                            <span class="booking-card__vehicle">${history.vehicleName}</span>
+                                        </div>
+                                        <div class="booking-card__meta">
+                                            <span class="status-badge ${history.bookingStatus == 'Cancelled' ? 'status-badge--cancelled' : 'status-badge--completed'}">
+                                                ${history.bookingStatus}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
-                </c:when>
-
-                <c:otherwise>
-
-                    <c:forEach items="${PAST_BOOKINGS}" var="history">
-
-                        <div class="booking-card glass-panel">
-
-                            <div class="booking-card__datetime">
-
-                                <span class="booking-card__month">
-                                    <fmt:formatDate value="${history.bookingDate}" pattern="MMM"/>
-                                </span>
-
-                                <span class="booking-card__day">
-                                    <fmt:formatDate value="${history.bookingDate}" pattern="dd"/>
-                                </span>
-
-                                <span class="booking-card__time">
-                                    <fmt:formatDate value="${history.bookingDate}" pattern="hh:mm a"/>
-                                </span>
-
-                            </div>
-
-                            <div class="booking-card__details">
-
-                                <span class="booking-card__service">
-                                    ${history.serviceType}
-                                </span>
-
-                                <span class="booking-card__vehicle">
-                                    ${history.vehicleName}
-                                </span>
-
-                            </div>
-
-                            <div class="booking-card__meta">
-
-                                <span class="status-badge ${history.bookingStatus eq 'Cancelled'
-                                                            ? 'status-badge--cancelled'
-                                                            : 'status-badge--completed'}">
-
-                                    ${history.bookingStatus}
-
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </c:forEach>
-
-                </c:otherwise>
-
-            </c:choose>
-
-        </div>
-
-    </div>
-
-</section>
+                </div>
+            </section>
             <!-- SECTION 4: RECENT ACTIVITY TIMELINE -->
             <section class="dashboard-section">
                 <div class="dashboard-section__header">
@@ -542,7 +435,7 @@
                                     <label class="form-group__label">Full Name</label>
                                     <input type="text"
                                            class="form-group__input"
-                                           value="${not empty newName ? newName : user.fullName}"
+                                           value="${USER.fullName}"
                                            name="newName"
                                            placeholder="Enter your full name"
                                            required
@@ -552,22 +445,22 @@
                                     <label class="form-group__label">Phone Number</label>
                                     <input type="tel"
                                            class="form-group__input"
-                                           value="<%= user.getPhoneNumber()%>"
+                                           value="${USER.phoneNumber}"
                                            name="newPhoneNumber"
                                            placeholder="Enter your phone number"
                                            pattern="^(0[35789])\d{8}$"
                                            required>
-                                           </div>
-                                           <div class="form-group">
+                                </div>
+                                <div class="form-group">
                                     <label class="form-group__label">Email Address</label>
-                                    <input type="email" class="form-group__input" value="<%= user.getEmail()%>" disabled>
+                                    <input type="email" class="form-group__input" value="${USER.email}" disabled>
                                     <span style="font-size:0.75rem; color:var(--color-text-tertiary);">Contact support to modify email credentials.</span>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-group__label">Billing Address</label>
                                     <input type="text"
                                            class="form-group__input"
-                                           value="<%= user.getAddress()%>"
+                                           value="${USER.address}"
                                            name="newAddress"
                                            placeholder="Enter your address"
                                            required
@@ -619,6 +512,7 @@
             </section>
 
         </main>
+
 
         <!-- FOOTER -->
         <footer class="site-footer" style="margin-top: var(--spacing-xxl);">

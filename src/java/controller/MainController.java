@@ -73,15 +73,15 @@ public class MainController extends HttpServlet {
             case "viewDashBoard":
                 url = "/dashboard";
                 break;
-            
+
             case "viewNewBooking":
                 url = "/customer/bookingpage.jsp";
                 break;
-            
+
             case "createBookingProcess":
                 url = "/BookingController";
                 break;
-                
+
             case "viewAddVehicle":
                 url = "/customer/addVehicle.jsp";
                 break;
@@ -102,7 +102,13 @@ public class MainController extends HttpServlet {
             case "viewAdminDashboard":
                 url = "/AdminDashboardController";
                 break;
-
+            case "viewLoyaltyManagement":
+                url = "/LoyaltyManagementController";
+                break;
+            case "updateTier":
+                url = "/TierController";
+                break;
+                
             case "registerVehicle":
                 url = "/vehicle/register";
                 break;
@@ -113,7 +119,16 @@ public class MainController extends HttpServlet {
             case "updateBookingStatus":
                 url = "/AdminBookingController"; // Bắt buộc phải qua đây để lấy Data (ALL_BOOKINGS) trước!
                 break;
+
+            case "viewPromotionManagement":
+                url = "/PromotionManagementController";
+                break;
+
             //VEHICLE
+            case "addVehicle":
+                url = "/AddVehicleController";
+                break;
+
             case "viewUpdateVehicle":
 
                 int vehicleID = Integer.parseInt(
@@ -148,7 +163,7 @@ public class MainController extends HttpServlet {
             case "removeVehicle":
                 url = "RemoveVehicle";
                 break;
-                
+
             case "updateProfile":
                 url = "updateProfile";
                 break;

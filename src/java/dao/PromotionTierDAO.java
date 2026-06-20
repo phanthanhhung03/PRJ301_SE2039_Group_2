@@ -220,4 +220,55 @@ public class PromotionTierDAO {
 
         return result.toString();
     }
+
+    public void deleteTierMappingByPromotionID(int promotionID) {
+
+        Connection cn = null;
+        PreparedStatement st = null;
+
+        try {
+            cn = DBUtils.getConnection();
+
+            if (cn != null) {
+                String sql = "DELETE FROM PromotionTiers WHERE PromotionID = ?";
+                st = cn.prepareStatement(sql);
+                st.setInt(1, promotionID);
+                st.executeUpdate();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /*
+ * Set Minimum Tier For Promotion (xóa mapping cũ, chỉ insert 1 dòng minTierID)
+     */
+    public int setMinimumTier(int promotionID, int minTierID) {
+
+        // Xóa mapping cũ trước (đảm bảo luôn chỉ có 1 dòng)
+        deleteTierMappingByPromotionID(promotionID);
+
+        return addTierToPromotion(promotionID, minTierID);
+    }
+
+    /*
+ * Get Minimum Tier ID Of A Promotion (trả về null nếu chưa gán)
+     */
+    public Integer getMinimumTierID(int promotionID) {
+
+        List<Integer> list = getTierIDsByPromotion(promotionID);
+        return list.isEmpty() ? null : list.get(0);
+    }
 }

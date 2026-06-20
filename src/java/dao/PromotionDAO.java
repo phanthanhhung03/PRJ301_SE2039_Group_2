@@ -21,24 +21,23 @@ public class PromotionDAO {
 
     public int createPromotion(Promotion p) {
 
-        int result = 0;
-
         Connection cn = null;
         PreparedStatement st = null;
+        ResultSet rs = null;
 
         try {
 
             cn = DBUtils.getConnection();
+
             if (cn != null) {
 
                 String sql
                         = "INSERT INTO Promotions "
                         + "(AdminID, PromotionName, Description, "
-                        + "DiscountPercent, BonusPoints, "
-                        + "StartDate, EndDate, Status) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                        + "DiscountPercent, BonusPoints, StartDate, EndDate, Status, TargetType) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-                st = cn.prepareStatement(sql);
+                st = cn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 
                 st.setInt(1, p.getAdminID());
                 st.setString(2, p.getPromotionName());
@@ -48,8 +47,16 @@ public class PromotionDAO {
                 st.setDate(6, p.getStartDate());
                 st.setDate(7, p.getEndDate());
                 st.setBoolean(8, p.isStatus());
+                st.setString(9, p.getTargetType());
 
-                result = st.executeUpdate();
+                int affectedRows = st.executeUpdate();
+
+                if (affectedRows > 0) {
+                    rs = st.getGeneratedKeys();
+                    if (rs.next()) {
+                        return rs.getInt(1); // PromotionID has been generated
+                    }
+                }
             }
 
         } catch (Exception e) {
@@ -57,6 +64,10 @@ public class PromotionDAO {
         } finally {
 
             try {
+
+                if (rs != null) {
+                    rs.close();
+                }
 
                 if (st != null) {
                     st.close();
@@ -71,7 +82,7 @@ public class PromotionDAO {
             }
         }
 
-        return result;
+        return 0;
     }
 
     public int updatePromotion(Promotion p) {
@@ -85,14 +96,15 @@ public class PromotionDAO {
             if (cn != null) {
 
                 String sql
-                        = "UPDATE Promotions "
-                        + "SET PromotionName = ?, "
+                        = "UPDATE Promotions SET "
+                        + "PromotionName = ?, "
                         + "Description = ?, "
                         + "DiscountPercent = ?, "
                         + "BonusPoints = ?, "
                         + "StartDate = ?, "
                         + "EndDate = ?, "
-                        + "Status = ? "
+                        + "Status = ?, "
+                        + "TargetType = ? "
                         + "WHERE PromotionID = ?";
 
                 PreparedStatement st = cn.prepareStatement(sql);
@@ -104,7 +116,8 @@ public class PromotionDAO {
                 st.setDate(5, p.getStartDate());
                 st.setDate(6, p.getEndDate());
                 st.setBoolean(7, p.isStatus());
-                st.setInt(8, p.getPromotionID());
+                st.setString(8, p.getTargetType());
+                st.setInt(9, p.getPromotionID());
 
                 result = st.executeUpdate();
 
@@ -129,7 +142,7 @@ public class PromotionDAO {
 
             if (cn != null) {
 
-                String sql = "DELETE FROM Promotions " + "WHERE PromotionID = ?";
+                String sql = "UPDATE Promotions SET IsDeleted = 1 WHERE PromotionID = ?";
 
                 PreparedStatement st = cn.prepareStatement(sql);
 
@@ -164,6 +177,7 @@ public class PromotionDAO {
                 String sql
                         = "SELECT * "
                         + "FROM Promotions "
+                        + "WHERE IsDeleted = 0 "
                         + "ORDER BY CreatedAt DESC";
 
                 st = cn.prepareStatement(sql);
@@ -175,8 +189,11 @@ public class PromotionDAO {
                     Promotion p = new Promotion();
 
                     p.setPromotionID(rs.getInt("PromotionID"));
+
                     p.setAdminID(rs.getInt("AdminID"));
+
                     p.setPromotionName(rs.getString("PromotionName"));
+
                     p.setDescription(rs.getString("Description"));
 
                     p.setDiscountPercent(rs.getDouble("DiscountPercent"));
@@ -190,6 +207,8 @@ public class PromotionDAO {
                     p.setStatus(rs.getBoolean("Status"));
 
                     p.setCreatedAt(rs.getDate("CreatedAt"));
+
+                    p.setTargetType(rs.getString("TargetType"));
 
                     list.add(p);
                 }
@@ -272,6 +291,7 @@ public class PromotionDAO {
 
                     p.setCreatedAt(
                             rs.getDate("CreatedAt"));
+                    p.setTargetType(rs.getString("TargetType"));
                 }
             }
 
@@ -300,6 +320,80 @@ public class PromotionDAO {
 
         return p;
     }
+
+    // Checking if Promo is outdated or start soon ?
+    public boolean isPromotionValid(int promotionID) {
+
+        Promotion p = getPromotionByID(promotionID);
+        if (p == null) {
+            return false;
+        }
+
+        java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
+
+        // must be active flag
+        if (!p.isStatus()) {
+            return false;
+        }
+
+        //  chưa tới ngày bắt đầu
+        if (p.getStartDate() != null && p.getStartDate().after(today)) {
+            return false;
+        }
+
+        //  đã hết hạn
+        if (p.getEndDate() != null && p.getEndDate().before(today)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public Promotion getValidPromotion(int promotionID) {
+
+        if (!isPromotionValid(promotionID)) {
+            return null;
+        }
+
+        return getPromotionByID(promotionID);
+    }
+
+    // Checking if customer suitable for promo
+    public boolean isCustomerEligibleForPromotion(int customerID, int promotionID) {
+
+        Promotion p = getPromotionByID(promotionID);
+        if (p == null) {
+            return false;
+        }
+
+        String type = p.getTargetType();
+
+        // 1. ALL → luôn được
+        if ("ALL".equals(type)) {
+            return true;
+        }
+
+        // 2. TIER_ONLY → check tier mapping
+        if ("TIER_ONLY".equals(type)) {
+            return isCustomerEligibleByTier(customerID, promotionID);
+        }
+
+        // 3. LOW_ENGAGEMENT → check inactivity
+        if ("LOW_ENGAGEMENT".equals(type)) {
+            return isLowEngagement(customerID);
+        }
+
+        // 4. FIRST_TIME → never booking
+        if ("FIRST_TIME".equals(type)) {
+            return isFirstTimeCustomer(customerID);
+        }
+
+        return false;
+    }
+
+    // Checking if customer's tier meets the minimum tier required by promotion
+    public boolean isCustomerEligibleByTier(int customerID, int promotionID) {
+
     
     
     // 
@@ -311,6 +405,118 @@ public class PromotionDAO {
 
         try {
             cn = DBUtils.getConnection();
+
+            // c.TierID -> tier hiện tại của khách
+            // pt.TierID -> minimum tier được gán cho promotion (PromotionTiers chỉ có 1 dòng/promotion)
+            // So sánh PriorityLevel của khách >= PriorityLevel của minimum tier
+            String sql
+                    = "SELECT COUNT(*) "
+                    + "FROM Customers c "
+                    + "JOIN CustomerTiers custTier ON custTier.TierID = c.TierID "
+                    + "JOIN PromotionTiers pt ON pt.PromotionID = ? "
+                    + "JOIN CustomerTiers minTier ON minTier.TierID = pt.TierID "
+                    + "WHERE c.CustomerID = ? "
+                    + "AND custTier.PriorityLevel >= minTier.PriorityLevel";
+
+            st = cn.prepareStatement(sql);
+            st.setInt(1, promotionID);
+            st.setInt(2, customerID);
+
+            rs = st.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeAll(cn, st, rs);
+        }
+
+        return false;
+    }
+
+    // Checking is Low Engagement
+    public boolean isLowEngagement(int customerID) {
+
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+
+            String sql
+                    = "SELECT c.CustomerID "
+                    + "FROM Customers c "
+                    + "LEFT JOIN Vehicles v ON v.CustomerID = c.CustomerID "
+                    + "LEFT JOIN Bookings b ON b.VehicleID = v.VehicleID "
+                    + "WHERE c.CustomerID = ? "
+                    + "GROUP BY c.CustomerID "
+                    + "HAVING MAX(b.BookingDate) IS NULL "
+                    + "   OR MAX(b.BookingDate) < DATEADD(MONTH, -3, GETDATE())";
+
+            st = cn.prepareStatement(sql);
+            st.setInt(1, customerID);
+
+            rs = st.executeQuery();
+
+            return rs.next(); // có dòng => eligible
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeAll(cn, st, rs);
+        }
+
+        return false;
+    }
+
+    public boolean isFirstTimeCustomer(int customerID) {
+
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+
+            String sql
+                    = "SELECT 1 "
+                    + "FROM Bookings b "
+                    + "JOIN Vehicles v ON v.VehicleID = b.VehicleID "
+                    + "WHERE v.CustomerID = ?";
+
+            st = cn.prepareStatement(sql);
+            st.setInt(1, customerID);
+
+            rs = st.executeQuery();
+
+            return !rs.next(); // không có dòng => chưa từng booking
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeAll(cn, st, rs);
+        }
+
+        return false;
+    }
+    // -----------------------------------------------------------------------
+    // Helper: close JDBC resources safely
+    // -----------------------------------------------------------------------
+
+    private void closeAll(Connection cn, PreparedStatement st, ResultSet rs) {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+            if (st != null) {
+                st.close();
+            }
+            if (cn != null) {
+                cn.close();
             if (cn != null) {
                 // Join Promotions với PromotionTiers để lọc theo TierID
                 String sql = "SELECT p.* FROM Promotions p " +

@@ -26,11 +26,12 @@
                     <a href="MainController?action=viewAdminDashboard" class="site-header__nav-link">Dashboard</a>
                     <a href="#" class="site-header__nav-link site-header__nav-link--active">Customers</a>
                     <a href="booking-management.html" class="site-header__nav-link">Bookings</a>
-                    <a href="loyalty-management.html" class="site-header__nav-link">Loyalty</a>
+                    <a href="MainController?action=viewLoyaltyManagement" class="site-header__nav-link">Loyalty</a>
+                    <a href="MainController?action=viewPromotionManagement" class="site-header__nav-link"> Promotions</a>
                 </nav>
                 <div class="site-header__actions">
                     <span class="status-badge status-badge--completed">Staff Portal</span>
-                    <a href="admin-login.html" class="btn btn--secondary btn--sm">Logout</a>
+                    <a href="MainController?action=logout" class="btn btn--secondary btn--sm">Logout</a>
                 </div>
             </div>
         </header>
