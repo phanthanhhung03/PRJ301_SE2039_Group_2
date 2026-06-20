@@ -172,30 +172,30 @@
                         </div>
 
                         <h2 class="booking-page__step-title">Step 3: Choose Your Promotion</h2>
-                        <div class="form-group">
-                            <label for="voucherSelect" class="form-group__label">Available Vouchers for your ${sessionScope.USER.tierId.tierName} Tier</label>
-                            <div class="form-group__input-wrapper">
-                                <select id="voucherSelect" name="promoCode" class="form-group__input form-group__select">
-                                    <option value="0" data-discount="0">-- No voucher selected --</option>
-                                    <c:forEach items="${VOUCHER_LIST}" var="voucher">
-                                        <option value="${voucher.promotionID}" data-discount="${voucher.discountPercent}">
+                    <div class="form-group">
+                        <label for="voucherSelect" class="form-group__label">Available Vouchers for your ${sessionScope.USER.tierId.tierName} Tier</label>
+                        <div class="form-group__input-wrapper">
+                           <select id="voucherSelect" name="promoCode" class="form-group__input form-group__select">
+                                <option value="0" data-discount="0">-- No voucher selected --</option>
+                                <c:forEach items="${VOUCHER_LIST}" var="voucher">
+                                    <option value="${voucher.promotionID}" data-discount="${voucher.discountPercent}">
                                             ${voucher.promotionName} - Giảm ${voucher.discountPercent}%                                        
                                         </option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <span id="voucherStatusMessage" style="font-size: 0.85rem; color: var(--color-text-tertiary); display: block; margin-top: var(--spacing-sm);">
-                                Select a voucher to see your savings.
-                            </span>
+                                </c:forEach>
+                            </select>
                         </div>
+                        <span id="voucherStatusMessage" style="font-size: 0.85rem; color: var(--color-text-tertiary); display: block; margin-top: var(--spacing-sm);">
+                            Select a voucher to see your savings.
+                        </span>
+                    </div>
 
-                        <h2 class="booking-page__step-title">Step 4: Special Requests / Notes</h2>
-                        <div class="form-group">
-                            <div class="form-group__input-wrapper">
-                                <textarea id="notes" name="notes" class="form-group__input" rows="3" placeholder="E.g., heavy mud on the undercarriage... Note: Arriving 5+ mins late will result in cancellation."></textarea>
-                            </div>
+                    <h2 class="booking-page__step-title">Step 4: Special Requests / Notes</h2>
+                    <div class="form-group">
+                        <div class="form-group__input-wrapper">
+                            <textarea id="notes" name="notes" class="form-group__input" rows="3" placeholder="E.g., heavy mud on the undercarriage... Note: Arriving 5+ mins late will result in cancellation."></textarea>
                         </div>
-                    </form>
+                    </div>
+                </form>
                 </div>
 
                 <aside class="booking-page__summary-section">
@@ -234,6 +234,6 @@
             </div>
         </main>
 
-        <script src="${pageContext.request.contextPath}/js/booking.js"></script>
-    </body>
+    <script src="${pageContext.request.contextPath}/js/booking.js"></script>
+</body>
 </html>
