@@ -57,9 +57,55 @@ public class BookingDAO {
         }
         return check;
     }
+    
+    // =======================================================================
+    // 2. HÀM LẤY CHI TIẾT 1 ĐƠN ĐẶT LỊCH (Dùng để kiểm tra trước khi Hủy)
+    // =======================================================================
+    public Booking getBookingByID(int bookingID) {
+        Booking b = null;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT * FROM Bookings WHERE BookingID = ?";
+                st = cn.prepareStatement(sql);
+                st.setInt(1, bookingID);
+                rs = st.executeQuery();
+
+                if (rs.next()) {
+                    b = new Booking();
+                    b.setBookingID(rs.getInt("BookingID"));
+                    b.setVehicleID(rs.getInt("VehicleID"));
+                    b.setBookingDate(rs.getTimestamp("BookingDate"));
+                    b.setTimeSlot(rs.getString("TimeSlot"));
+                    b.setServiceType(rs.getString("ServiceType"));
+                    b.setBookingStatus(rs.getString("BookingStatus"));
+                    b.setNotes(rs.getString("Notes"));
+                    b.setTotalAmount(rs.getDouble("TotalAmount"));
+                    b.setDiscountAmount(rs.getDouble("DiscountAmount"));
+                    b.setFinalAmount(rs.getDouble("FinalAmount"));
+                    b.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+                if (cn != null) cn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return b;
+    }
 
     // =======================================================================
-    // 2. HÀM LẤY LỊCH SẮP TỚI (Trạng thái 'Pending' - Dùng cho Dashboard)
+    // 3. HÀM LẤY LỊCH SẮP TỚI (Trạng thái 'Pending' - Dùng cho Dashboard)
     // =======================================================================
     public List<Booking> getUpcomingBookings(int customerID) {
         List<Booking> list = new ArrayList<>();
@@ -117,7 +163,7 @@ public class BookingDAO {
     }
 
     // =======================================================================
-    // 3. HÀM LẤY LỊCH SỬ RỬA XE (Trạng thái 'Completed' hoặc 'Cancelled')
+    // 4. HÀM LẤY LỊCH SỬ RỬA XE (Trạng thái 'Completed' hoặc 'Cancelled')
     // =======================================================================
     public List<Booking> getPastBookings(int customerID) {
         List<Booking> list = new ArrayList<>();
@@ -178,7 +224,6 @@ public class BookingDAO {
         try {
             cn = dbutils.DBUtils.getConnection();
             if (cn != null) {
-                // Lưu ý: Thầy dùng 'BookingStatus' theo đúng thuộc tính setBookingStatus("Pending") trong DTO của em
                 String sql = "UPDATE Bookings SET BookingStatus = 'Cancelled' WHERE BookingID = ?";
                 st = cn.prepareStatement(sql);
                 st.setInt(1, bookingID);
@@ -231,5 +276,118 @@ public class BookingDAO {
             }
         }
         return isBooked;
-    }    
+    } 
+    
+    public List<Booking> getTop5PendingBookings() {
+        List<Booking> list = new ArrayList<>();
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                // Lấy 5 booking gần nhất (Pending) kèm tên khách hàng và xe
+                String sql = "SELECT TOP 5 b.*, c.FullName AS CustomerName, v.Brand, v.Model, v.LicensePlate "
+                           + "FROM Bookings b "
+                           + "JOIN Vehicles v ON b.VehicleID = v.VehicleID "
+                           + "JOIN Customers c ON v.CustomerID = c.CustomerID "
+                           + "WHERE b.BookingStatus = 'Pending' "
+                           + "AND b.BookingDate >= CAST(GETDATE() AS DATE) " // Chỉ lấy từ hôm nay trở đi
+                           + "ORDER BY b.BookingDate ASC, b.TimeSlot ASC";
+                
+                st = cn.prepareStatement(sql);
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+                    Booking b = new Booking();
+                    b.setBookingID(rs.getInt("BookingID"));
+                    b.setTimeSlot(rs.getString("TimeSlot"));
+                    b.setServiceType(rs.getString("ServiceType"));
+                    b.setBookingStatus(rs.getString("BookingStatus"));
+                    
+                    // Cột ảo hiển thị Tên Khách & Tên Xe
+                    b.setCustomerName(rs.getString("CustomerName"));
+                    String carName = rs.getString("LicensePlate") + " • " + rs.getString("Brand") + " " + rs.getString("Model");
+                    b.setVehicleName(carName);
+                    
+                    list.add(b);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+        }
+        return list;
+    }
+    
+    public List<Booking> getAllAdminBookings() {
+        List<Booking> list = new ArrayList<>();
+        java.sql.Connection cn = null;
+        java.sql.PreparedStatement st = null;
+        java.sql.ResultSet rs = null;
+
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn != null) {
+                // Lấy toàn bộ lịch, JOIN để lấy tên Khách & Tên Xe, sắp xếp mới nhất lên đầu
+                String sql = "SELECT b.*, c.CustomerID, c.FullName AS CustomerName, v.Brand, v.Model, v.LicensePlate "
+                           + "FROM Bookings b "
+                           + "JOIN Vehicles v ON b.VehicleID = v.VehicleID "
+                           + "JOIN Customers c ON v.CustomerID = c.CustomerID "
+                           + "ORDER BY b.BookingDate DESC, b.TimeSlot DESC";
+                
+                st = cn.prepareStatement(sql);
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+                    Booking b = new Booking();
+                    b.setBookingID(rs.getInt("BookingID"));
+                    b.setVehicleID(rs.getInt("VehicleID"));
+                    b.setBookingDate(rs.getTimestamp("BookingDate"));
+                    b.setTimeSlot(rs.getString("TimeSlot"));
+                    b.setServiceType(rs.getString("ServiceType"));
+                    b.setBookingStatus(rs.getString("BookingStatus"));
+                    b.setTotalAmount(rs.getDouble("TotalAmount"));
+                    b.setFinalAmount(rs.getDouble("FinalAmount"));
+                    
+                    // Lấy CustomerID (Rất quan trọng để lát nữa cộng điểm)
+                    b.setCusId(rs.getInt("CustomerID")); 
+                    
+                    // Cột ảo hiển thị
+                    b.setCustomerName(rs.getString("CustomerName"));
+                    String carName = rs.getString("LicensePlate") + " - " + rs.getString("Brand") + " " + rs.getString("Model");
+                    b.setVehicleName(carName);
+                    
+                    list.add(b);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Nhớ đóng connection (rs.close, st.close, cn.close)
+        }
+        return list;
+    }
+    
+    public boolean updateBookingStatus(int bookingID, String status) {
+        boolean check = false;
+        java.sql.Connection cn = null;
+        java.sql.PreparedStatement st = null;
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "UPDATE Bookings SET BookingStatus = ? WHERE BookingID = ?";
+                st = cn.prepareStatement(sql);
+                st.setString(1, status);
+                st.setInt(2, bookingID);
+                check = st.executeUpdate() > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try { if (st != null) st.close(); if (cn != null) cn.close(); } catch (Exception e) { }
+        }
+        return check;
+    }
 }

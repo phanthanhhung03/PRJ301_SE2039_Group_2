@@ -519,6 +519,14 @@ public class PromotionDAO {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+                if (cn != null) cn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

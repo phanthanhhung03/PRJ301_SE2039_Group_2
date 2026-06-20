@@ -4,12 +4,14 @@
  */
 package controller;
 
+import dao.BookingDAO;
 import dao.CustomerDAO;
 import dao.CustomerTierDAO;
 import dao.PromotionDAO;
 import dao.PromotionTierDAO;
 import dao.VehicleDAO;
 import dto.Admin;
+import dto.Booking;
 import dto.Customer;
 import dto.CustomerTier;
 import dto.Promotion;
@@ -50,13 +52,13 @@ public class AdminDashboardController extends HttpServlet {
             CustomerTierDAO tierDAO = new CustomerTierDAO();
             PromotionDAO promotionDAO = new PromotionDAO();
             PromotionTierDAO promotionTierDAO = new PromotionTierDAO();
-
+            BookingDAO bookingDAO = new BookingDAO();
             // Statistics
             int totalCustomers = customerDAO.countCustomers();
             int totalVehicles = vehicleDAO.countVehicles();
             List<Customer> topCustomers = customerDAO.getTopCustomers();
             List<Promotion> promotionList = promotionDAO.getAllPromotions();
-
+            List<Booking> upcomingBookings = bookingDAO.getTop5PendingBookings();
             // Tier Data
             List<CustomerTier> tierList = tierDAO.getAllTiers();
             Map<Integer, Integer> customerTierCountMap = tierDAO.getCustomerCountByTier();
@@ -95,6 +97,7 @@ public class AdminDashboardController extends HttpServlet {
 
             request.setAttribute("targetTierMap",targetTierMap);
 
+            request.setAttribute("upcomingBookings", upcomingBookings);
             // Forward
             request.getRequestDispatcher("/admin/admin-dashboard.jsp").forward(request, response);
 

@@ -19,9 +19,10 @@ public class Booking {
 
     // --- CỘT ẢO (VIRTUAL COLUMN) ĐỂ HIỂN THỊ UI ---
     // Cột này không có trong SQL, nhưng cực kỳ cần thiết để hứng dữ liệu 
-    // khi em viết lệnh JOIN sang bảng Vehicles để in tên xe ra màn hình.
+    // khi viết lệnh JOIN sang bảng Vehicles để in tên xe ra màn hình.
     private String vehicleName; 
-
+    private String customerName;
+    private int cusId;
     // 1. Hàm khởi tạo rỗng (Bắt buộc)
     public Booking() {
     }
@@ -139,6 +140,23 @@ public class Booking {
         this.vehicleName = vehicleName;
     }
 
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public int getCusId() {
+        return cusId;
+    }
+
+    public void setCusId(int cusId) {
+        this.cusId = cusId;
+    }
+    
+    
     // 4. Hàm toString để in ra Console tìm lỗi cho dễ
     @Override
     public String toString() {
