@@ -158,36 +158,36 @@
                     String promoCodeStr = request.getParameter("promoCode");
                     int promoID = 0; // Mặc định là 0 (Không dùng voucher)
 
-//                    if (promoCodeStr != null && !promoCodeStr.equals("0")) {
-//                        try {
-//                            promoID = Integer.parseInt(promoCodeStr);
-//                            dao.PromotionDAO pDao = new dao.PromotionDAO();
-//
-//                            // GỌI FUNCTION DAO: Check xem Voucher này có đúng là của Tier khách không?
-//                            if (pDao.isVoucherValidForTier(promoID, user.getTierId().getTierID())) {
-//
-//                                // Lấy chi tiết Voucher ra 
-//                                dto.Promotion p = pDao.getPromotionByID(promoID);
-//
-//                                // Code check voucher còn hay không (Check Status và Ngày)
-//                                if (p != null && p.isStatus()) { 
-//                                    double voucherDiscount = totalAmount * (p.getDiscountPercent() / 100.0);
-//                                    discountAmount += voucherDiscount; // Cộng dồn với giảm giá Tier
-//                                } else {
-//                                    request.setAttribute("BOOKING_ERROR", "This voucher is expired or unavailable!");
-//                                    request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
-//                                    return;
-//                                }
-//                            } else {
-//                                // Trường hợp khách dùng F12 sửa code HTML để cheat voucher hạng cao hơn
-//                                request.setAttribute("BOOKING_ERROR", "This voucher is not applicable for your tier!");
-//                                request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
-//                                return;
-//                            }
-//                        } catch (NumberFormatException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
+                    if (promoCodeStr != null && !promoCodeStr.equals("0")) {
+                        try {
+                            promoID = Integer.parseInt(promoCodeStr);
+                            dao.PromotionDAO pDao = new dao.PromotionDAO();
+
+                            // GỌI FUNCTION DAO: Check xem Voucher này có đúng là của Tier khách không?
+                            if (pDao.isVoucherValidForTier(promoID, user.getTierId().getTierID())) {
+
+                                // Lấy chi tiết Voucher ra 
+                                dto.Promotion p = pDao.getPromotionByID(promoID);
+
+                                // Code check voucher còn hay không (Check Status và Ngày)
+                                if (p != null && p.isStatus()) { 
+                                    double voucherDiscount = totalAmount * (p.getDiscountPercent() / 100.0);
+                                    discountAmount += voucherDiscount; // Cộng dồn với giảm giá Tier
+                                } else {
+                                    request.setAttribute("BOOKING_ERROR", "This voucher is expired or unavailable!");
+                                    request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
+                                    return;
+                                }
+                            } else {
+                                // Trường hợp khách dùng F12 sửa code HTML để cheat voucher hạng cao hơn
+                                request.setAttribute("BOOKING_ERROR", "This voucher is not applicable for your tier!");
+                                request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
+                                return;
+                            }
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                        }
+                    }
 
                     // Chốt số tiền cuối cùng (Đảm bảo không bao giờ bị âm tiền)
                     double finalAmount = totalAmount - discountAmount;
