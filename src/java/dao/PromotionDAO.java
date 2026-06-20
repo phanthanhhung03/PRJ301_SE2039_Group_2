@@ -354,6 +354,7 @@ public class PromotionDAO {
         if (!isPromotionValid(promotionID)) {
             return null;
         }
+        
 
         return getPromotionByID(promotionID);
     }
