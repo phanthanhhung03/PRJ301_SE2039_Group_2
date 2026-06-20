@@ -6,6 +6,11 @@
 
 <%@page import="dto.Vehicle"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
+<c:if test="${empty USER}">
+    <c:redirect url="MainController?action=viewSignIn"/>
+</c:if>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -30,10 +35,6 @@
 
     <body>
 
-        <%
-            Vehicle ocrVehicle = (Vehicle) request.getAttribute("ocrVehicle");
-        %>
-
         <main class="main-wrapper main-wrapper--narrow">
             <div class="auth-card glass-panel">
 
@@ -45,11 +46,11 @@
                     Add your vehicle information to start booking premium wash services.
                 </p>
 
-                <% if (request.getAttribute("ERROR") != null) {%>
-                <div class="auth-card__alert auth-card__alert--error">
-                    &#9888; <%= request.getAttribute("ERROR")%>
-                </div>
-                <% }%>
+                <c:if test="${not empty ERROR}">
+                    <div class="auth-card__alert auth-card__alert--error">
+                        &#9888; ${ERROR}
+                    </div>
+                </c:if>
 
                 <form id="vehicleForm"
                       action="MainController"
@@ -70,9 +71,7 @@
                                        maxlength="15"
                                        pattern="[0-9]{2}[A-Z][0-9]?-[0-9]{4,5}"
                                        title="Example: 51A-12345 or 59A1-12345"
-                                       value="<%= ocrVehicle != null
-                                               ? ocrVehicle.getLicensePlate()
-                                               : ""%>">
+                                       value="${ocrVehicle.licensePlate}">
                             </div>
                         </div>
 
@@ -86,59 +85,70 @@
                                         class="form-group__input form-group__select"
                                         required>
                                     <option value="">Select Brand</option>
-                                    <option value="Toyota" 
-                                            <%= ocrVehicle != null
-                                                    && "Toyota".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                    <option value="Toyota">     
+                                            <c:if test="${ocrVehicle.brand eq 'Toyota'}">
+                                                selected
+                                            </c:if>
                                         Toyota
                                     </option>
                                     <option value="Honda">
-                                        <%= ocrVehicle != null
-                                                && "Honda".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        <c:if test="${ocrVehicle.brand eq 'Honda'}">
+                                            selected
+                                        </c:if>
                                         Honda
                                     </option>
                                     <option value="Mazda">
-                                        <%= ocrVehicle != null
-                                                && "Mazda".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        <c:if test="${ocrVehicle.brand eq 'Mazda'}">
+                                            selected
+                                        </c:if>
                                         Mazda
                                     </option>
                                     <option value="Hyundai">
-                                        <%= ocrVehicle != null
-                                                && "Hyundai".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        <c:if test="${ocrVehicle.brand eq 'Hyundai'}">
+                                            selected
+                                        </c:if>
                                         Hyundai
                                     </option>
                                     <option value="Kia">
-                                        <%= ocrVehicle != null
-                                                && "Kia".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        <c:if test="${ocrVehicle.brand eq 'Kia'}">
+                                            selected
+                                        </c:if>
                                         Kia
                                     </option>
                                     <option value="Ford">
-                                        <%= ocrVehicle != null
-                                                && "Ford".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        <c:if test="${ocrVehicle.brand eq 'Ford'}">
+                                            selected
+                                        </c:if>
                                         Ford
                                     </option>
                                     <option value="BMW">
-                                        <%= ocrVehicle != null
-                                                && "BMW".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        <c:if test="${ocrVehicle.brand eq 'BMW'}">
+                                            selected
+                                        </c:if>
                                         BMW
                                     </option>
                                     <option value="Mercedes-Benz">
-                                        <%= ocrVehicle != null
-                                                && "Mercedes-Benz".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        <c:if test="${ocrVehicle.brand eq 'Mercedes-Benz'}">
+                                            selected
+                                        </c:if>
                                         Mercedes-Benz
                                     </option>
                                     <option value="Audi">
-                                        <%= ocrVehicle != null
-                                                && "Audi".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        <c:if test="${ocrVehicle.brand eq 'Audi'}">
+                                            selected
+                                        </c:if>
                                         Audi
                                     </option>
                                     <option value="Lexus">
-                                        <%= ocrVehicle != null
-                                                && "Lexus".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        <c:if test="${ocrVehicle.brand eq 'Lexus'}">
+                                            selected
+                                        </c:if>
                                         Lexus
                                     </option>
                                     <option value="VinFast">
-                                        <%= ocrVehicle != null
-                                                && "VinFast".equalsIgnoreCase(ocrVehicle.getBrand()) ? "selected" : ""%>>
+                                        <c:if test="${ocrVehicle.brand eq 'VinFast'}">
+                                            selected
+                                        </c:if>
                                         VinFast
                                     </option>
                                 </select>
