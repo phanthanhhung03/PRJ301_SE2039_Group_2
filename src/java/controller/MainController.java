@@ -148,6 +148,10 @@ public class MainController extends HttpServlet {
             case "removeVehicle":
                 url = "RemoveVehicle";
                 break;
+                
+            case "updateProfile":
+                url = "updateProfile";
+                break;
 
             default:
                 url = "/customer/landing-page.jsp";
