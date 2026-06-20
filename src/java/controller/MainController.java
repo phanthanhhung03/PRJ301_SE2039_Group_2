@@ -115,16 +115,16 @@ public class MainController extends HttpServlet {
             case "viewCustomerManagement":
                 url = "/admin/customer-management.jsp";
                 break;
+            case "viewAdminBookings":
+            case "updateBookingStatus":
+                url = "/AdminBookingController"; // Bắt buộc phải qua đây để lấy Data (ALL_BOOKINGS) trước!
+                break;
 
 
             case "viewPromotionManagement":
                 url = "/PromotionManagementController";
                 break;
 
-            case "viewAdminBookings":
-            case "updateBookingStatus":
-                url = "/AdminBookingController"; // Bắt buộc phải qua đây để lấy Data (ALL_BOOKINGS) trước!
-                break;
 
             //VEHICLE
             case "addVehicle":

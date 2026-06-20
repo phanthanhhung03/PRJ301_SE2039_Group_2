@@ -450,8 +450,7 @@ public class CustomerDAO {
     }
     // ADMIN MANAGER
     // ==========================================================
-    // TRƯỜNG HỢP 1: HOÀN THÀNH ĐƠN (Cộng Điểm + Doanh thu + Số lượt)
-    // ==========================================================
+    // TRƯỜNG HỢP 1: HOÀN THÀNH ĐƠN (Cộng Điểm + Doanh thu + Số lượt  booking)
     public boolean updateCustomerAfterCompleted(int cusID, double finalAmount) {
         boolean check = false;
         java.sql.Connection cn = null;
@@ -459,13 +458,13 @@ public class CustomerDAO {
         try {
             cn = dbutils.DBUtils.getConnection();
             if (cn != null) {
-                // Tính điểm: Cứ 1000đ = 1 điểm (Bạn có thể đổi logic này nếu muốn)
+                // Tính điểm: 1000đ = 1 điểm 
                 int earnedPoints = (int) Math.floor(finalAmount / 1000);
                 
                 String sql = "UPDATE Customers SET "
-                           + "TotalSpend = ISNULL(TotalSpend, 0) + ?, "     // Cộng dồn doanh thu
-                           + "CurrentPoints = ISNULL(CurrentPoints, 0) + ?, " // Cộng dồn điểm
-                           + "TotalBookings = ISNULL(TotalBookings, 0) + 1 "  // Tăng 1 lượt booking
+                           + "TotalSpend = ISNULL(TotalSpend, 0) + ?, "     
+                           + "CurrentPoints = ISNULL(CurrentPoints, 0) + ?, " 
+                           + "TotalBookings = ISNULL(TotalBookings, 0) + 1 "  
                            + "WHERE CustomerID = ?";
                 
                 st = cn.prepareStatement(sql);
@@ -484,8 +483,7 @@ public class CustomerDAO {
     }
 
     // ==========================================================
-    // TRƯỜNG HỢP 2: HỦY ĐƠN (Trừ 20 điểm + Tăng Số lượt)
-    // ==========================================================
+    // TRƯỜNG HỢP 2: HỦY ĐƠN (Trừ 20 điểm + Số lượt)
     public boolean updateCustomerAfterCancelled(int cusID) {
         boolean check = false;
         java.sql.Connection cn = null;
@@ -493,7 +491,6 @@ public class CustomerDAO {
         try {
             cn = dbutils.DBUtils.getConnection();
             if (cn != null) {
-                // Dùng CASE WHEN trong SQL để điểm không bao giờ bị rớt xuống số âm
                 String sql = "UPDATE Customers SET "
                            + "CurrentPoints = CASE WHEN ISNULL(CurrentPoints, 0) - 20 < 0 THEN 0 ELSE ISNULL(CurrentPoints, 0) - 20 END, "
                            + "TotalBookings = ISNULL(TotalBookings, 0) + 1 " 
