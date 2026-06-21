@@ -24,7 +24,7 @@
         <!-- STAFF TOP NAVIGATION -->
         <header class="site-header">
             <div class="site-header__container main-wrapper">
-                <a href="admin-dashboard.html" class="site-header__logo">
+                <a href="MainController?action=viewAdminDashboard" class="site-header__logo">
                     <div class="site-header__logo-icon" style="background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-cyan));"></div>
                     <div class="site-header__logo-text">ADMIN<span>PANEL</span></div>
                 </a>
