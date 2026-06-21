@@ -379,43 +379,6 @@
                 </div>
             </section>
             <!-- SECTION 4: RECENT ACTIVITY TIMELINE -->
-            <section class="dashboard-section">
-                <div class="dashboard-section__header">
-                    <h2 class="dashboard-section__title">Recent Activity</h2>
-                </div>
-
-                <div class="glass-panel" style="padding: var(--spacing-xl); border-radius: var(--radius-xl);">
-                    <div class="activity-timeline">
-                        <!-- Timeline Item 1 -->
-                        <div class="activity-timeline__item">
-                            <div class="activity-timeline__dot activity-timeline__dot--booking"></div>
-                            <div class="activity-timeline__content">
-                                <span class="activity-timeline__time">May 28, 2026 - 14:32</span>
-                                <span class="activity-timeline__title">Scheduled Signature Graphene Wash</span>
-                                <span class="activity-timeline__desc">Booked detailing appointment for Nissan GT-R Nismo on June 04.</span>
-                            </div>
-                        </div>
-                        <!-- Timeline Item 2 -->
-                        <div class="activity-timeline__item">
-                            <div class="activity-timeline__dot activity-timeline__dot--loyalty"></div>
-                            <div class="activity-timeline__content">
-                                <span class="activity-timeline__time">May 18, 2026 - 15:10</span>
-                                <span class="activity-timeline__title">Earned +150 Loyalty Points</span>
-                                <span class="activity-timeline__desc">Express Clean Wash completed on Lexus LS 500h. Points updated to 4,850.</span>
-                            </div>
-                        </div>
-                        <!-- Timeline Item 3 -->
-                        <div class="activity-timeline__item">
-                            <div class="activity-timeline__dot activity-timeline__dot--loyalty"></div>
-                            <div class="activity-timeline__content">
-                                <span class="activity-timeline__time">May 01, 2026 - 00:00</span>
-                                <span class="activity-timeline__title">Membership Renewed</span>
-                                <span class="activity-timeline__desc">Monthly VIP Shogun membership renewed. 12 wash credits added for May.</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             <!-- SECTION 5: PROFILE & SETTINGS -->
             <section class="dashboard-section" id="profile">
@@ -427,7 +390,16 @@
                     <div class="grid-cols-2">
                         <!-- Account Information Form -->
                         <div>
-                            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">Account Information</h3>
+                            <h3 style="font-size:1.15rem; margin-bottom:var(--spacing-md); color:var(--color-text-primary);">
+                                Account Information
+                            </h3>
+
+                            <c:if test="${not empty errorMessage}">
+                                <div class="auth-card__alert auth-card__alert--error">
+                                    ⚠ ${errorMessage}
+                                </div>
+                            </c:if>
+
                             <form action="MainController" method="POST">
                                 <div class="form-group">
                                     <label class="form-group__label">Full Name</label>
@@ -491,16 +463,38 @@
                             </div>
 
                             <div style="margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top:1px solid var(--color-border);">
+
                                 <h4 style="font-size:1.0rem; color:var(--color-text-primary); margin-bottom:var(--spacing-md);">Security Credentials</h4>
-                                <form action="#" method="POST" onsubmit="return false;">
+                                <c:if test="${not empty sessionScope.errorMessage_pw}">
+                                    <div class="auth-card__alert auth-card__alert--error">
+                                        ⚠ ${sessionScope.errorMessage_pw}
+                                    </div>
+                                    <c:remove var="errorMessage_pw" scope="session"/>
+                                </c:if>
+                                <form action="MainController" method="POST">
                                     <div class="form-group">
                                         <label class="form-group__label">Current Password</label>
-                                        <input type="password" class="form-group__input" placeholder="••••••••">
+                                        <input type="password" 
+                                               class="form-group__input" 
+                                               placeholder="••••••••" 
+                                               name="oldPassword" 
+                                               required
+                                               pattern="^.{6,}$">
                                     </div>
                                     <div class="form-group">
                                         <label class="form-group__label">New Password</label>
-                                        <input type="password" class="form-group__input" placeholder="••••••••">
+                                        <input type="password" 
+                                               class="form-group__input" 
+                                               placeholder="••••••••" 
+                                               name="newPassword" 
+                                               pattern="^.{6,}$"
+                                               required>
                                     </div>
+                                    <div class="form-group">
+                                        <label class="form-group__label">Confirm Password</label>
+                                        <input type="password" class="form-group__input" placeholder="••••••••" name="confirmPassword" required="">
+                                    </div>
+                                    <input type="hidden" name="action" value="changePassword" />
                                     <button class="btn btn--secondary">Modify Password</button>
                                 </form>
                             </div>
