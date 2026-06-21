@@ -15,7 +15,7 @@
         <header class="site-header">
             <div class="site-header__container main-wrapper">
                 <a href="${pageContext.request.contextPath}/MainController?action=viewAdminDashboard" class="site-header__logo">
-                    <div class="site-header__logo-icon" style="background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-cyan));"></div>
+                    <div class="site-header__logo-icon"></div>
                     <div class="site-header__logo-text">ADMIN<span>PANEL</span></div>
                 </a>
                 <nav class="site-header__navigation">
@@ -32,21 +32,21 @@
             </div>
         </header>
 
-        <main class="main-wrapper" style="margin-top: var(--spacing-xl);">
+        <main class="main-wrapper main-wrapper--booking">
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-xl);">
+            <div class="admin-page-header">
                 <div>
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--color-accent-cyan); text-transform:uppercase; letter-spacing:0.1em;">Operations Desk</span>
-                    <h1 style="font-size:2.0rem; margin-top:var(--spacing-xs);">Service Schedule</h1>
+                    <span class="admin-page-header__subtitle">Operations Desk</span>
+                    <h1 class="admin-page-header__title">Service Schedule</h1>
 
-            <section class="glass-panel" style="padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); flex-wrap: wrap;">
-                <div style="display:flex; gap:var(--spacing-sm);">
-                    <a href="#" class="btn btn--primary btn--sm" style="padding: 0.5rem 1.0rem; font-size:0.85rem;">All Bookings</a>
+            <section class="glass-panel booking-filter-panel">
+                <div class="booking-filter-group">
+                    <a href="#" class="btn btn--primary btn--sm booking-filter-btn">All Bookings</a>
                 </div>
 
             </section>
 
-            <section class="glass-panel" style="border-radius: var(--radius-xl); overflow: hidden;">
+            <section class="glass-panel booking-table-panel">
                 <div class="data-table-wrapper">
                     <table class="data-table">
                         <thead>
@@ -58,17 +58,17 @@
                                 <th>Schedule Time</th>
                                 <th>Assigned Bay</th>
                                 <th>Status</th>
-                                <th style="text-align: right;">Ops Actions</th>
+                                <th class="table-header-align-right">Ops Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach items="${ALL_BOOKINGS}" var="b">
                                 <tr>
-                                    <td style="font-family:monospace; font-weight:600; color:var(--color-text-primary);">
+                                    <td class="booking-id-cell">
                                         #AWP-${b.bookingID}
                                     </td>
                                     
-                                    <td style="font-weight:600; color:var(--color-text-primary);">
+                                    <td class="booking-customer-cell">
                                         ${b.customerName}
                                     </td>
                                     
@@ -77,30 +77,27 @@
                                     </td>
                                     
                                     <td>
-                                        <span class="status-badge status-badge--vip" style="font-size:0.7rem;">${b.serviceType}</span>
-                                        <div style="font-size: 0.75rem; margin-top: 5px; color: var(--color-accent-gold);">
+                                        <span class="status-badge status-badge--vip status-badge--service-type">${b.serviceType}</span>
+                                        <div class="booking-amount">
                                             Final: ${b.finalAmount} đ
                                         </div>
                                     </td>
                                     
                                     <td>
                                         <div>${b.bookingDate}</div>
-                                        <div style="font-size:0.75rem; color:var(--color-accent-blue);">${b.timeSlot}</div>
+                                        <div class="booking-timeslot">${b.timeSlot}</div>
                                     </td>
                                     
                                     <td>Bay 1</td>
                                     
                                     <td>
-                                        <form action="${pageContext.request.contextPath}/MainController" method="POST" style="margin:0;">
+                                        <form action="${pageContext.request.contextPath}/MainController" method="POST" class="booking-status-form">
                                             <input type="hidden" name="action" value="updateBookingStatus">
                                             <input type="hidden" name="bookingID" value="${b.bookingID}">
                                             <input type="hidden" name="cusID" value="${b.cusId}">
                                             
                                             <select name="newStatus" onchange="this.form.submit()" 
-                                                    class="form-group__input" 
-                                                    style="padding: 0.4rem; font-size: 0.85rem; width: 120px; background-color: var(--color-surface-hover); cursor: pointer;
-                                                    ${b.bookingStatus == 'Completed' ? 'color: #34d399; border-color: #34d399;' : ''}
-                                                    ${b.bookingStatus == 'Cancelled' ? 'color: #ef4444; border-color: #ef4444;' : ''}">
+                                                    class="form-group__input booking-status-select ${b.bookingStatus == 'Completed' ? 'booking-status-select--completed' : ''} ${b.bookingStatus == 'Cancelled' ? 'booking-status-select--cancelled' : ''}">
                                                 <option value="Pending" ${b.bookingStatus == 'Pending' ? 'selected' : ''}>Pending</option>
                                                 <option value="Completed" ${b.bookingStatus == 'Completed' ? 'selected' : ''}>Completed</option>
                                                 <option value="Cancelled" ${b.bookingStatus == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
@@ -108,9 +105,9 @@
                                         </form>
                                     </td>
                                     
-                                    <td style="text-align: right;">
-                                        <div style="display:inline-flex; gap:var(--spacing-xs);">
-                                            <span style="font-size:0.85rem; color:var(--color-text-tertiary);">Log Sync</span>
+                                    <td class="table-cell-align-right">
+                                        <div class="booking-actions-wrapper">
+                                            <span class="booking-actions-label">Log Sync</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -118,7 +115,7 @@
                             
                             <c:if test="${empty ALL_BOOKINGS}">
                                 <tr>
-                                    <td colspan="8" style="text-align:center; padding: 20px; color: var(--color-text-tertiary);">
+                                    <td colspan="8" class="table-no-data-cell">
                                         No bookings found in the database.
                                     </td>
                                 </tr>
@@ -129,7 +126,7 @@
             </section>
         </main>
 
-        <footer class="site-footer" style="margin-top: var(--spacing-xxl);">
+        <footer class="site-footer site-footer--admin">
             <div class="site-footer__container main-wrapper">
                 <div class="site-footer__bottom">
                     <p>&copy; 2026 AutoWashPro Operations Desk. Restricted Access.</p>

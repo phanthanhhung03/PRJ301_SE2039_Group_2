@@ -4,7 +4,9 @@
  */
 package controller;
 
+import dao.CustomerDAO;
 import dao.VehicleDAO;
+import dto.Customer;
 import dto.Vehicle;
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -116,6 +118,7 @@ public class MainController extends HttpServlet {
             case "viewLoyaltyManagement":
                 url = "/LoyaltyManagementController";
                 break;
+
             case "updateTier":
                 url = "/TierController";
                 break;
@@ -123,9 +126,46 @@ public class MainController extends HttpServlet {
             case "registerVehicle":
                 url = "/vehicle/register";
                 break;
+
             case "viewCustomerManagement":
                 url = "/ADManagementCustomer";
                 break;
+
+            case "viewCustomerBookingHistory":
+                url = "ViewCustomerBookingHistoryController";
+                break;
+
+            case "viewEditCustomer": {
+                int customerId = Integer.parseInt((String) request.getParameter("id"));
+                CustomerDAO customerDAO = new CustomerDAO();
+                Customer customer = customerDAO.getCustomer(customerId);
+                if (customer != null) {
+
+                    request.setAttribute("customer", customer);
+
+                    url = "/admin/edit-customer.jsp";
+
+                } else {
+
+                    url = "/admin/customer-management.jsp";
+
+                }
+
+                break;
+            }
+
+            case "updateCustomer":
+                url = "ADUpdateCustomer";
+                break;
+
+            case "viewCreateCustomer":
+                url = "/admin/create-customer.jsp";
+                break;
+
+            case "createCustomer":
+                url = "ADCreateCustomer";
+                break;
+
             case "viewAdminBookings":
             case "updateBookingStatus":
                 url = "/AdminBookingController"; // Bắt buộc phải qua đây để lấy Data (ALL_BOOKINGS) trước!
