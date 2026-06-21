@@ -41,45 +41,24 @@
                     int bookingID = Integer.parseInt(request.getParameter("bookingID"));
                     BookingDAO dao = new BookingDAO();
 
-                    // 1. LẤY THÔNG TIN BOOKING ĐỂ CHECK GIỜ
-                    Booking b = dao.getBookingByID(bookingID); 
+                    // 1. THỰC HIỆN HỦY LỊCH NGAY LẬP TỨC (Đổi Status thành Cancelled)
+                    boolean isSuccess = dao.cancelBooking(bookingID);
 
-                    if (b != null) {
-                        // Tính toán thời gian chênh lệch
-                        long currentTime = System.currentTimeMillis();
-                        long bookingTime = b.getBookingDate().getTime(); 
+                    if (isSuccess) {
+                        // 2. GỌI HÀM DAO CHUẨN (Tự động trừ 20đ và +1 TotalBooking dưới Database)
+                        dao.CustomerDAO cDao = new dao.CustomerDAO();
+                        cDao.updateCustomerAfterCancelled(user.getCusId()); 
                         
-                        long timeDiff = bookingTime - currentTime;
-                        long hoursDiff = timeDiff / (1000 * 60 * 60);
-
-                        // 2. THỰC HIỆN HỦY LỊCH (Đổi Status thành Cancelled)
-                        boolean isSuccess = dao.cancelBooking(bookingID);
-
-                        if (isSuccess) {
-                            // 3. CHECK ĐIỀU KIỆN PHẠT: Hủy khi còn chưa tới 24h
-                            if (hoursDiff < 24 && hoursDiff >= 0) {
-                                // Phạt 10 điểm, dùng Math.max để điểm không bao giờ bị âm
-                                int currentPoints = user.getCurrentPoint();
-                                int newPoints = Math.max(0, currentPoints - 10);
-                                
-                                // Cập nhật lại Object User trong Session
-                                user.setCurrentPoint(newPoints);
-                                session.setAttribute("USER", user);
-                                
-                                // Cập nhật vào Database
-                                dao.CustomerDAO cDao = new dao.CustomerDAO();
-                                cDao.updateCustomerPoint(user.getCusId(), newPoints); 
-                                
-                                session.setAttribute("MSG", "Booking cancelled successfully! Notice: 10 points were deducted for late cancellation (< 24 hours).");
-                            } else {
-                                // Hủy sớm hơn 24h -> An toàn, không bị phạt
-                                session.setAttribute("MSG", "Your booking has been cancelled successfully!");
-                            }
-                        } else {
-                            session.setAttribute("ERROR", "Failed to cancel booking. Please try again.");
-                        }
+                        // 3. ĐỒNG BỘ LẠI BỘ NHỚ SESSION ĐỂ GIAO DIỆN KHÁCH NHẢY SỐ NGAY
+                        int currentPoints = user.getCurrentPoint();
+                        user.setCurrentPoint(Math.max(0, currentPoints - 20)); // Trừ điểm trong Session
+                        user.setTotalBooking(user.getTotalBooking() + 1);      // Cộng 1 lượt vào Session
+                        
+                        session.setAttribute("USER", user);
+                        
+                        session.setAttribute("MSG", "Booking cancelled successfully! Notice: 20 points were deducted for cancellation.");
                     } else {
-                        session.setAttribute("ERROR", "Booking not found!");
+                        session.setAttribute("ERROR", "Failed to cancel booking. Please try again.");
                     }
 
                     response.sendRedirect("MainController?action=viewDashBoard");

@@ -16,7 +16,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const summaryPoints = document.getElementById('summaryPoints');
     const summaryDiscountRow = document.getElementById('summaryDiscountRow');
     const summaryDiscount = document.getElementById('summaryDiscount');
-
+    const summaryTierDiscountRow = document.getElementById('summaryTierDiscountRow');
+    const summaryTierDiscount = document.getElementById('summaryTierDiscount');
+    const tierPointMultiplierInput = document.getElementById('tierPointMultiplier');
+    const pointMultiplier = tierPointMultiplierInput ? (parseFloat(tierPointMultiplierInput.value) || 1.0) : 1.0;
     let currentServicePrice = 0;
     
     // === CODE MỚI: CHẶN NGÀY GIỜ QUÁ KHỨ ===
@@ -104,30 +107,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 voucherPercent = parseFloat(selectedOption.getAttribute('data-discount')) || 0;                   
             }
             
-            // 6. TÍNH TOÁN CỘNG DỒN TRÊN GIAO DIỆN
+            // 6. TÍNH TOÁN TÁCH BẠCH 2 DÒNG
             let tierDiscountAmount = (currentServicePrice * tierPercent) / 100;
             let voucherDiscountAmount = (currentServicePrice * voucherPercent) / 100;
             
-            // Tổng tiền được giảm = Mặc định hạng + Voucher
-            let totalDiscountAmount = tierDiscountAmount + voucherDiscountAmount;
-            
             // Không để tiền bị âm
-            let finalTotal = Math.max(0, currentServicePrice - totalDiscountAmount);
+            let finalTotal = Math.max(0, currentServicePrice - tierDiscountAmount - voucherDiscountAmount);
 
-            // 7. Hiển thị phần giảm giá trong bảng Summary
+            // 7. HIỂN THỊ PHẦN GIẢM GIÁ TRÊN BẢNG SUMMARY
+            // 7.1 Hiển thị giảm giá Tier
+            if (summaryTierDiscountRow && summaryTierDiscount) {
+                if (tierDiscountAmount > 0) {
+                    summaryTierDiscountRow.style.display = 'flex';
+                    summaryTierDiscount.innerText = "-" + tierDiscountAmount.toLocaleString('vi-VN') + " đ";
+                } else {
+                    summaryTierDiscountRow.style.display = 'none';
+                }
+            }
+
+            // 7.2 Hiển thị giảm giá Voucher
             if (summaryDiscountRow && summaryDiscount) {
-                if (totalDiscountAmount > 0) {
+                if (voucherDiscountAmount > 0) {
                     summaryDiscountRow.style.display = 'flex';
-                    // Hiển thị tổng số tiền đã được giảm
-                    summaryDiscount.innerText = "-" + totalDiscountAmount.toLocaleString('vi-VN') + " đ";
+                    summaryDiscount.innerText = "-" + voucherDiscountAmount.toLocaleString('vi-VN') + " đ";
                 } else {
                     summaryDiscountRow.style.display = 'none';
                 }
             }
             
-            // 8. Cập nhật tổng tiền và điểm tích lũy
+            // 8. CẬP NHẬT TỔNG TIỀN VÀ TÍNH ĐIỂM (CÓ NHÂN HỆ SỐ TIER)
             if (summaryTotal) summaryTotal.innerText = finalTotal.toLocaleString('vi-VN') + " đ";
-            if (summaryPoints) summaryPoints.innerText = "+" + Math.floor(finalTotal / 1000).toLocaleString('vi-VN') + " pts";
+            
+            if (summaryPoints) {
+                // Tính điểm cơ bản: 1000đ = 1 điểm
+                let basePoints = Math.floor(finalTotal / 1000);
+                // Nhân hệ số Tier (ví dụ Platinum x1.3)
+                let loyaltyPoints = Math.floor(basePoints * pointMultiplier);
+                
+                summaryPoints.innerText = "+" + loyaltyPoints.toLocaleString('vi-VN') + " pts";
+            }
         }
     }
 
@@ -140,6 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 2. GẮN SỰ KIỆN LẮNG NGHE
     if(vehicleSelect) vehicleSelect.addEventListener('change', syncAllData);
     serviceRadios.forEach(r => r.addEventListener('change', syncAllData));
+    if(voucherSelect) voucherSelect.addEventListener('change', syncAllData);
     if(usePointsCheckbox) usePointsCheckbox.addEventListener('change', syncAllData);
 
     // 3. KHỞI CHẠY QUÉT DỮ LIỆU ĐỂ TRỊ LỖI CACHE TRÌNH DUYỆT
