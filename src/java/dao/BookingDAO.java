@@ -498,4 +498,81 @@ public class BookingDAO {
         }
         return revenue;
     }
+
+    public List<Booking> getBookingsByCustomerId(int customerId) {
+
+        List<Booking> list = new ArrayList<>();
+
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet table = null;
+
+        try {
+
+            cn = DBUtils.getConnection();
+
+            if (cn != null) {
+
+                String sql
+                        = "SELECT "
+                        + "b.*, "
+                        + "CONCAT(v.Brand, ' ', v.Model, ' (', v.LicensePlate, ')') AS VehicleName "
+                        + "FROM Bookings b "
+                        + "JOIN Vehicles v ON b.VehicleID = v.VehicleID "
+                        + "WHERE v.CustomerID = ? "
+                        + "ORDER BY b.BookingDate DESC";
+
+                st = cn.prepareStatement(sql);
+
+                st.setInt(1, customerId);
+
+                table = st.executeQuery();
+
+                while (table.next()) {
+
+                    Booking b = new Booking();
+
+                    b.setBookingID(table.getInt("BookingID"));
+                    b.setVehicleID(table.getInt("VehicleID"));
+                    b.setBookingDate(table.getTimestamp("BookingDate"));
+                    b.setTimeSlot(table.getString("TimeSlot"));
+                    b.setServiceType(table.getString("ServiceType"));
+                    b.setBookingStatus(table.getString("BookingStatus"));
+                    b.setNotes(table.getString("Notes"));
+                    b.setTotalAmount(table.getDouble("TotalAmount"));
+                    b.setDiscountAmount(table.getDouble("DiscountAmount"));
+                    b.setFinalAmount(table.getDouble("FinalAmount"));
+                    b.setCreatedAt(table.getTimestamp("CreatedAt"));
+
+                    b.setVehicleName(table.getString("VehicleName"));
+
+                    list.add(b);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            try {
+
+                if (table != null) {
+                    table.close();
+                }
+
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return list;
+    }
 }

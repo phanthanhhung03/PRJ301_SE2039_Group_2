@@ -50,6 +50,62 @@ public class CustomerDAO {
         return result;
     }
 
+    public int createCustomerByAdmin(Customer c) {
+
+        int result = 0;
+
+        Connection cn = null;
+        PreparedStatement st = null;
+
+        try {
+
+            cn = DBUtils.getConnection();
+
+            if (cn != null) {
+
+                String sql
+                        = "INSERT INTO Customers "
+                        + "(FullName, PhoneNumber, Email, Password, Address, TierID, Status) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+                st = cn.prepareStatement(sql);
+
+                st.setString(1, c.getFullName());
+                st.setString(2, c.getPhoneNumber());
+                st.setString(3, c.getEmail());
+                st.setString(4, c.getPassword());
+                st.setString(5, c.getAddress());
+                st.setInt(6, c.getTierId().getTierID());
+                st.setBoolean(7, c.isStatus());
+
+                result = st.executeUpdate();
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        } finally {
+
+            try {
+
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+
     private static final Map<Integer, CustomerTier> tierMap = new HashMap<>();
 
     public Customer getCustomer(String email, String password) {
@@ -536,7 +592,7 @@ public class CustomerDAO {
             }
         }
         return check;
-    } 
+    }
 
     // ==========================================================
     // 1. CHỜ XỬ LÝ -> HỦY (Trừ thẳng 20đ cố định)
@@ -549,9 +605,9 @@ public class CustomerDAO {
             cn = dbutils.DBUtils.getConnection();
             if (cn != null) {
                 String sql = "UPDATE Customers SET "
-                           + "CurrentPoints = CASE WHEN ISNULL(CurrentPoints, 0) - 20 < 0 THEN 0 ELSE ISNULL(CurrentPoints, 0) - 20 END, "
-                           + "TotalBookings = ISNULL(TotalBookings, 0) + 1 "
-                           + "WHERE CustomerID = ?";
+                        + "CurrentPoints = CASE WHEN ISNULL(CurrentPoints, 0) - 20 < 0 THEN 0 ELSE ISNULL(CurrentPoints, 0) - 20 END, "
+                        + "TotalBookings = ISNULL(TotalBookings, 0) + 1 "
+                        + "WHERE CustomerID = ?";
                 st = cn.prepareStatement(sql);
                 st.setInt(1, cusID);
                 check = st.executeUpdate() > 0;
@@ -559,7 +615,15 @@ public class CustomerDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try { if (st != null) st.close(); if (cn != null) cn.close(); } catch (Exception e) { }
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+            }
         }
         return check;
     }
@@ -587,12 +651,12 @@ public class CustomerDAO {
 
                 // Tổng điểm cần trừ = Điểm thưởng đã nhận trước đó + 20 điểm phạt cố định
                 int earnedPoints = (int) Math.floor((finalAmount / 1000) * multiplier);
-                int totalPointsToDeduct = earnedPoints + 20; 
+                int totalPointsToDeduct = earnedPoints + 20;
 
                 String sql = "UPDATE Customers SET "
-                           + "TotalSpend = CASE WHEN ISNULL(TotalSpend, 0) - ? < 0 THEN 0 ELSE ISNULL(TotalSpend, 0) - ? END, "
-                           + "CurrentPoints = CASE WHEN ISNULL(CurrentPoints, 0) - ? < 0 THEN 0 ELSE ISNULL(CurrentPoints, 0) - ? END "
-                           + "WHERE CustomerID = ?";
+                        + "TotalSpend = CASE WHEN ISNULL(TotalSpend, 0) - ? < 0 THEN 0 ELSE ISNULL(TotalSpend, 0) - ? END, "
+                        + "CurrentPoints = CASE WHEN ISNULL(CurrentPoints, 0) - ? < 0 THEN 0 ELSE ISNULL(CurrentPoints, 0) - ? END "
+                        + "WHERE CustomerID = ?";
                 st = cn.prepareStatement(sql);
                 st.setDouble(1, finalAmount);
                 st.setDouble(2, finalAmount);
@@ -605,7 +669,21 @@ public class CustomerDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try { if (rs != null) rs.close(); if (tierSt != null) tierSt.close(); if (st != null) st.close(); if (cn != null) cn.close(); } catch (Exception e) {}
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (tierSt != null) {
+                    tierSt.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+            }
         }
         return check;
     }
@@ -633,12 +711,12 @@ public class CustomerDAO {
 
                 // Tổng điểm cộng lại = Điểm thưởng thực tế + Trả lại 20đ đã phạt trước đó
                 int earnedPoints = (int) Math.floor((finalAmount / 1000) * multiplier);
-                int totalPointsToAdd = earnedPoints + 20; 
+                int totalPointsToAdd = earnedPoints + 20;
 
                 String sql = "UPDATE Customers SET "
-                           + "TotalSpend = ISNULL(TotalSpend, 0) + ?, "
-                           + "CurrentPoints = ISNULL(CurrentPoints, 0) + ? "
-                           + "WHERE CustomerID = ?";
+                        + "TotalSpend = ISNULL(TotalSpend, 0) + ?, "
+                        + "CurrentPoints = ISNULL(CurrentPoints, 0) + ? "
+                        + "WHERE CustomerID = ?";
                 st = cn.prepareStatement(sql);
                 st.setDouble(1, finalAmount);
                 st.setInt(2, totalPointsToAdd);
@@ -649,9 +727,85 @@ public class CustomerDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try { if (rs != null) rs.close(); if (tierSt != null) tierSt.close(); if (st != null) st.close(); if (cn != null) cn.close(); } catch (Exception e) {}
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (tierSt != null) {
+                    tierSt.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+            }
         }
         return check;
+    }
+
+    public boolean updateCustomer(Customer customer) {
+
+        Connection cn = null;
+        PreparedStatement st = null;
+
+        boolean result = false;
+
+        try {
+
+            cn = DBUtils.getConnection();
+
+            if (cn != null) {
+
+                String sql
+                        = "UPDATE Customers "
+                        + "SET FullName = ?, "
+                        + "PhoneNumber = ?, "
+                        + "Email = ?, "
+                        + "Address = ?, "
+                        + "TierID = ?, "
+                        + "Status = ? "
+                        + "WHERE CustomerID = ?";
+
+                st = cn.prepareStatement(sql);
+
+                st.setString(1, customer.getFullName());
+                st.setString(2, customer.getPhoneNumber());
+                st.setString(3, customer.getEmail());
+                st.setString(4, customer.getAddress());
+                st.setInt(5, customer.getTierId().getTierID());
+                st.setBoolean(6, customer.isStatus());
+                st.setInt(7, customer.getCusId());
+
+                result = st.executeUpdate() > 0;
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        } finally {
+
+            try {
+
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+
+            }
+        }
+
+        return result;
     }
 
     public int updateCustomer(int cusId, String newName, String newPhoneNumber, String newAddress) {

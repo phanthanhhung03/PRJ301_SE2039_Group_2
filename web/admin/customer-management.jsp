@@ -21,6 +21,36 @@
     </head>
     <body>
 
+        <c:if test="${not empty SUCCESS}">
+
+            <div id="success-toast"
+                 class="toast toast--success">
+
+                <span class="toast__icon">✓</span>
+
+                <span class="toast__message">
+                    ${SUCCESS}
+                </span>
+            </div>
+            <c:remove var="SUCCESS" scope="session"/>
+
+        </c:if>
+
+        <c:if test="${not empty ERROR}">
+
+            <div id="error-toast"
+                 class="toast toast--error">
+
+                <span class="toast__icon">✕</span>
+
+                <span class="toast__message">
+                    ${ERROR}
+                </span>
+
+            </div>
+            <c:remove var="ERROR" scope="session"/>
+        </c:if>
+
         <!-- STAFF TOP NAVIGATION -->
         <header class="site-header">
             <div class="site-header__container main-wrapper">
@@ -30,10 +60,10 @@
                 </a>
                 <nav class="site-header__navigation">
                     <a href="${pageContext.request.contextPath}/MainController?action=viewAdminDashboard" class="site-header__nav-link">Dashboard</a>
-                    <a href="#" class="site-header__nav-link site-header__nav-link--active">Customers</a>
-                    <a href="MainController?action=viewAdminBookings" class="site-header__nav-link">Bookings</a>
-                    <a href="MainController?action=viewLoyaltyManagement" class="site-header__nav-link">Loyalty</a>
-                    <a href="MainController?action=viewPromotionManagement" class="site-header__nav-link"> Promotions</a>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewCustomerManagement" class="site-header__nav-link site-header__nav-link--active">Customers</a>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewAdminBookings" class="site-header__nav-link">Bookings</a>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewLoyaltyManagement" class="site-header__nav-link">Loyalty</a>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewPromotionManagement" class="site-header__nav-link"> Promotions</a>
                 </nav>
                 <div class="site-header__actions">
                     <span class="status-badge status-badge--completed">Staff Portal</span>
@@ -51,7 +81,7 @@
                     <span style="font-size:0.75rem; font-weight:700; color:var(--color-accent-cyan); text-transform:uppercase; letter-spacing:0.1em;">Customer Registry</span>
                     <h1 style="font-size:2.0rem; margin-top:var(--spacing-xs);">Manage Members</h1>
                 </div>
-                <a href="#" class="btn btn--primary btn--sm">+ Add New Customer</a>
+                <a href="${pageContext.request.contextPath}/MainController?action=viewCreateCustomer" class="btn btn--primary btn--sm">+ Add New Customer</a>
             </div>
 
             <!-- SEARCH & FILTER TOOLBAR -->
@@ -176,8 +206,15 @@
                                     </td>
                                     <td style="text-align: right;">
                                         <div style="display:inline-flex; gap:var(--spacing-xs);">
-                                            <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Edit</a>
-                                            <a href="booking-management.html" class="btn btn--primary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Bookings</a>
+                                            <a href="${pageContext.request.contextPath}/MainController?action=viewEditCustomer&id=${customer.cusId}"
+                                               class="btn btn--secondary btn--sm" 
+                                               style="padding: 0.35rem 0.65rem; font-size:0.8rem;">
+                                                Edit
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/MainController?action=viewCustomerBookingHistory&id=${customer.cusId}" 
+                                               class="btn btn--primary btn--sm" 
+                                               style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Bookings
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -190,13 +227,6 @@
                 <!-- Table Pagination (Pure HTML/CSS layout) -->
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:var(--spacing-md) var(--spacing-lg); background-color:rgba(255,255,255,0.01); border-top:1px solid var(--color-border); font-size:0.85rem;">
                     <span style="color:var(--color-text-tertiary);">Total Customers: ${customerCount}</span>
-                    <div style="display:flex; gap:var(--spacing-xs);">
-                        <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem; pointer-events:none; opacity:0.5;">Previous</a>
-                        <a href="#" class="btn btn--primary btn--sm" style="padding: 0.35rem 0.65rem;">1</a>
-                        <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem;">2</a>
-                        <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem;">3</a>
-                        <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem;">Next</a>
-                    </div>
                 </div>
             </section>
 
@@ -212,6 +242,30 @@
             </div>
         </footer>
 
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                const toast =
+                        document.getElementById("success-toast");
+
+                if (!toast) {
+                    return;
+                }
+
+                setTimeout(() => {
+
+                    toast.classList.add(
+                            "toast--hide");
+
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 500);
+
+                }, 3000);
+
+            });
+        </script>
     </body>
 </html>
 
