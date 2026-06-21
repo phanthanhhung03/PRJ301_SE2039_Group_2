@@ -784,7 +784,7 @@ public class CustomerDAO {
 
             st.setString(1, newPassword);
             st.setInt(2, customerId);
-            
+
             result = st.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -804,4 +804,93 @@ public class CustomerDAO {
         }
         return result;
     }
+
+    public List<Customer> getAllCustomers() {
+
+        List<Customer> list = new ArrayList<>();
+
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet table = null;
+
+        try {
+
+            cn = dbutils.DBUtils.getConnection();
+
+            if (cn != null) {
+
+                String sql
+                        = "SELECT\n"
+                        + "    c.CustomerID,\n"
+                        + "    c.FullName,\n"
+                        + "    c.PhoneNumber,\n"
+                        + "    c.Email,\n"
+                        + "    c.Password,\n"
+                        + "    c.Address,\n"
+                        + "    c.CurrentPoints,\n"
+                        + "    c.TotalSpend,\n"
+                        + "    c.Status,\n"
+                        + "    c.TierID,\n"
+                        + "    t.TierName,\n"
+                        + "    (\n"
+                        + "        SELECT COUNT(*)\n"
+                        + "        FROM Vehicles v\n"
+                        + "        WHERE v.CustomerID = c.CustomerID\n"
+                        + "    ) AS VehicleCount \n"
+                        + "FROM Customers c\n"
+                        + "JOIN CustomerTiers t on t.TierID = c.TierID\n";
+
+                st = cn.prepareStatement(sql);
+
+                table = st.executeQuery();
+
+                while (table.next()) {
+
+                    Customer c = new Customer();
+
+                    c.setCusId(table.getInt("CustomerID"));
+                    c.setFullName(table.getString("FullName"));
+                    c.setPhoneNumber(table.getString("PhoneNumber"));
+                    c.setEmail(table.getString("Email"));
+                    c.setPassword(table.getString("Password"));
+                    c.setAddress(table.getString("Address"));
+                    c.setCurrentPoint(table.getInt("CurrentPoints"));
+                    c.setTotalSpend(table.getDouble("TotalSpend"));
+                    c.setStatus(table.getBoolean("Status"));
+                    c.setVehicleCount(table.getInt("VehicleCount"));
+
+                    CustomerTier tier = new CustomerTier();
+                    tier.setTierID(table.getInt("TierID"));
+                    tier.setTierName(table.getString("TierName"));
+
+                    c.setTierId(tier);
+
+                    list.add(c);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            try {
+
+                if (table != null) {
+                    table.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return list;
+    }
+
 }

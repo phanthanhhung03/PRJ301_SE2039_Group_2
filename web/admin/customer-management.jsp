@@ -5,13 +5,19 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<c:if test="${empty ADMIN_USER}">
+    <c:redirect url="MainController?action=viewAdminSignIn"/>
+</c:if>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Customer Management | AutoWashPro Staff</title>
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
     </head>
     <body>
 
@@ -23,7 +29,7 @@
                     <div class="site-header__logo-text">ADMIN<span>PANEL</span></div>
                 </a>
                 <nav class="site-header__navigation">
-                    <a href="MainController?action=viewAdminDashboard" class="site-header__nav-link">Dashboard</a>
+                    <a href="${pageContext.request.contextPath}/MainController?action=viewAdminDashboard" class="site-header__nav-link">Dashboard</a>
                     <a href="#" class="site-header__nav-link site-header__nav-link--active">Customers</a>
                     <a href="MainController?action=viewAdminBookings" class="site-header__nav-link">Bookings</a>
                     <a href="MainController?action=viewLoyaltyManagement" class="site-header__nav-link">Loyalty</a>
@@ -63,10 +69,10 @@
                         <span style="font-size:0.8rem; font-weight:600; text-transform:uppercase; color:var(--color-text-tertiary);">Tier:</span>
                         <select class="form-group__input" style="padding: 0.5rem 2.0rem 0.5rem 1.0rem; font-size:0.85rem; width: auto; background-color: var(--color-surface-hover); cursor: pointer;">
                             <option value="all">All Tiers</option>
-                            <option value="vip">VIP Shogun</option>
-                            <option value="signature">Signature</option>
-                            <option value="elite">Elite Club</option>
-                            <option value="none">Standard / Guest</option>
+                            <option value="vip">Platinum</option>
+                            <option value="signature">Gold</option>
+                            <option value="elite">Silver</option>
+                            <option value="none">Member</option>
                         </select>
                     </div>
 
@@ -93,133 +99,97 @@
                                 <th>Membership Tier</th>
                                 <th>Loyalty Points</th>
                                 <th>Fleet size</th>
-                                <th>Registered Address</th>
+                                <th>Status</th>
                                 <th style="text-align: right;">Actions</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            <!-- Row 1 -->
-                            <tr>
-                                <td style="font-weight:600; color:var(--color-text-primary);">
-                                    <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
-                                        <div class="testimonial-card__avatar testimonial-card__avatar--vip" style="width:32px; height:32px; font-size:0.75rem;">KT</div>
-                                        Kenji Takahashi
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="font-size:0.85rem;">kenji@takahashi.co.jp</div>
-                                    <div style="font-size:0.75rem; color:var(--color-text-tertiary);">+81 90-1234-5678</div>
-                                </td>
-                                <td><span class="status-badge status-badge--vip">VIP Shogun</span></td>
-                                <td style="font-weight:600; color:var(--color-text-primary);">4,850 pts</td>
-                                <td>3 vehicles</td>
-                                <td style="font-size:0.85rem;">3-5-1 Ginza, Chuo-ku, Tokyo</td>
-                                <td style="text-align: right;">
-                                    <div style="display:inline-flex; gap:var(--spacing-xs);">
-                                        <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Edit</a>
-                                        <a href="booking-management.html" class="btn btn--primary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Bookings</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Row 2 -->
-                            <tr>
-                                <td style="font-weight:600; color:var(--color-text-primary);">
-                                    <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
-                                        <div class="testimonial-card__avatar testimonial-card__avatar--vip" style="width:32px; height:32px; font-size:0.75rem;">NS</div>
-                                        Nobuhiro Sato
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="font-size:0.85rem;">sato@corporate.jp</div>
-                                    <div style="font-size:0.75rem; color:var(--color-text-tertiary);">+81 80-9876-5432</div>
-                                </td>
-                                <td><span class="status-badge status-badge--vip">VIP Shogun</span></td>
-                                <td style="font-weight:600; color:var(--color-text-primary);">5,120 pts</td>
-                                <td>2 vehicles</td>
-                                <td style="font-size:0.85rem;">1-1 Roppongi, Minato-ku, Tokyo</td>
-                                <td style="text-align: right;">
-                                    <div style="display:inline-flex; gap:var(--spacing-xs);">
-                                        <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Edit</a>
-                                        <a href="booking-management.html" class="btn btn--primary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Bookings</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Row 3 -->
-                            <tr>
-                                <td style="font-weight:600; color:var(--color-text-primary);">
-                                    <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
-                                        <div class="testimonial-card__avatar" style="width:32px; height:32px; font-size:0.75rem; background:linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-cyan));">AT</div>
-                                        Akira Tanaka
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="font-size:0.85rem;">tanaka@gmail.com</div>
-                                    <div style="font-size:0.75rem; color:var(--color-text-tertiary);">+81 90-8888-9999</div>
-                                </td>
-                                <td><span class="status-badge status-badge--completed" style="border-color:var(--color-accent-blue); color:var(--color-accent-blue);">Signature</span></td>
-                                <td style="font-weight:600; color:var(--color-text-primary);">2,910 pts</td>
-                                <td>1 vehicle</td>
-                                <td style="font-size:0.85rem;">5-12 Shibuya, Chuo-ku, Tokyo</td>
-                                <td style="text-align: right;">
-                                    <div style="display:inline-flex; gap:var(--spacing-xs);">
-                                        <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Edit</a>
-                                        <a href="booking-management.html" class="btn btn--primary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Bookings</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Row 4 -->
-                            <tr>
-                                <td style="font-weight:600; color:var(--color-text-primary);">
-                                    <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
-                                        <div class="testimonial-card__avatar" style="width:32px; height:32px; font-size:0.75rem; background:linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-cyan));">MW</div>
-                                        Miyu Watanabe
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="font-size:0.85rem;">watanabe.m@yahoo.co.jp</div>
-                                    <div style="font-size:0.75rem; color:var(--color-text-tertiary);">+81 70-4444-2222</div>
-                                </td>
-                                <td><span class="status-badge status-badge--completed" style="border-color:var(--color-accent-blue); color:var(--color-accent-blue);">Signature</span></td>
-                                <td style="font-weight:600; color:var(--color-text-primary);">1,850 pts</td>
-                                <td>2 vehicles</td>
-                                <td style="font-size:0.85rem;">2-8 Shinjuku, Tokyo</td>
-                                <td style="text-align: right;">
-                                    <div style="display:inline-flex; gap:var(--spacing-xs);">
-                                        <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Edit</a>
-                                        <a href="booking-management.html" class="btn btn--primary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Bookings</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Row 5 -->
-                            <tr>
-                                <td style="font-weight:600; color:var(--color-text-primary);">
-                                    <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
-                                        <div class="testimonial-card__avatar" style="width:32px; height:32px; font-size:0.75rem; background:rgba(255,255,255,0.05); color:var(--color-text-secondary); border:1px solid var(--color-border)">YI</div>
-                                        Yoshio Ito
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="font-size:0.85rem;">ito.y@gmail.com</div>
-                                    <div style="font-size:0.75rem; color:var(--color-text-tertiary);">+81 90-3333-1111</div>
-                                </td>
-                                <td><span class="status-badge status-badge--completed" style="border-color:var(--color-text-secondary); color:var(--color-text-secondary);">Elite Club</span></td>
-                                <td style="font-weight:600; color:var(--color-text-primary);">820 pts</td>
-                                <td>1 vehicle</td>
-                                <td style="font-size:0.85rem;">1-4 Ueno, Taito-ku, Tokyo</td>
-                                <td style="text-align: right;">
-                                    <div style="display:inline-flex; gap:var(--spacing-xs);">
-                                        <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Edit</a>
-                                        <a href="booking-management.html" class="btn btn--primary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Bookings</a>
-                                    </div>
-                                </td>
-                            </tr>
+
+                            <c:forEach items="${customers}" var="customer">
+                                <tr>
+                                    <td style="font-weight:600; color:var(--color-text-primary);">
+                                        <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
+                                            <div class="testimonial-card__avatar testimonial-card__avatar--vip" style="width:32px; height:32px; font-size:0.75rem;">
+                                                ${customer.initials}
+                                            </div>
+                                            ${customer.fullName}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size:0.85rem;">
+                                            ${customer.email}
+                                        </div>
+                                        <div style="font-size:0.75rem; color:var(--color-text-tertiary);">
+                                            ${customer.phoneNumber}
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${customer.tierId.tierName eq 'Member'}">
+                                                <span class="status-badge status-badge--member">
+                                                    MEMBER
+                                                </span>
+                                            </c:when>
+
+                                            <c:when test="${customer.tierId.tierName eq 'Silver'}">
+                                                <span class="status-badge status-badge--silver">
+                                                    SILVER
+                                                </span>
+                                            </c:when>
+
+                                            <c:when test="${customer.tierId.tierName eq 'Gold'}">
+                                                <span class="status-badge status-badge--gold">
+                                                    GOLD
+                                                </span>
+                                            </c:when>
+
+                                            <c:otherwise>
+                                                <span class="status-badge status-badge--platinum">
+                                                    PLATINUM
+                                                </span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+
+                                    <td style="font-weight:600; color:var(--color-text-primary);">
+                                        ${customer.currentPoint} pts
+                                    </td>
+                                    <td>
+                                        ${customer.vehicleCount} 
+                                        ${customer.vehicleCount == 1 ? 'vehicle' : 'vehicles'}
+                                    </td>
+                                    <td style="font-size:0.85rem;">
+                                        <c:choose>
+                                            <c:when test="${customer.status}">
+                                                <span class="status-badge status-badge--completed">
+                                                    Active
+                                                </span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="status-badge status-badge--cancelled">
+                                                    Inactive
+                                                </span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <div style="display:inline-flex; gap:var(--spacing-xs);">
+                                            <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Edit</a>
+                                            <a href="booking-management.html" class="btn btn--primary btn--sm" style="padding: 0.35rem 0.65rem; font-size:0.8rem;">Bookings</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Table Pagination (Pure HTML/CSS layout) -->
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:var(--spacing-md) var(--spacing-lg); background-color:rgba(255,255,255,0.01); border-top:1px solid var(--color-border); font-size:0.85rem;">
-                    <span style="color:var(--color-text-tertiary);">Showing 1 to 5 of 1482 customers</span>
+                    <span style="color:var(--color-text-tertiary);">Total Customers: ${customerCount}</span>
                     <div style="display:flex; gap:var(--spacing-xs);">
                         <a href="#" class="btn btn--secondary btn--sm" style="padding: 0.35rem 0.65rem; pointer-events:none; opacity:0.5;">Previous</a>
                         <a href="#" class="btn btn--primary btn--sm" style="padding: 0.35rem 0.65rem;">1</a>
