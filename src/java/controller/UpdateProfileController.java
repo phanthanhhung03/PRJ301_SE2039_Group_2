@@ -4,13 +4,15 @@
  */
 package controller;
 
+import dao.CustomerDAO;
+import dto.Customer;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.tomcat.jni.SSLContext;
 
 /**
  *
@@ -29,29 +31,64 @@ public class UpdateProfileController extends HttpServlet {
 
         boolean hasError = false;
 
-        if (newName == null || newName.trim().isEmpty()) {
-            request.setAttribute("nameError", "Full name is required.");
+        if (newName == null || newName.trim().isEmpty()
+                || newPhoneNumber == null || newPhoneNumber.trim().isEmpty()
+                || newAddress == null || newAddress.trim().isEmpty()) {
+
+            request.setAttribute(
+                    "errorMessage",
+                    "Please fill in all required fields."
+            );
+
             hasError = true;
         }
 
-        if (newPhoneNumber == null || newPhoneNumber.trim().isEmpty()) {
-            request.setAttribute("phoneError", "Phone number is required.");
-            hasError = true;
-        }
-
-        if (newAddress == null || newAddress.trim().isEmpty()) {
-            request.setAttribute("addressError", "Address is required.");
-            hasError = true;
-        }
-
-        request.setAttribute("newName", newName);
-        request.setAttribute("newPhoneNumber", newPhoneNumber);
-        request.setAttribute("newAddress", newAddress);
         if (hasError) {
-            request.getRequestDispatcher("dashboard.jsp")
+            request.getRequestDispatcher("customer/dashboard.jsp")
                     .forward(request, response);
             return;
         }
+
+        Customer user = (Customer) request.getSession().getAttribute("USER");
+        int cusId = user.getCusId();
+
+        CustomerDAO dao = new CustomerDAO();
+
+        int updated = dao.updateCustomer(
+                cusId,
+                newName,
+                newPhoneNumber,
+                newAddress
+        );
+
+        if (updated > 0) {
+
+            Customer updatedUser = dao.getCustomer(cusId);
+
+            request.getSession().setAttribute(
+                    "USER",
+                    updatedUser
+            );
+
+            request.getSession().setAttribute(
+                    "SUCCESS_MESSAGE",
+                    "Profile updated successfully."
+            );
+
+            response.sendRedirect(
+                    "MainController?action=viewDashboard#profile"
+            );
+            return;
+        }
+
+        request.setAttribute(
+                "errorMessage",
+                "Update profile failed!"
+        );
+
+        request.getRequestDispatcher(
+                "customer/dashboard.jsp#profile"
+        ).forward(request, response);
 
     }
 

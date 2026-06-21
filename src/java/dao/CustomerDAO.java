@@ -613,4 +613,195 @@ public class CustomerDAO {
         }
         return check;
     }
+
+    public int updateCustomer(int cusId, String newName, String newPhoneNumber, String newAddress) {
+        int result = 0;
+        Connection cn = null;
+        PreparedStatement st = null;
+
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn == null) {
+                System.out.println("CANNOT CONNECT TO SQL");
+                return result;
+            }
+            String sql = "UPDATE [dbo].[Customers] "
+                    + "SET [FullName] = ?, "
+                    + "    [PhoneNumber] = ?, "
+                    + "    [Address] = ? "
+                    + "WHERE [CustomerID] = ?";
+
+            st = cn.prepareStatement(sql);
+
+            st.setString(1, newName);
+            st.setString(2, newPhoneNumber);
+            st.setString(3, newAddress);
+            st.setInt(4, cusId);
+
+            result = st.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public Customer getCustomer(int cusId) {
+
+        Customer result = null;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+
+            cn = dbutils.DBUtils.getConnection();
+
+            if (cn == null) {
+                System.out.println("Cannot connect to database!");
+                return null;
+            }
+
+            String sql
+                    = "SELECT c.CustomerID, "
+                    + "c.FullName, "
+                    + "c.PhoneNumber, "
+                    + "c.Email, "
+                    + "c.Password, "
+                    + "c.Address, "
+                    + "c.CurrentPoints, "
+                    + "c.TotalBookings, "
+                    + "c.TotalSpend, "
+                    + "c.Status, "
+                    + "c.CreatedAt, "
+                    + "t.TierID, "
+                    + "t.TierName, "
+                    + "t.MinBookings, "
+                    + "t.MinSpend, "
+                    + "t.PointMultiplier, "
+                    + "t.DiscountPercent, "
+                    + "t.PriorityLevel, "
+                    + "t.BookingWindowDays "
+                    + "FROM Customers c "
+                    + "INNER JOIN CustomerTiers t "
+                    + "ON c.TierID = t.TierID "
+                    + "WHERE c.CustomerID = ?";
+
+            st = cn.prepareStatement(sql);
+            st.setInt(1, cusId);
+
+            rs = st.executeQuery();
+
+            if (rs.next()) {
+
+                result = new Customer();
+
+                result.setCusId(rs.getInt("CustomerID"));
+                result.setFullName(rs.getString("FullName"));
+                result.setPhoneNumber(rs.getString("PhoneNumber"));
+                result.setEmail(rs.getString("Email"));
+                result.setPassword(rs.getString("Password"));
+                result.setAddress(rs.getString("Address"));
+
+                result.setCurrentPoint(rs.getInt("CurrentPoints"));
+                result.setTotalBooking(rs.getInt("TotalBookings"));
+                result.setTotalSpend(rs.getDouble("TotalSpend"));
+
+                result.setStatus(rs.getBoolean("Status"));
+                result.setCreatedAt(rs.getDate("CreatedAt"));
+
+                // CustomerTier
+                CustomerTier tier = new CustomerTier();
+
+                tier.setTierID(rs.getInt("TierID"));
+                tier.setTierName(rs.getString("TierName"));
+                tier.setMinBookings(rs.getInt("MinBookings"));
+                tier.setMinSpend(rs.getDouble("MinSpend"));
+                tier.setPointMultiplier(rs.getDouble("PointMultiplier"));
+                tier.setDiscountPercent(rs.getDouble("DiscountPercent"));
+                tier.setPriorityLevel(rs.getInt("PriorityLevel"));
+                tier.setBookingWindowDays(rs.getInt("BookingWindowDays"));
+
+                result.setTierId(tier);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            try {
+
+                if (rs != null) {
+                    rs.close();
+                }
+
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+
+    public int updatePassword(int customerId, String newPassword) {
+
+        int result = 0;
+        Connection cn = null;
+        PreparedStatement st = null;
+
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn == null) {
+                System.out.println("CANNOT CONNECT TO SQL");
+                return result;
+            }
+            String sql
+                    = "UPDATE Customers "
+                    + "SET Password = ? "
+                    + "WHERE CustomerID = ?";
+
+            st = cn.prepareStatement(sql);
+
+            st.setString(1, newPassword);
+            st.setInt(2, customerId);
+            
+            result = st.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
 }

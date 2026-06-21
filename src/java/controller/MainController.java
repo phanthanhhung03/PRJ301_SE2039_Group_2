@@ -179,6 +179,10 @@ public class MainController extends HttpServlet {
                 url = "updateProfile";
                 break;
 
+            case "changePassword":
+                url = "/ChangePasswordController";
+                break;
+
             default:
                 url = "/customer/landing-page.jsp";
                 break;
