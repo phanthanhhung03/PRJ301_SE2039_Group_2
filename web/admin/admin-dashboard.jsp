@@ -61,7 +61,7 @@
         <!-- STAFF TOP NAVIGATION -->
         <header class="site-header">
             <div class="site-header__container main-wrapper">
-                <a href="admin-dashboard.jsp" class="site-header__logo">
+                <a href="#" class="site-header__logo">
                     <div class="site-header__logo-icon" style="background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-cyan));"></div>
                     <div class="site-header__logo-text">ADMIN<span>PANEL</span></div>
                 </a>
@@ -88,10 +88,8 @@
                 <div style="position: absolute; top:0; right:0; width: 300px; height: 100%; background: radial-gradient(circle, var(--color-accent-cyan-glow) 0%, transparent 70%); pointer-events: none;"></div>
                 <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-accent-cyan); text-transform: uppercase; letter-spacing: 0.1em;">Operations Control</span>
                 <h1 style="font-size: 2.0rem; margin-top: var(--spacing-xs); margin-bottom: var(--spacing-sm);">Welcome back  <%= admin.getFullName()%> </h1>
-                <p style="max-width: 700px; color: var(--color-text-secondary); font-size: 0.95rem;">System status is nominal. RFID gate scanning is online, 4 wash bays are currently active, and premium detaiil logs are synced.</p>
                 <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
                     <a href="MainController?action=viewAdminBookings" class="btn btn--primary btn--sm">View Today's Bookings</a>
-                    <a href="reports.html" class="btn btn--secondary btn--sm">Generate Shift Report</a>
                 </div>
             </section>
 
@@ -108,7 +106,7 @@
                         </div>
                         <div class="stat-card__body">
                             <span class="stat-card__value">${totalCustomers}</span>
-                            <span class="stat-card__change stat-card__change--up"></span> <!<!-- See new signup customers -->
+                            <span class="stat-card__change stat-card__change--up"></span> 
                         </div>
                     </div>
 
@@ -122,7 +120,7 @@
                         </div>
                         <div class="stat-card__body">
                             <span class="stat-card__value">${totalVehicles}</span>
-                            <span class="stat-card__change stat-card__change--up"></span> <!<!-- See new register car -->
+                            <span class="stat-card__change stat-card__change--up"></span> 
                         </div>
                     </div>
 
