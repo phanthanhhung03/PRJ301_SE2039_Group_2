@@ -52,14 +52,7 @@ public class CustomerPromotionDAO {
         return result;
     }
 
-    // -----------------------------------------------------------------------
     // Revoke an assignment
-    // -----------------------------------------------------------------------
-    /**
-     * Deletes a CustomerPromotions row by its primary key.
-     *
-     * @return rows affected
-     */
     public int revokeAssignment(int customerPromotionID) {
 
         int result = 0;
@@ -152,6 +145,10 @@ public class CustomerPromotionDAO {
                         + "FROM Customers c "
                         + "LEFT JOIN Vehicles v ON v.CustomerID = c.CustomerID "
                         + "LEFT JOIN Bookings b ON b.VehicleID = v.VehicleID "
+                        + "WHERE c.CustomerID NOT IN ( "
+                        + "    SELECT cp.CustomerID FROM CustomerPromotions cp "
+                        + "    WHERE cp.IsDeleted = 0 "
+                        + ") "
                         + "GROUP BY c.CustomerID, c.FullName "
                         + "HAVING MAX(b.BookingDate) IS NULL "
                         + "OR MAX(b.BookingDate) < DATEADD(MONTH, -3, GETDATE()) "

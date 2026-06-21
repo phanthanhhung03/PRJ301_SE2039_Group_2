@@ -383,12 +383,6 @@ public class PromotionDAO {
         if ("LOW_ENGAGEMENT".equals(type)) {
             return isLowEngagement(customerID);
         }
-
-        // 4. FIRST_TIME → never booking
-        if ("FIRST_TIME".equals(type)) {
-            return isFirstTimeCustomer(customerID);
-        }
-
         return false;
     }
 
@@ -522,37 +516,6 @@ public class PromotionDAO {
             rs = st.executeQuery();
 
             return rs.next(); // có dòng => eligible
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeAll(cn, st, rs);
-        }
-
-        return false;
-    }
-
-    public boolean isFirstTimeCustomer(int customerID) {
-
-        Connection cn = null;
-        PreparedStatement st = null;
-        ResultSet rs = null;
-
-        try {
-            cn = DBUtils.getConnection();
-
-            String sql
-                    = "SELECT 1 "
-                    + "FROM Bookings b "
-                    + "JOIN Vehicles v ON v.VehicleID = b.VehicleID "
-                    + "WHERE v.CustomerID = ?";
-
-            st = cn.prepareStatement(sql);
-            st.setInt(1, customerID);
-
-            rs = st.executeQuery();
-
-            return !rs.next(); // không có dòng => chưa từng booking
 
         } catch (Exception e) {
             e.printStackTrace();

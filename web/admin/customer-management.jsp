@@ -25,7 +25,7 @@
                 <nav class="site-header__navigation">
                     <a href="MainController?action=viewAdminDashboard" class="site-header__nav-link">Dashboard</a>
                     <a href="#" class="site-header__nav-link site-header__nav-link--active">Customers</a>
-                    <a href="booking-management.html" class="site-header__nav-link">Bookings</a>
+                    <a href="MainController?action=viewAdminBookings" class="site-header__nav-link">Bookings</a>
                     <a href="MainController?action=viewLoyaltyManagement" class="site-header__nav-link">Loyalty</a>
                     <a href="MainController?action=viewPromotionManagement" class="site-header__nav-link"> Promotions</a>
                 </nav>

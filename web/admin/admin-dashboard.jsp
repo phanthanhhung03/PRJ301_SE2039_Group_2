@@ -12,9 +12,12 @@
 <%@page import="dto.CustomerTier"%>
 <%@page import="dto.Booking"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
 <%
     Admin admin = (Admin) session.getAttribute("ADMIN_USER");
+
+    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
 
     List<CustomerTier> tierList = (List<CustomerTier>) request.getAttribute("tierList");
 
@@ -27,8 +30,12 @@
     List<Promotion> promotionList = (List<Promotion>) request.getAttribute("promotionList");
 
     Map<Integer, String> targetTierMap = (Map<Integer, String>) request.getAttribute("targetTierMap");
-    
-    List<Booking> upcomingBookings = (List<Booking>) request.getAttribute("upcomingBookings");
+
+    Double yearRevenue = (Double) request.getAttribute("yearRevenue");
+
+    Integer currentYear = (Integer) request.getAttribute("currentYear");
+
+    List<Booking> upcomingBookings = (List<Booking>) request.getAttribute("ALL_BOOKINGS");
 %>
 <html lang="en">
     <head>
@@ -105,7 +112,7 @@
                         </div>
                     </div>
 
-                    <!-- Stat 2: Active Bookings -->
+                    <!-- Stat 2: Total Vehicles -->
                     <div class="stat-card glass-panel">
                         <div class="stat-card__header">
                             <span class="stat-card__label">Total Vehicles</span>
@@ -122,18 +129,19 @@
                     <!-- Stat 3: Revenue -->
                     <div class="stat-card glass-panel">
                         <div class="stat-card__header">
-                            <span class="stat-card__label">Today's Revenue</span>
+                            <span class="stat-card__label"> Revenue of <%= currentYear %></span>
                             <div class="stat-card__icon" style="color: var(--color-accent-gold);">
                                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
                             </div>
                         </div>
                         <div class="stat-card__body">
-                            <span class="stat-card__value">...</span> <!<!-- comming soon -->
-                            <span class="stat-card__change stat-card__change--up">...</span>
+                            <span class="stat-card__value">
+                                <%= yearRevenue != null ? String.format("%,.0f", yearRevenue) : "0"%>₫
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Stat 4: Loyalty Transactions -->
+                    <!-- Stat 4: Total Bookings -->
                     <div class="stat-card glass-panel">
                         <div class="stat-card__header">
                             <span class="stat-card__label">Total Bookings</span>
@@ -142,8 +150,7 @@
                             </div>
                         </div>
                         <div class="stat-card__body">
-                            <span class="stat-card__value">...</span> <!<!--  waiting for booking  -->
-                            <span class="stat-card__change stat-card__change--up">...</span>
+                            <span class="stat-card__value">${totalBookings}</span>
                         </div>
                     </div>
                 </div>
@@ -165,7 +172,8 @@
                             <thead>
                                 <tr>
                                     <th>Customer</th>
-                                    <th>Vehicle / Time</th>
+                                    <th>Vehicle</th>
+                                    <th>Date</th>
                                     <th>Service</th>
                                     <th>Status</th>
                                 </tr>
@@ -174,28 +182,43 @@
                                 <%
                                     if (upcomingBookings != null && !upcomingBookings.isEmpty()) {
                                         for (Booking b : upcomingBookings) {
+
+                                            String status = b.getBookingStatus();
+                                            String badgeClass;
+
+                                            if ("Completed".equalsIgnoreCase(status)) {
+                                                badgeClass = "status-badge--completed";
+                                            } else if ("Cancelled".equalsIgnoreCase(status)) {
+                                                badgeClass = "status-badge--cancelled";
+                                            } else {
+                                                // Pending, Confirmed, In Progress, ...
+                                                badgeClass = "status-badge--pending";
+                                            }
                                 %>
                                 <tr>
                                     <td style="font-weight:600; color:var(--color-text-primary);">
-                                        <%= b.getCustomerName() %>
+                                        <%= b.getCustomerName()%>
                                     </td>
                                     <td>
-                                        <%= b.getVehicleName() %> @ <%= b.getTimeSlot() %>
+                                        <%= b.getVehicleName()%>
+                                    </td>
+                                    <td style="font-size:0.85rem;">
+                                        <%= b.getBookingDate() != null ? sdf.format(b.getBookingDate()) : "-"%>
                                     </td>
                                     <td>
-                                        <%= b.getServiceType() %>
+                                        <%= b.getServiceType()%>
                                     </td>
                                     <td>
-                                        <span class="status-badge status-badge--pending"><%= b.getBookingStatus() %></span>
+                                        <span class="status-badge <%= badgeClass%>"><%= status%></span>
                                     </td>
                                 </tr>
                                 <%
-                                        }
-                                    } else {
+                                    }
+                                } else {
                                 %>
                                 <tr>
-                                    <td colspan="4" style="text-align:center; padding: var(--spacing-md); color: var(--color-text-tertiary);">
-                                        No upcoming bookings found.
+                                    <td colspan="5" style="text-align:center; padding: var(--spacing-md); color: var(--color-text-tertiary);">
+                                        No bookings found.
                                     </td>
                                 </tr>
                                 <%
@@ -374,50 +397,94 @@
                             <thead>
                                 <tr>
                                     <th>Promotion</th>
-                                    <th>Discount</th>
-                                    <th>Bonus</th>
-                                    <th>Duration</th>
-                                    <th>Target</th>
+                                    <th>Target Type</th>
+                                    <th>Discount / Bonus</th>
+                                    <th>Validity Period</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
 
                             <tbody>
 
                                 <%
+                                    if (promotionList == null || promotionList.isEmpty()) {
+                                %>
+                                <tr>
+                                    <td colspan="5" style="text-align:center; padding: var(--spacing-md); color: var(--color-text-tertiary); font-style:italic;">
+                                        No promotions found.
+                                    </td>
+                                </tr>
+                                <%
+                                } else {
                                     for (Promotion p : promotionList) {
 
                                         String target = targetTierMap.getOrDefault(p.getPromotionID(), "-");
-
-
+                                        String type = p.getTargetType();
+                                        String desc = p.getDescription() != null ? p.getDescription() : "";
                                 %>
-
                                 <tr>
 
                                     <td>
-                                        <%= p.getPromotionName()%>
+                                        <div style="font-weight:600;"><%= p.getPromotionName()%></div>
+                                        <div style="font-size:0.78rem; color:var(--color-text-tertiary); max-width:220px;"><%= desc%></div>
                                     </td>
 
                                     <td>
-                                        <%= p.getDiscountPercent()%>%
+                                        <%
+                                            if ("ALL".equals(type)) {
+                                        %>
+                                        <span class="status-badge status-badge--completed">All Customers</span>
+                                        <%
+                                        } else if ("TIER_ONLY".equals(type)) {
+                                        %>
+                                        <span class="status-badge status-badge--pending">Tier: <%= target%>+</span>
+                                        <%
+                                        } else if ("LOW_ENGAGEMENT".equals(type)) {
+                                        %>
+                                        <span class="status-badge status-badge--cancelled">Low Engagement</span>
+                                        <%
+                                        } else {
+                                        %>
+                                        <span style="color:var(--color-text-tertiary);">&mdash;</span>
+                                        <%
+                                            }
+                                        %>
                                     </td>
 
                                     <td>
-                                        +<%= p.getBonusPoints()%>
+                                        <div style="font-weight:600;">
+                                            <%= String.format("%.1f", p.getDiscountPercent())%>% off
+                                        </div>
+                                        <%
+                                            if (p.getBonusPoints() > 0) {
+                                        %>
+                                        <div style="font-size:0.78rem; color:var(--color-accent-gold);">+<%= p.getBonusPoints()%> pts</div>
+                                        <%
+                                            }
+                                        %>
+                                    </td>
+
+                                    <td style="font-size:0.85rem;">
+                                        <%= sdf.format(p.getStartDate())%> &ndash; <%= sdf.format(p.getEndDate())%>
                                     </td>
 
                                     <td>
-                                        <%= p.getStartDate()%>
-                                        /
-                                        <%= p.getEndDate()%>
-                                    </td>
-
-                                    <td>
-                                        <%= target%>
+                                        <%
+                                            if (p.isStatus()) {
+                                        %>
+                                        <span class="status-badge status-badge--completed">Active</span>
+                                        <%
+                                        } else {
+                                        %>
+                                        <span class="status-badge status-badge--cancelled">Inactive</span>
+                                        <%
+                                            }
+                                        %>
                                     </td>
 
                                 </tr>
-
                                 <%
+                                        }
                                     }
                                 %>
 
@@ -426,8 +493,6 @@
                     </div>
 
                 </div>
-
-
 
         </main>
 

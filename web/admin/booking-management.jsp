@@ -22,9 +22,8 @@
                     <a href="${pageContext.request.contextPath}/MainController?action=viewAdminDashboard" class="site-header__nav-link">Dashboard</a>
                     <a href="${pageContext.request.contextPath}/MainController?action=viewCustomerManagement" class="site-header__nav-link">Customers</a>
                     <a href="${pageContext.request.contextPath}/MainController?action=viewAdminBookings" class="site-header__nav-link site-header__nav-link--active">Bookings</a>
-                    <a href="#" class="site-header__nav-link">Loyalty</a>
+                    <a href="MainController?action=viewLoyaltyManagemen" class="site-header__nav-link">Loyalty</a>
                     <a href="MainController?action=viewPromotionManagement" class="site-header__nav-link"> Promotions </a>
-                    <a href="#" class="site-header__nav-link">Reports</a>
                 </nav>
                 <div class="site-header__actions">
                     <span class="status-badge status-badge--completed">Staff Portal</span>
