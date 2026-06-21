@@ -124,7 +124,7 @@ public class MainController extends HttpServlet {
                 url = "/vehicle/register";
                 break;
             case "viewCustomerManagement":
-                url = "/admin/customer-management.jsp";
+                url = "/ADManagementCustomer";
                 break;
             case "viewAdminBookings":
             case "updateBookingStatus":

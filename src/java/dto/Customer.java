@@ -16,6 +16,7 @@ public class Customer {
     private Double totalSpend;
     private boolean status;
     private Date createdAt;
+    private int vehicleCount;
 
     public Customer() {
     }
@@ -131,6 +132,14 @@ public class Customer {
         this.createdAt = createdAt;
     }
 
+    public int getVehicleCount() {
+        return vehicleCount;
+    }
+
+    public void setVehicleCount(int vehicleCount) {
+        this.vehicleCount = vehicleCount;
+    }
+
     public String getInitials() {
         if (fullName == null || fullName.isEmpty()) {
             return "U";
@@ -142,8 +151,7 @@ public class Customer {
             return parts[0].substring(0, 1).toUpperCase();
         }
 
-        return (parts[0].substring(0, 1)
-                + parts[parts.length - 1].substring(0, 1)).toUpperCase();
+        return (parts[parts.length - 1].substring(0, 1) + parts[0].substring(0, 1)).toUpperCase();
     }
 
 }
