@@ -530,6 +530,90 @@ public class CustomerDAO {
         return check;
     }
 
+    // Cong diem theo point mutipiler trong CustomerTier
+    public boolean updateCustomerAfterCompleted(int cusID, int bookingID, double finalAmount) {
+        boolean check = false;
+        Connection cn = null;
+        PreparedStatement tierSt = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn != null) {
+                cn.setAutoCommit(false);
+
+                // Lấy PointMultiplier + TierName theo tier hiện tại của khách
+                double multiplier = 1.0;
+                String tierName = "Member";
+
+                String tierSql = "SELECT t.PointMultiplier, t.TierName "
+                        + "FROM Customers c "
+                        + "JOIN CustomerTiers t ON c.TierID = t.TierID "
+                        + "WHERE c.CustomerID = ?";
+
+                tierSt = cn.prepareStatement(tierSql);
+                tierSt.setInt(1, cusID);
+                rs = tierSt.executeQuery();
+
+                if (rs.next()) {
+                    multiplier = rs.getDouble("PointMultiplier");
+                    tierName = rs.getString("TierName");
+                }
+
+                // Tính điểm: 1000đ = 1 điểm, x theo multiplier của tier
+                int earnedPoints = (int) Math.floor((finalAmount / 1000) * multiplier);
+
+                String sql = "UPDATE Customers SET "
+                        + "TotalSpend = ISNULL(TotalSpend, 0) + ?, "
+                        + "CurrentPoints = ISNULL(CurrentPoints, 0) + ?, "
+                        + "TotalBookings = ISNULL(TotalBookings, 0) + 1 "
+                        + "WHERE CustomerID = ?";
+
+                st = cn.prepareStatement(sql);
+                st.setDouble(1, finalAmount);
+                st.setInt(2, earnedPoints);
+                st.setInt(3, cusID);
+
+                int rows = st.executeUpdate();
+
+                if (rows > 0) {
+                    new PointTransactionDAO().insertTransaction(cn, cusID, bookingID, earnedPoints,
+                            "EARN", "Booking #" + bookingID + " completed (" + tierName + " x" + multiplier + ")");
+                    cn.commit();
+                    check = true;
+                } else {
+                    cn.rollback();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                if (cn != null) {
+                    cn.rollback();
+                }
+            } catch (Exception ex) {
+            }
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (tierSt != null) {
+                    tierSt.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+            }
+        }
+        return check;
+    }
+
     public int updateCustomer(int cusId, String newName, String newPhoneNumber, String newAddress) {
         int result = 0;
         Connection cn = null;

@@ -133,9 +133,9 @@ public class PromotionManagementController extends HttpServlet {
                     notes = "";
                 }
 
-                // Promotion outdated or start soon
+                // Promotion outdated or sooner
                 if (!promotionDAO.isPromotionValid(promotionID)) {
-                    session.setAttribute("PROMO_ERR", "This promotion is expired or start soon !.");
+                    session.setAttribute("PROMO_ERR", "This promotion is expired or sooner than start-date!");
                     response.sendRedirect("MainController?action=viewPromotionManagement");
                     return;
                 }
@@ -177,14 +177,18 @@ public class PromotionManagementController extends HttpServlet {
                     activeCount++;
                 }
             }
-            // ➕ Build map promotionID -> selected tierIDs
+            //  Build map promotionID -> selected tierIDs
             PromotionTierDAO tierDAO = new PromotionTierDAO();
             java.util.Map<Integer, Integer> promotionMinTierMap = new java.util.HashMap<>();
+            java.util.Map<Integer, String> promotionMinTierNameMap = new java.util.HashMap<>();
             for (Promotion p : promotionList) {
                 if ("TIER_ONLY".equals(p.getTargetType())) {
                     Integer minTierID = tierDAO.getMinimumTierID(p.getPromotionID());
                     if (minTierID != null) {
                         promotionMinTierMap.put(p.getPromotionID(), minTierID);
+                        //  Get tierName to show
+                        String tierName = tierDAO.getTargetTierNames(p.getPromotionID());
+                        promotionMinTierNameMap.put(p.getPromotionID(), tierName);
                     }
                 }
             }
@@ -192,6 +196,7 @@ public class PromotionManagementController extends HttpServlet {
             // Set data to JSP
             request.setAttribute("activePromotionsCount", (int) activeCount);
             request.setAttribute("promotionTiersMap", promotionMinTierMap);
+            request.setAttribute("promotionMinTierNameMap", promotionMinTierNameMap);
             request.setAttribute("assignedCount", assignments.size());
             request.setAttribute("lowEngagementCustomerCount", lowEngagementCustomer.size());
             request.setAttribute("promotionList", promotionList);

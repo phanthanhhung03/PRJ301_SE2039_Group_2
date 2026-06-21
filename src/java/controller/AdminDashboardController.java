@@ -58,7 +58,7 @@ public class AdminDashboardController extends HttpServlet {
             int totalVehicles = vehicleDAO.countVehicles();
             List<Customer> topCustomers = customerDAO.getTopCustomers();
             List<Promotion> promotionList = promotionDAO.getAllPromotions();
-            List<Booking> upcomingBookings = bookingDAO.getTop5PendingBookings();
+            List<Booking> allBookings = bookingDAO.getAllAdminBookings();
             // Tier Data
             List<CustomerTier> tierList = tierDAO.getAllTiers();
             Map<Integer, Integer> customerTierCountMap = tierDAO.getCustomerCountByTier();
@@ -80,6 +80,10 @@ public class AdminDashboardController extends HttpServlet {
                 targetTierMap.put(p.getPromotionID(), promotionTierDAO.getTargetTierNames(p.getPromotionID()));
             }
 
+            // Get Revenue by Year
+            int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+            double yearRevenue = bookingDAO.getRevenueByYear(currentYear);
+
             // Send Data To JSP
             request.setAttribute("totalCustomers", totalCustomers);
 
@@ -95,9 +99,13 @@ public class AdminDashboardController extends HttpServlet {
 
             request.setAttribute("promotionList", promotionList);
 
-            request.setAttribute("targetTierMap",targetTierMap);
+            request.setAttribute("targetTierMap", targetTierMap);
 
-            request.setAttribute("upcomingBookings", upcomingBookings);
+            request.setAttribute("yearRevenue", yearRevenue);
+            request.setAttribute("currentYear", currentYear);
+
+            request.setAttribute("ALL_BOOKINGS", allBookings);
+            request.setAttribute("totalBookings", allBookings.size());
             // Forward
             request.getRequestDispatcher("/admin/admin-dashboard.jsp").forward(request, response);
 

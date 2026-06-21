@@ -5,8 +5,10 @@
 package controller;
 
 import dao.CustomerTierDAO;
+import dao.PointTransactionDAO;
 import dto.Admin;
 import dto.CustomerTier;
+import dto.PointTransaction;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -50,8 +52,18 @@ public class LoyaltyManagementController extends HttpServlet {
         try {
             CustomerTierDAO tierDAO = new CustomerTierDAO();
             List<CustomerTier> tierList = tierDAO.getAllTiers();
+
+            PointTransactionDAO pointTransactionDAO = new PointTransactionDAO();
+            List<PointTransaction> transactionList = pointTransactionDAO.getRecentTransactions(50);
+            Map<String, Integer[]> monthlySummary = pointTransactionDAO.getMonthlyPointsSummary(6);
+            Map<String, Double> tierPointsAvgMap = pointTransactionDAO.getAveragePointsByTier();
+
+            
             // Send Data To JSP
             request.setAttribute("tierList", tierList);
+            request.setAttribute("transactionList", transactionList);
+            request.setAttribute("monthlySummary", monthlySummary);
+            request.setAttribute("tierPointsAvgMap", tierPointsAvgMap);
             // Forward
             request.getRequestDispatcher("/admin/loyalty-management.jsp").forward(request, response);
         } catch (Exception e) {

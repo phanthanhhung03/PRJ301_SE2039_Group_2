@@ -48,7 +48,7 @@ public class AdminBookingController extends HttpServlet {
                         if (b != null) {
                             if ("Completed".equals(newStatus)) {
                             // Luồng 1: Hoàn thành -> Tăng chi tiêu, cộng điểm, tăng số lượt rửa
-                                cDao.updateCustomerAfterCompleted(customerID, b.getFinalAmount());
+                                cDao.updateCustomerAfterCompleted(customerID, bID, b.getFinalAmount());
                             } else if ("Cancelled".equals(newStatus)) {
                             // Luồng 2: Hủy lịch sát giờ -> Phạt trừ 20 điểm, tăng số lượt
                                 cDao.updateCustomerAfterCancelled(customerID);
