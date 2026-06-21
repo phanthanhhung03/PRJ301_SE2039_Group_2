@@ -71,34 +71,23 @@
                     <form id="bookingForm" action="${pageContext.request.contextPath}/BookingController" method="POST">
                         <input type="hidden" name="action" value="createBookingProcess">
                         <input type="hidden" id="tierDiscountPercent" value="${sessionScope.USER.tierId.discountPercent}">
-                        <h2 class="booking-page__step-title">Step 1: Vehicle & Schedule</h2>
-
-                        <div class="form-group">
-                            <label for="vehicleSelect" class="form-group__label">Select Your Vehicle</label>
-                            <div class="form-group__input-wrapper">
-                                <select id="vehicleSelect"
-                                        name="vehicleID"
-                                        class="form-group__input form-group__select"
-                                        required>
-
-                                    <option value="">
-                                        -- Choose a registered vehicle --
+                        <input type="hidden" id="tierPointMultiplier" value="${sessionScope.USER.tierId.pointMultiplier}">
+                         <h2 class="booking-page__step-title">Step 1: Vehicle & Schedule</h2>
+                    
+                    <div class="form-group">
+                        <label for="vehicleSelect" class="form-group__label">Select Your Vehicle</label>
+                        <div class="form-group__input-wrapper">
+                            <select id="vehicleSelect" name="vehicleID" class="form-group__input form-group__select" required>
+                                <option value="" disabled selected>-- Choose a registered vehicle --</option>
+                                <c:forEach items="${VEHICLE_LIST}" var="car">
+                                    <option value="${car.vehicleID}" data-name="${car.licensePlate} - ${car.model}">
+                                        ${car.licensePlate} - ${car.brand} ${car.model} (${car.color})
                                     </option>
-
-                                    <c:forEach items="${VEHICLE_LIST}" var="car">
-
-                                        <option value="${car.vehicleID}"
-                                                ${not empty VEHICLE && car.vehicleID == VEHICLE.vehicleID ? 'selected' : ''}>
-
-                                            ${car.licensePlate} - ${car.brand} ${car.model} (${car.color})
-
-                                        </option>
-
-                                    </c:forEach>
-                                </select>
-                            </div>
-                            <a href="${pageContext.request.contextPath}/MainController?action=viewAddVehicle" class="booking-page__add-link">+ Register a new vehicle</a>
+                                </c:forEach>
+                            </select>
                         </div>
+                        <a href="${pageContext.request.contextPath}/MainController?action=viewAddVehicle" class="booking-page__add-link">+ Register a new vehicle</a>
+                    </div>
 
                         <div class="grid-cols-2">
                             <div class="form-group">
@@ -212,6 +201,11 @@
                         <div class="order-summary__row" style="border-bottom: none;">
                             <span class="order-summary__label">SERVICE</span>
                             <strong id="summaryService" class="order-summary__value">-- Not selected --</strong>
+                        </div>
+
+                        <div class="order-summary__row" id="summaryTierDiscountRow" style="display: none; border-bottom: none;">
+                            <span class="order-summary__label" style="text-transform: uppercase;">${sessionScope.USER.tierId.tierName} TIER</span>
+                            <strong id="summaryTierDiscount" class="order-summary__value" style="color: var(--color-accent-red);">-0 đ</strong>
                         </div>
 
                         <div class="order-summary__row" id="summaryDiscountRow" style="display: none; border-bottom: none;">

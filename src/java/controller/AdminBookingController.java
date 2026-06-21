@@ -23,12 +23,10 @@ public class AdminBookingController extends HttpServlet {
         CustomerDAO cDao = new CustomerDAO();
 
         try {
-            // NHÁNH 1: ĐỔ DATA RA TRANG QUẢN LÝ (Khi bấm View All từ Dashboard)
+            // NHÁNH 1: ĐỔ DATA RA TRANG QUẢN LÝ
             if ("viewAdminBookings".equals(action)) {
                 List<Booking> list = bDao.getAllAdminBookings();
                 request.setAttribute("ALL_BOOKINGS", list);
-                
-                // Đi sang trang giao diện quản lý
                 request.getRequestDispatcher("/admin/booking-management.jsp").forward(request, response);
                 return;
             }
@@ -39,24 +37,35 @@ public class AdminBookingController extends HttpServlet {
                 int customerID = Integer.parseInt(request.getParameter("cusID"));
                 String newStatus = request.getParameter("newStatus");
 
-                // 1. Cập nhật trạng thái đơn đặt lịch trước
+                // 1. Lấy trạng thái cũ trước khi cập nhật
+                Booking oldBooking = bDao.getBookingByID(bID);
+                String oldStatus = (oldBooking != null) ? oldBooking.getBookingStatus() : "";
+
+                // 2. Cập nhật trạng thái mới vào Database
                 boolean isUpdated = bDao.updateBookingStatus(bID, newStatus);
 
-                if (isUpdated) {
-                    // Lấy chi tiết đơn đặt lịch để lấy số tiền FinalAmount chính xác
-                        Booking b = bDao.getBookingByID(bID);
-                        if (b != null) {
-                            if ("Completed".equals(newStatus)) {
-                            // Luồng 1: Hoàn thành -> Tăng chi tiêu, cộng điểm, tăng số lượt rửa
-                                cDao.updateCustomerAfterCompleted(customerID, bID, b.getFinalAmount());
-                            } else if ("Cancelled".equals(newStatus)) {
-                            // Luồng 2: Hủy lịch sát giờ -> Phạt trừ 20 điểm, tăng số lượt
-                                cDao.updateCustomerAfterCancelled(customerID);
-                            }
-                        }
+                if (isUpdated && oldBooking != null) {
+                    double amount = oldBooking.getFinalAmount();
+                    
+                    // --- XÉT DUYỆT 4 LUỒNG SIÊU ĐƠN GIẢN (CỐ ĐỊNH 20 ĐIỂM) ---
+                    if ("Pending".equals(oldStatus) && "Completed".equals(newStatus)) {
+                        // Chờ xử lý -> Hoàn thành: Cộng tiền, cộng điểm thưởng, +1 lượt rửa
+                        cDao.updateCustomerAfterCompleted(customerID, bID, amount);
+                    } 
+                    else if ("Pending".equals(oldStatus) && "Cancelled".equals(newStatus)) {
+                        // Chờ xử lý -> Hủy: Trừ thẳng 20đ phạt cố định, +1 lượt rửa
+                        cDao.updateCustomerAfterCancelled(customerID);
                     }
+                    else if ("Completed".equals(oldStatus) && "Cancelled".equals(newStatus)) {
+                        // Hoàn thành -> Hủy: Thu hồi tiền, thu hồi điểm thưởng, trừ tiếp 20đ phạt
+                        cDao.revertCompletedBooking(customerID, amount);
+                    }
+                    else if ("Cancelled".equals(oldStatus) && "Completed".equals(newStatus)) {
+                        // Hủy -> Hoàn thành: Cộng lại tiền, cộng điểm thưởng, trả lại 20đ phạt cũ
+                        cDao.restoreCancelledToCompleted(customerID, amount); 
+                    }
+                }
                 
-                // Xử lý xong quay trở lại luồng hiển thị danh sách đơn cho Admin
                 response.sendRedirect("MainController?action=viewAdminBookings");
                 return;
             }
