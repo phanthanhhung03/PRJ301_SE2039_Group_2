@@ -120,7 +120,9 @@
                                 </div>
                                 <div>
                                     <span class="customer-overview-label">Fleet Vehicles</span>
-                                    <span class="customer-overview-val--cyan">${customer.vehicleCount} vehicles</span>
+                                    <span class="customer-overview-val--cyan">
+                                        ${customer.vehicleCount} 
+                                        ${customer.vehicleCount == 1 ? 'vehicle' : 'vehicles'}                                    </span>
                                 </div>
                             </div>
                         </div>

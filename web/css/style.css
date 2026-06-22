@@ -3118,4 +3118,15 @@ button, input, select, textarea {
 .site-footer--admin {
     margin-top: var(--spacing-xxl);
 }
-
+
+.customer-vehicles-link {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.customer-vehicles-link:hover {
+    text-decoration: underline;
+    opacity: 0.85;
+}

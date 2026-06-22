@@ -1,8 +1,11 @@
 package controller;
 
 import dao.CustomerDAO;
+import dao.VehicleDAO;
 import dto.Customer;
+import dto.Vehicle;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,19 +13,30 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(name = "ADManagementCustomer", urlPatterns = {"/ADManagementCustomer"})
-public class ADManagementCustomer extends HttpServlet {
+@WebServlet(name = "ViewCustomerVehiclesController", urlPatterns = {"/ViewCustomerVehiclesController"})
+public class ViewCustomerVehiclesController extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
 
-        CustomerDAO customerDao = new CustomerDAO();
-        List<Customer> customers = customerDao.getAllCustomers();
+        int customerId = Integer.parseInt(
+                request.getParameter("id"));
         
-        request.setAttribute("customers", customers);
-        request.setAttribute("customerCount", customers.size());
-        request.getRequestDispatcher("admin/customer-management.jsp")
+        CustomerDAO customerDAO = new CustomerDAO();
+        VehicleDAO vehicleDAO = new VehicleDAO();
+
+        Customer customer
+                = customerDAO.getCustomer(customerId);
+
+        List<Vehicle> vehicles
+                = vehicleDAO.getAllVehiclesByCustomerId(customerId);
+
+        request.setAttribute("customer", customer);
+        request.setAttribute("vehicles", vehicles);
+
+        request.getRequestDispatcher(
+                "/admin/customer-vehicles.jsp")
                 .forward(request, response);
 
     }

@@ -154,6 +154,10 @@ public class MainController extends HttpServlet {
                 break;
             }
 
+            case "viewCustomerVehicles":
+                url = "ViewCustomerVehiclesController";
+                break;
+
             case "updateCustomer":
                 url = "ADUpdateCustomer";
                 break;
