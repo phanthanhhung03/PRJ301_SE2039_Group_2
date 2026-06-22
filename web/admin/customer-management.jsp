@@ -97,7 +97,7 @@
                 <div style="display:flex; gap:var(--spacing-md); align-items:center;">
                     <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
                         <span style="font-size:0.8rem; font-weight:600; text-transform:uppercase; color:var(--color-text-tertiary);">Tier:</span>
-                        <select class="form-group__input" style="padding: 0.5rem 2.0rem 0.5rem 1.0rem; font-size:0.85rem; width: auto; background-color: var(--color-surface-hover); cursor: pointer;">
+                        <select disabled="" class="form-group__input" style="padding: 0.5rem 2.0rem 0.5rem 1.0rem; font-size:0.85rem; width: auto; background-color: var(--color-surface-hover); cursor: pointer;">
                             <option value="all">All Tiers</option>
                             <option value="vip">Platinum</option>
                             <option value="signature">Gold</option>
@@ -108,7 +108,7 @@
 
                     <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
                         <span style="font-size:0.8rem; font-weight:600; text-transform:uppercase; color:var(--color-text-tertiary);">Status:</span>
-                        <select class="form-group__input" style="padding: 0.5rem 2.0rem 0.5rem 1.0rem; font-size:0.85rem; width: auto; background-color: var(--color-surface-hover); cursor: pointer;">
+                        <select disabled="" class="form-group__input" style="padding: 0.5rem 2.0rem 0.5rem 1.0rem; font-size:0.85rem; width: auto; background-color: var(--color-surface-hover); cursor: pointer;">
                             <option value="all">All Statuses</option>
                             <option value="active">Active Members</option>
                             <option value="suspended">Suspended</option>
@@ -187,8 +187,11 @@
                                         ${customer.currentPoint} pts
                                     </td>
                                     <td>
-                                        ${customer.vehicleCount} 
-                                        ${customer.vehicleCount == 1 ? 'vehicle' : 'vehicles'}
+                                        <a href="${pageContext.request.contextPath}/MainController?action=viewCustomerVehicles&id=${customer.cusId}"
+                                           class="customer-vehicles-link">
+                                            ${customer.vehicleCount} 
+                                            ${customer.vehicleCount == 1 ? 'vehicle' : 'vehicles'}
+                                        </a>
                                     </td>
                                     <td style="font-size:0.85rem;">
                                         <c:choose>

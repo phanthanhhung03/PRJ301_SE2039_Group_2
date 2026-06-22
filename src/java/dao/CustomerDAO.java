@@ -887,7 +887,12 @@ public class CustomerDAO {
                     + "t.PointMultiplier, "
                     + "t.DiscountPercent, "
                     + "t.PriorityLevel, "
-                    + "t.BookingWindowDays "
+                    + "t.BookingWindowDays, "
+                    + "    (\n"
+                    + "        SELECT COUNT(*)\n"
+                    + "        FROM Vehicles v\n"
+                    + "        WHERE v.CustomerID = c.CustomerID\n"
+                    + "    ) AS VehicleCount \n"
                     + "FROM Customers c "
                     + "INNER JOIN CustomerTiers t "
                     + "ON c.TierID = t.TierID "
@@ -915,7 +920,8 @@ public class CustomerDAO {
 
                 result.setStatus(rs.getBoolean("Status"));
                 result.setCreatedAt(rs.getDate("CreatedAt"));
-
+                result.setVehicleCount(rs.getInt("VehicleCount"));
+                
                 // CustomerTier
                 CustomerTier tier = new CustomerTier();
 

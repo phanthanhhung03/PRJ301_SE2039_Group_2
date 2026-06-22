@@ -42,7 +42,7 @@ public class Vehicle {
             String brand,
             String model,
             String color,
-            Date createdAt,
+            Date createAt,
             boolean status) {
         this.vehicleID = vehicleID;
         this.customerID = customerID;
@@ -53,6 +53,8 @@ public class Vehicle {
         this.createAt = createAt;
         this.status = status;
     }
+    
+    
 
     public Date getCreateAt() {
         return createAt;
@@ -69,6 +71,8 @@ public class Vehicle {
     public void setStatus(Boolean status) {
         this.status = status;
     }
+
+    
 
     public int getVehicleID() {
         return vehicleID;

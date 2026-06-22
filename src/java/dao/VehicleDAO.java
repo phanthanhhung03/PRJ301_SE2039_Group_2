@@ -128,6 +128,70 @@ public class VehicleDAO {
         return vehicleList;
     }
 
+    public List<Vehicle> getAllVehiclesByCustomerId(int customerId) {
+        List<Vehicle> vehicleList = new ArrayList<>();
+        PreparedStatement st = null;
+        ResultSet table = null;
+        Connection cn = null;
+        try {
+            cn = dbutils.DBUtils.getConnection();
+
+            if (cn == null) {
+                System.out.println("CANNOT CONNECT TO SQL");
+                return vehicleList;
+            }
+
+            String sql
+                    = "SELECT VehicleID, "
+                    + "LicensePlate, "
+                    + "Brand, "
+                    + "Model, "
+                    + "Color, "
+                    + "CreatedAt, "
+                    + "Status "
+                    + "FROM Vehicles "
+                    + "WHERE CustomerID = ?";
+
+            st = cn.prepareStatement(sql);
+            st.setInt(1, customerId);
+
+            table = st.executeQuery();
+            while (table.next()) {
+                Vehicle vehicle = new Vehicle(
+                        table.getInt("VehicleID"),
+                        customerId,
+                        table.getString("LicensePlate"),
+                        table.getString("Brand"),
+                        table.getString("Model"),
+                        table.getString("Color"),
+                        table.getDate("CreatedAt"),
+                        table.getBoolean("Status"));
+
+                vehicleList.add(vehicle);
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (table != null) {
+                    table.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return vehicleList;
+    }
+
     public Vehicle getVehicleByLicensePlate(String licensePlate) {
         Vehicle vehicle = null;
         Connection cn = null;
@@ -461,5 +525,5 @@ public class VehicleDAO {
 
         return total;
     }
-    
+
 }
