@@ -89,7 +89,7 @@
                 <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-accent-cyan); text-transform: uppercase; letter-spacing: 0.1em;">Operations Control</span>
                 <h1 style="font-size: 2.0rem; margin-top: var(--spacing-xs); margin-bottom: var(--spacing-sm);">Welcome back  <%= admin.getFullName()%> </h1>
                 <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
-                    <a href="MainController?action=viewAdminBookings" class="btn btn--primary btn--sm">View Today's Bookings</a>
+                    <a href="MainController?action=viewAdminBookings" class="btn btn--primary btn--sm">View Bookings</a>
                 </div>
             </section>
 
