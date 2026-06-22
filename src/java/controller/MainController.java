@@ -178,6 +178,11 @@ public class MainController extends HttpServlet {
             case "viewPromotionManagement":
                 url = "/PromotionManagementController";
                 break;
+            case "showAddPromotion":
+            case "showEditPromotion":
+            case "showAssignPromotion":
+                url = "/PromotionManagementController";
+                break;
 
             //VEHICLE
             case "addVehicle":
