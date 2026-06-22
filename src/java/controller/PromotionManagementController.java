@@ -28,8 +28,7 @@ public class PromotionManagementController extends HttpServlet {
         HttpSession session = request.getSession(false);
         // Guard: admin must be logged in
         if (session == null || session.getAttribute("ADMIN_USER") == null) {
-            response.sendRedirect(
-                    request.getContextPath() + "/MainController?action=viewAdminSignIn");
+            response.sendRedirect(request.getContextPath() + "/MainController?action=viewAdminSignIn");
             return;
         }
 
@@ -43,11 +42,72 @@ public class PromotionManagementController extends HttpServlet {
         CustomerPromotionDAO customerPromotionDAO = new CustomerPromotionDAO();
         try {
             // ------------------------------------------------------------------
-            // POST actions
+            // GET actions: hiển thị trang form riêng (thay cho modal)
             // ------------------------------------------------------------------
 
+            // Hiển thị trang Add Promotion
+            if ("showAddPromotion".equals(action)) {
+                request.getRequestDispatcher("/admin/add-promotion.jsp").forward(request, response);
+                return;
+            } // Hiển thị trang Edit Promotion
+            else if ("showEditPromotion".equals(action)) {
+                int promotionID = Integer.parseInt(request.getParameter("promotionID"));
+
+                Promotion promo = promotionDAO.getPromotionByID(promotionID);
+                if (promo == null) {
+                    session.setAttribute("PROMO_ERR", "Promotion not found.");
+                    response.sendRedirect("MainController?action=viewPromotionManagement");
+                    return;
+                }
+
+                PromotionTierDAO tierDAO = new PromotionTierDAO();
+                Integer curMinTier = null;
+                if ("TIER_ONLY".equals(promo.getTargetType())) {
+                    curMinTier = tierDAO.getMinimumTierID(promotionID);
+                }
+
+                request.setAttribute("promo", promo);
+                request.setAttribute("curMinTier", curMinTier);
+                request.getRequestDispatcher("/admin/edit-promotion.jsp").forward(request, response);
+                return;
+            } // Hiển thị trang Assign Promotion
+            else if ("showAssignPromotion".equals(action)) {
+                int customerID = Integer.parseInt(request.getParameter("customerID"));
+
+                List<CustomerPromotion> lowEngagementCustomer = customerPromotionDAO.getLowEngagementCustomers();
+                CustomerPromotion targetCust = null;
+                for (CustomerPromotion c : lowEngagementCustomer) {
+                    if (c.getCustomerID() == customerID) {
+                        targetCust = c;
+                        break;
+                    }
+                }
+
+                if (targetCust == null) {
+                    session.setAttribute("PROMO_ERR", "Customer not found in low engagement list.");
+                    response.sendRedirect("MainController?action=viewPromotionManagement");
+                    return;
+                }
+
+                List<Promotion> activePromotions = promotionDAO.getAllPromotions();
+
+                request.setAttribute("targetCust", targetCust);
+                request.setAttribute("promotionList", activePromotions);
+                request.getRequestDispatcher("/admin/assign-promotion.jsp").forward(request, response);
+                return;
+            } // ------------------------------------------------------------------
+            // POST actions
+            // ------------------------------------------------------------------
             // Add Promotion
-            if ("addPromotion".equals(action)) {
+            else if ("addPromotion".equals(action)) {
+
+                String validateError = validatePromotionInput(request);
+                if (validateError != null) {
+                    session.setAttribute("PROMO_ERR", validateError);
+                    response.sendRedirect("MainController?action=viewPromotionManagement");
+                    return;
+                }
+
                 Promotion p = new Promotion();
                 p.setAdminID(admin.getAdminID());
                 p.setPromotionName(request.getParameter("promotionName").trim());
@@ -80,6 +140,14 @@ public class PromotionManagementController extends HttpServlet {
 
                 // Edit Promotion
             } else if ("editPromotion".equals(action)) {
+
+                String validateError = validatePromotionInput(request);
+                if (validateError != null) {
+                    session.setAttribute("PROMO_ERR", validateError);
+                    response.sendRedirect("MainController?action=viewPromotionManagement");
+                    return;
+                }
+
                 Promotion p = new Promotion();
                 String targetType = request.getParameter("targetType");
                 p.setTargetType(targetType);
@@ -94,7 +162,6 @@ public class PromotionManagementController extends HttpServlet {
 
                 boolean isValid = promotionDAO.updatePromotion(p) > 0;
                 if (isValid) {
-
                     PromotionTierDAO tierDAO = new PromotionTierDAO();
                     if ("TIER_ONLY".equals(targetType)) {
                         String minTierIDParam = request.getParameter("minTierID");
@@ -102,17 +169,13 @@ public class PromotionManagementController extends HttpServlet {
                             tierDAO.setMinimumTier(p.getPromotionID(), Integer.parseInt(minTierIDParam));
                         }
                     } else {
-                        // Không còn TIER_ONLY nữa thì xóa mapping cũ
                         tierDAO.deleteTierMappingByPromotionID(p.getPromotionID());
                     }
-
                 }
                 session.setAttribute(isValid ? "PROMO_MSG" : "PROMO_ERR",
                         isValid ? "Promotion updated successfully!" : "Failed to update promotion. Check inputs.");
                 response.sendRedirect("MainController?action=viewPromotionManagement");
                 return;
-
-                // Remove Promotion
             } else if ("deletePromotion".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("promotionID"));
 
@@ -211,6 +274,78 @@ public class PromotionManagementController extends HttpServlet {
             session.setAttribute("PROMO_ERR", "An unexpected error occurred: " + e.getMessage());
             response.sendRedirect("MainController?action=viewPromotionManagement");
         }
+
+    }
+
+    private String validatePromotionInput(HttpServletRequest request) {
+
+        String name = request.getParameter("promotionName");
+        String discountStr = request.getParameter("discountPercent");
+        String bonusStr = request.getParameter("bonusPoints");
+        String startStr = request.getParameter("startDate");
+        String endStr = request.getParameter("endDate");
+        String targetType = request.getParameter("targetType");
+
+        if (name == null || name.trim().isEmpty()) {
+            return "Promotion name is required.";
+        }
+
+        if (name.trim().length() > 100) {
+            return "Promotion name must be at most 100 characters.";
+        }
+
+        double discount;
+        try {
+            discount = Double.parseDouble(discountStr);
+        } catch (Exception e) {
+            return "Discount percent is invalid.";
+        }
+        if (discount < 0 || discount > 100) {
+            return "Discount percent must be between 0 and 100.";
+        }
+
+        int bonus;
+        try {
+            bonus = Integer.parseInt(bonusStr);
+        } catch (Exception e) {
+            return "Bonus points is invalid.";
+        }
+        if (bonus < 0) {
+            return "Bonus points cannot be negative.";
+        }
+
+        Date startDate, endDate;
+        try {
+            startDate = Date.valueOf(startStr);
+            endDate = Date.valueOf(endStr);
+        } catch (Exception e) {
+            return "Start date / End date is invalid.";
+        }
+        if (endDate.before(startDate)) {
+            return "End date must be after start date.";
+        }
+
+        if (targetType == null
+                || !(targetType.equals("ALL")
+                || targetType.equals("TIER_ONLY")
+                || targetType.equals("LOW_ENGAGEMENT")
+                || targetType.equals("FIRST_TIME"))) {
+            return "Target type is invalid.";
+        }
+
+        if ("TIER_ONLY".equals(targetType)) {
+            String minTierIDParam = request.getParameter("minTierID");
+            if (minTierIDParam == null || minTierIDParam.trim().isEmpty()) {
+                return "Minimum tier is required when target type is Specific Tiers.";
+            }
+            try {
+                Integer.parseInt(minTierIDParam);
+            } catch (Exception e) {
+                return "Minimum tier is invalid.";
+            }
+        }
+
+        return null; // Hợp lệ
     }
 
     @Override

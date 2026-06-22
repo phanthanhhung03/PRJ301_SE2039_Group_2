@@ -9,7 +9,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Promotion Management | AutoWashPro Admin</title>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
-        <script src="${pageContext.request.contextPath}/js/promotion-management.js" defer></script>
+        <!-- Style for flash message -->
+        <style>
+            .flash-message {
+                transition: opacity 0.4s ease;
+            }
+            .flash-message.flash-hide {
+                opacity: 0;
+            }
+        </style>
     </head>
     <body>
 
@@ -44,25 +52,24 @@
                     </span>
                     <h1 style="font-size:2.0rem; margin-top:var(--spacing-xs);">Campaigns</h1>
                 </div>
-                <button type="button" class="btn btn--primary btn--sm" onclick="openAddPromotionModal()">
+                <a href="MainController?action=showAddPromotion" class="btn btn--primary btn--sm">
                     + New Promotion
-                </button>
+                </a>
             </div>
 
             <!-- ===== FLASH MESSAGES ===== -->
             <c:if test="${not empty sessionScope.PROMO_MSG}">
-                <div class="glass-panel" style="padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); border-left: 3px solid var(--color-accent-cyan); color: var(--color-accent-cyan); font-weight:600;">
+                <div class="glass-panel flash-message" style="padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); border-left: 3px solid var(--color-accent-cyan); color: var(--color-accent-cyan); font-weight:600;">
                     &#10003; ${sessionScope.PROMO_MSG}
                 </div>
                 <c:remove var="PROMO_MSG" scope="session"/>
             </c:if>
             <c:if test="${not empty sessionScope.PROMO_ERR}">
-                <div class="glass-panel" style="padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); border-left: 3px solid var(--color-accent-red); color: var(--color-accent-red); font-weight:600;">
+                <div class="glass-panel flash-message" style="padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); border-left: 3px solid var(--color-accent-red); color: var(--color-accent-red); font-weight:600;">
                     &#10007; ${sessionScope.PROMO_ERR}
                 </div>
                 <c:remove var="PROMO_ERR" scope="session"/>
             </c:if>
-
             <!-- ===== STAT CARDS ===== -->
             <section class="grid-cols-4" style="margin-bottom: var(--spacing-xl);">
 
@@ -186,10 +193,9 @@
                                     </td>
 
                                     <td style="text-align:right;">
-                                        <button type="button" class="btn btn--secondary btn--sm"
-                                                onclick="document.getElementById('editModal_${promo.promotionID}').style.display = 'flex';">
+                                        <a href="MainController?action=showEditPromotion&promotionID=${promo.promotionID}" class="btn btn--secondary btn--sm">
                                             Edit
-                                        </button>
+                                        </a>
 
                                         <form action="PromotionManagementController?action=deletePromotion" method="POST" style="display:inline;">
                                             <input type="hidden" name="promotionID" value="${promo.promotionID}">
@@ -252,10 +258,9 @@
                                     </td>
 
                                     <td style="text-align: right;">
-                                        <button type="button" class="btn btn--gold btn--sm"
-                                                onclick="document.getElementById('assignModal_${lowEngCust.customerID}').style.display = 'flex';">
+                                        <a href="MainController?action=showAssignPromotion&customerID=${lowEngCust.customerID}" class="btn btn--gold btn--sm">
                                             Review &amp; Grant
-                                        </button>
+                                        </a>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -350,225 +355,17 @@
             </div>
         </footer>
 
-
-        <!-- =================================================================== -->
-        <!-- MODAL: ADD NEW PROMOTION                                            -->
-        <!-- =================================================================== -->
-        <div id="addPromotionModal" class="tier-modal-overlay">
-            <div class="glass-panel tier-modal-box">
-
-                <div class="tier-modal-header">
-                    <h3>Add New Promotion</h3>
-                    <button type="button" class="tier-modal-close" onclick="closeAddPromotionModal()">&#10005;</button>
-                </div>
-
-                <form id="addPromotionForm" action="PromotionManagementController?action=addPromotion" method="POST"
-                      onsubmit="return validatePromotionForm(this);">
-
-                    <div class="tier-form-group">
-                        <label>Promotion Name *</label>
-                        <input type="text" name="promotionName" required maxlength="100" placeholder="e.g. Summer Win-Back">
-                    </div>
-
-                    <div class="tier-form-group">
-                        <label>Description</label>
-                        <input type="text" name="description" maxlength="255" placeholder="Brief description">
-                    </div>
-
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-md);">
-                        <div class="tier-form-group">
-                            <label>Discount Percent (%)</label>
-                            <input type="number" name="discountPercent" min="0" max="100" step="0.1" value="0">
-                        </div>
-                        <div class="tier-form-group">
-                            <label>Bonus Points</label>
-                            <input type="number" name="bonusPoints" min="0" step="1" value="0">
-                        </div>
-                    </div>
-
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-md);">
-                        <div class="tier-form-group">
-                            <label>Start Date *</label>
-                            <input type="date" class="add-start-date" name="startDate" required>
-                        </div>
-                        <div class="tier-form-group">
-                            <label>End Date *</label>
-                            <input type="date" class="add-end-date" name="endDate" required>
-                        </div>
-                    </div>
-
-                    <div class="tier-form-group">
-                        <label>Target Type *</label>
-                        <select name="targetType" class="form-group__select form-group__input" required
-                                onchange="toggleTierSelection(this.value)">
-                            <option value="ALL">All Customers</option>
-                            <option value="TIER_ONLY">Specific Tiers</option>
-                            <option value="LOW_ENGAGEMENT">Low Engagement</option>
-                        </select>
-                    </div>
-
-                    <div class="tier-form-group" id="tierSelectionBox" style="display:none;">
-                        <label>Minimum Tier Required</label>
-                        <select name="minTierID" class="form-group__select form-group__input">
-                            <option value="1">Member</option>
-                            <option value="2">Silver</option>
-                            <option value="3">Gold</option>
-                            <option value="4">Platinum</option>
-                        </select>
-                        <p style="font-size:0.75rem; color:var(--color-text-tertiary); margin-top:4px;">
-                            Customers at this tier or higher will be eligible.
-                        </p>
-                    </div>
-
-                    <button type="submit" class="btn btn--gold btn--block">Save Promotion</button>
-
-                </form>
-            </div>
-        </div>
-
-
-        <!-- =================================================================== -->
-        <!-- MODALS: EDIT PROMOTION (one per promotion)                          -->
-        <!-- =================================================================== -->
-        <c:forEach var="promo" items="${promotionList}">
-            <div id="editModal_${promo.promotionID}" class="tier-modal-overlay">
-                <div class="glass-panel tier-modal-box">
-
-                    <div class="tier-modal-header">
-                        <h3>Edit Promotion</h3>
-                        <button type="button" class="tier-modal-close"
-                                onclick="document.getElementById('editModal_${promo.promotionID}').style.display = 'none';">&#10005;</button>
-                    </div>
-
-                    <form action="PromotionManagementController?action=editPromotion" method="POST">
-                        <input type="hidden" name="promotionID" value="${promo.promotionID}">
-
-                        <div class="tier-form-group">
-                            <label>Promotion Name *</label>
-                            <input type="text" name="promotionName" value="${promo.promotionName}" required maxlength="100">
-                        </div>
-
-                        <div class="tier-form-group">
-                            <label>Description</label>
-                            <input type="text" name="description" value="${promo.description}" maxlength="255">
-                        </div>
-
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-md);">
-                            <div class="tier-form-group">
-                                <label>Discount Percent (%)</label>
-                                <input type="number" name="discountPercent" min="0" max="100" step="0.1" value="${promo.discountPercent}">
-                            </div>
-                            <div class="tier-form-group">
-                                <label>Bonus Points</label>
-                                <input type="number" name="bonusPoints" min="0" step="1" value="${promo.bonusPoints}">
-                            </div>
-                        </div>
-
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-md);">
-                            <div class="tier-form-group">
-                                <label>Start Date *</label>
-                                <input type="date" name="startDate" value="${promo.startDate}" required>
-                            </div>
-                            <div class="tier-form-group">
-                                <label>End Date *</label>
-                                <input type="date" name="endDate" value="${promo.endDate}" required>
-                            </div>
-                        </div>
-
-                        <div class="tier-form-group">
-                            <label>Target Type</label>
-                            <select name="targetType" class="form-group__select form-group__input"
-                                    onchange="toggleTierSelection(this.value, 'tierSelectionBox_${promo.promotionID}')">
-                                <option value="ALL" <c:if test="${promo.targetType == 'ALL'}">selected</c:if>>All Customers</option>
-                                <option value="TIER_ONLY" <c:if test="${promo.targetType == 'TIER_ONLY'}">selected</c:if>>Specific Tiers</option>
-                                <option value="LOW_ENGAGEMENT" <c:if test="${promo.targetType == 'LOW_ENGAGEMENT'}">selected</c:if>>Low Engagement</option>
-                                </select>
-                            </div>
-
-                        <c:set var="curMinTier" value="${promotionMinTierMap[promo.promotionID]}"/>
-                        <div class="tier-form-group" id="tierSelectionBox_${promo.promotionID}"
-                             style="display: ${promo.targetType == 'TIER_ONLY' ? 'block' : 'none'};">
-                            <label>Minimum Tier Required</label>
-                            <select name="minTierID" class="form-group__select form-group__input">
-                                <option value="1" <c:if test="${curMinTier == 1}">selected</c:if>>Member</option>
-                                <option value="2" <c:if test="${curMinTier == 2}">selected</c:if>>Silver</option>
-                                <option value="3" <c:if test="${curMinTier == 3}">selected</c:if>>Gold</option>
-                                <option value="4" <c:if test="${curMinTier == 4}">selected</c:if>>Platinum</option>
-                                </select>
-                                <p style="font-size:0.75rem; color:var(--color-text-tertiary); margin-top:4px;">
-                                    Customers at this tier or higher will be eligible.
-                                </p>
-                            </div>
-
-                            <div class="tier-form-group">
-                                <label>Status</label>
-                                <select name="status" class="form-group__select form-group__input">
-                                    <option value="on" <c:if test="${promo.status}">selected</c:if>>Active</option>
-                                <option value="off" <c:if test="${!promo.status}">selected</c:if>>Inactive</option>
-                                </select>
-                            </div>
-
-                            <button type="submit" class="btn btn--gold btn--block">Save Changes</button>
-
-                        </form>
-                    </div>
-                </div>
-        </c:forEach>
-
-
-        <!-- =================================================================== -->
-        <!-- MODALS: GRANT PROMOTION (one per low-engagement customer)           -->
-        <!-- =================================================================== -->
-        <c:forEach var="targetCust" items="${lowEngagementCustomer}">
-            <div id="assignModal_${targetCust.customerID}" class="tier-modal-overlay">
-                <div class="glass-panel tier-modal-box">
-
-                    <div class="tier-modal-header">
-                        <h3>Grant Promotion to Customer</h3>
-                        <button type="button" class="tier-modal-close"
-                                onclick="document.getElementById('assignModal_${targetCust.customerID}').style.display = 'none';">&#10005;</button>
-                    </div>
-
-                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); border-radius: var(--radius-md); background: rgba(255,255,255,0.03); border: 1px solid var(--color-border);">
-                        <div style="font-size:0.75rem; color:var(--color-text-tertiary); text-transform:uppercase;">Customer</div>
-                        <div style="font-weight:600; margin-top:2px;">${targetCust.customerName}</div>
-                        <div style="font-size:0.85rem; color:var(--color-accent-orange); margin-top:4px;">
-                            Last booking:
-                            <c:choose>
-                                <c:when test="${empty targetCust.lastBookingDate}">Never booked</c:when>
-                                <c:otherwise><fmt:formatDate value="${targetCust.lastBookingDate}" pattern="dd/MM/yyyy"/></c:otherwise>
-                            </c:choose>
-                        </div>
-                    </div>
-
-                    <form action="PromotionManagementController?action=assignPromotion" method="POST">
-                        <input type="hidden" name="customerID" value="${targetCust.customerID}">
-
-                        <div class="tier-form-group">
-                            <label>Promotion to Grant *</label>
-                            <select name="promotionID" class="form-group__select form-group__input" required>
-                                <option value="" disabled selected>-- Select a promotion --</option>
-                                <c:forEach var="promo" items="${promotionList}">
-                                    <c:if test="${promo.status}">
-                                        <option value="${promo.promotionID}">
-                                            ${promo.promotionName} (<fmt:formatNumber value="${promo.discountPercent}" maxFractionDigits="1"/>% off)
-                                        </option>
-                                    </c:if>
-                                </c:forEach>
-                            </select>
-                        </div>
-
-                        <div class="tier-form-group">
-                            <label>Reason / Notes</label>
-                            <input type="text" name="notes" maxlength="255" value="Win-back offer !">
-                        </div>
-
-                        <button type="submit" class="btn btn--gold btn--block">Grant Promotion</button>
-
-                    </form>
-                </div>
-            </div>
-        </c:forEach>
+        <!-- Popup flash message -->
+        <script>
+            document.querySelectorAll('.flash-message').forEach(function (el) {
+                setTimeout(function () {
+                    el.classList.add('flash-hide');
+                    setTimeout(function () {
+                        el.remove();
+                    }, 400);
+                }, 5000);
+            });
+        </script>
 
     </body>
 </html>
