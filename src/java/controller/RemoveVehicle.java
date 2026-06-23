@@ -36,12 +36,9 @@ public class RemoveVehicle extends HttpServlet {
                 = Integer.parseInt(
                         request.getParameter("vehicleID"));
 
-        VehicleDAO dao
-                = new VehicleDAO();
+        VehicleDAO dao = new VehicleDAO();
 
-        int result
-                = dao.softDeleteVehicle(
-                        vehicleId);
+        int result = dao.softDeleteVehicle(vehicleId);
 
         if (result > 0) {
 
