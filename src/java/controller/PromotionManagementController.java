@@ -1,9 +1,11 @@
 package controller;
 
+import dao.CustomerDAO;
 import dao.CustomerPromotionDAO;
 import dao.PromotionDAO;
 import dao.PromotionTierDAO;
 import dto.Admin;
+import dto.Customer;
 import dto.CustomerPromotion;
 import dto.Promotion;
 import java.io.IOException;
@@ -74,17 +76,11 @@ public class PromotionManagementController extends HttpServlet {
             else if ("showAssignPromotion".equals(action)) {
                 int customerID = Integer.parseInt(request.getParameter("customerID"));
 
-                List<CustomerPromotion> lowEngagementCustomer = customerPromotionDAO.getLowEngagementCustomers();
-                CustomerPromotion targetCust = null;
-                for (CustomerPromotion c : lowEngagementCustomer) {
-                    if (c.getCustomerID() == customerID) {
-                        targetCust = c;
-                        break;
-                    }
-                }
+                dao.CustomerDAO customerDAO = new dao.CustomerDAO();
+                dto.Customer targetCust = customerDAO.getCustomer(customerID);
 
                 if (targetCust == null) {
-                    session.setAttribute("PROMO_ERR", "Customer not found in low engagement list.");
+                    session.setAttribute("PROMO_ERR", "Customer not found.");
                     response.sendRedirect("MainController?action=viewPromotionManagement");
                     return;
                 }
@@ -233,6 +229,8 @@ public class PromotionManagementController extends HttpServlet {
             List<Promotion> promotionList = promotionDAO.getAllPromotions();
             List<CustomerPromotion> assignments = customerPromotionDAO.getAllAssignments();
             List<CustomerPromotion> lowEngagementCustomer = customerPromotionDAO.getLowEngagementCustomers();
+            CustomerDAO customerDAO = new dao.CustomerDAO();
+            List<Customer> topCustomersByPoints = customerDAO.getTopCustomersByPoints(5);
 
             int activeCount = 0;
             for (Promotion p : promotionList) {
@@ -240,6 +238,7 @@ public class PromotionManagementController extends HttpServlet {
                     activeCount++;
                 }
             }
+
             //  Build map promotionID -> selected tierIDs
             PromotionTierDAO tierDAO = new PromotionTierDAO();
             java.util.Map<Integer, Integer> promotionMinTierMap = new java.util.HashMap<>();
@@ -265,6 +264,7 @@ public class PromotionManagementController extends HttpServlet {
             request.setAttribute("promotionList", promotionList);
             request.setAttribute("assignedPromotions", assignments);
             request.setAttribute("lowEngagementCustomer", lowEngagementCustomer);
+            request.setAttribute("topCustomersByPoints", topCustomersByPoints);
 
             // Forward
             request.getRequestDispatcher("/admin/promotion-management.jsp").forward(request, response);

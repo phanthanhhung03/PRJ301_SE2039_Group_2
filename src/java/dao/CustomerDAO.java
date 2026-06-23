@@ -921,7 +921,7 @@ public class CustomerDAO {
                 result.setStatus(rs.getBoolean("Status"));
                 result.setCreatedAt(rs.getDate("CreatedAt"));
                 result.setVehicleCount(rs.getInt("VehicleCount"));
-                
+
                 // CustomerTier
                 CustomerTier tier = new CustomerTier();
 
@@ -1093,4 +1093,98 @@ public class CustomerDAO {
         return list;
     }
 
+    // Map<TierID, TotalRevenue> - tổng doanh thu (TotalSpend) theo từng Tier
+    public Map<Integer, Double> getRevenueByTier() {
+        Map<Integer, Double> result = new HashMap<>();
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT TierID, SUM(TotalSpend) AS TierRevenue "
+                        + "FROM Customers "
+                        + "GROUP BY TierID";
+
+                st = cn.prepareStatement(sql);
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+                    result.put(rs.getInt("TierID"), rs.getDouble("TierRevenue"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+    
+  // Top khách hàng có điểm cao nhất hiện tại
+    public List<Customer> getTopCustomersByPoints(int limit) {
+        List<Customer> list = new ArrayList<>();
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT TOP (?) c.*, t.TierName, t.PriorityLevel, t.DiscountPercent AS TierDiscount "
+                        + "FROM Customers c "
+                        + "JOIN CustomerTiers t ON c.TierID = t.TierID "
+                        + "WHERE c.Status = 1 "
+                        + "ORDER BY c.CurrentPoints DESC";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, limit);
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+                    Customer c = new Customer();
+                    c.setCusId(rs.getInt("CustomerID"));
+                    c.setFullName(rs.getString("FullName"));
+                    c.setCurrentPoint(rs.getInt("CurrentPoints"));
+
+                    CustomerTier tier = new CustomerTier();
+                    tier.setTierID(rs.getInt("TierID"));
+                    tier.setTierName(rs.getString("TierName"));
+                    c.setTierId(tier);
+
+                    list.add(c);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
+    }
 }
