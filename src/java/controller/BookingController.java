@@ -192,6 +192,14 @@
 
                     if (isSuccess) {
                         user.setTotalBooking(user.getTotalBooking() + 1);
+
+                        // Nếu booking có sử dụng promotion, đánh dấu IsUsed = 1 trong bảng CustomerPromotions
+                        // để lần sau không hiện promotion này nữa cho khách hàng này
+                        if (promoID != 0) {
+                            dao.CustomerPromotionDAO cpDao = new dao.CustomerPromotionDAO();
+                            cpDao.markAsUsed(user.getCusId(), promoID);
+                        }
+
                         session.setAttribute("MSG", "Booking created successfully!"); 
                         response.sendRedirect("MainController?action=viewDashBoard");
                     } else {

@@ -46,25 +46,18 @@ public class AdminBookingController extends HttpServlet {
 
                 if (isUpdated && oldBooking != null) {
                     double amount = oldBooking.getFinalAmount();
-                    
-                    // --- XÉT DUYỆT 4 LUỒNG SIÊU ĐƠN GIẢN (CỐ ĐỊNH 20 ĐIỂM) ---
+
+                    // Chỉ xử lý điểm/tiền cho 2 luồng từ Pending
                     if ("Pending".equals(oldStatus) && "Completed".equals(newStatus)) {
                         // Chờ xử lý -> Hoàn thành: Cộng tiền, cộng điểm thưởng, +1 lượt rửa
                         cDao.updateCustomerAfterCompleted(customerID, bID, amount);
-                    } 
-                    else if ("Pending".equals(oldStatus) && "Cancelled".equals(newStatus)) {
+                        cDao.checkAndUpdateTier(customerID);
+                    } else if ("Pending".equals(oldStatus) && "Cancelled".equals(newStatus)) {
                         // Chờ xử lý -> Hủy: Trừ thẳng 20đ phạt cố định, +1 lượt rửa
                         cDao.updateCustomerAfterCancelled(customerID);
+                        cDao.checkAndUpdateTier(customerID);
                     }
-                    else if ("Completed".equals(oldStatus) && "Cancelled".equals(newStatus)) {
-                        // Hoàn thành -> Hủy: Thu hồi tiền, thu hồi điểm thưởng, trừ tiếp 20đ phạt
-                        cDao.revertCompletedBooking(customerID, amount);
-                    }
-                    else if ("Cancelled".equals(oldStatus) && "Completed".equals(newStatus)) {
-                        // Hủy -> Hoàn thành: Cộng lại tiền, cộng điểm thưởng, trả lại 20đ phạt cũ
-                        cDao.restoreCancelledToCompleted(customerID, amount); 
-                    }
-                    cDao.checkAndUpdateTier(customerID);
+                    // Không xử lý điểm/tiền cho Completed->Cancelled và Cancelled->Completed
                 }
                 
                 response.sendRedirect("MainController?action=viewAdminBookings");

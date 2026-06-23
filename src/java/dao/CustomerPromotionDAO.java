@@ -52,6 +52,49 @@ public class CustomerPromotionDAO {
         return result;
     }
 
+    // Đánh dấu promotion đã được sử dụng bởi customer
+    // Bước 1: Thử UPDATE nếu đã có record trong CustomerPromotions
+    // Bước 2: Nếu chưa có record thì INSERT mới với IsUsed = 1
+    public boolean markAsUsed(int customerID, int promotionID) {
+        Connection cn = null;
+        PreparedStatement st = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                // Bước 1: Thử UPDATE record có sẵn
+                String updateSql = "UPDATE CustomerPromotions "
+                        + "SET IsUsed = 1, UsedDate = GETDATE() "
+                        + "WHERE CustomerID = ? AND PromotionID = ? AND IsDeleted = 0";
+                st = cn.prepareStatement(updateSql);
+                st.setInt(1, customerID);
+                st.setInt(2, promotionID);
+                int updated = st.executeUpdate();
+                st.close();
+
+                // Bước 2: Nếu không có record nào được UPDATE thì INSERT mới
+                if (updated == 0) {
+                    String insertSql = "INSERT INTO CustomerPromotions "
+                            + "(CustomerID, PromotionID, AssignedDate, IsUsed, UsedDate, Notes) "
+                            + "VALUES (?, ?, GETDATE(), 1, GETDATE(), 'Auto-recorded: used in booking')";
+                    st = cn.prepareStatement(insertSql);
+                    st.setInt(1, customerID);
+                    st.setInt(2, promotionID);
+                    st.executeUpdate();
+                }
+
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeAll(cn, st, null);
+        }
+
+        return false;
+    }
+
+
     // Revoke an assignment
     public int revokeAssignment(int customerPromotionID) {
 
