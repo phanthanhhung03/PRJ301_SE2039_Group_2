@@ -3225,3 +3225,8 @@ button, input, select, textarea {
         transform: translateY(0) scale(1);
     }
 }
+
+.form-group__input option {
+    background-color: #1e1f26;
+    color: #ffffff;
+}

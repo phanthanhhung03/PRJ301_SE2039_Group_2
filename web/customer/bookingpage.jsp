@@ -32,7 +32,7 @@
     // Gọi DAO để lấy danh sách voucher hợp lệ của Tier này
     // Giả sử em có PromotionDAO và hàm getVouchersByTier
     PromotionDAO pDao = new PromotionDAO();
-    List<Promotion> myVouchers = pDao.getActiveVouchersByTier(currentUser.getTierId().getTierID()); 
+    List<Promotion> myVouchers = pDao.getActiveVouchersByTier(currentUser.getTierId().getTierID());
     request.setAttribute("VOUCHER_LIST", myVouchers);
 %>
 <!DOCTYPE html>
@@ -72,22 +72,34 @@
                         <input type="hidden" name="action" value="createBookingProcess">
                         <input type="hidden" id="tierDiscountPercent" value="${sessionScope.USER.tierId.discountPercent}">
                         <input type="hidden" id="tierPointMultiplier" value="${sessionScope.USER.tierId.pointMultiplier}">
-                         <h2 class="booking-page__step-title">Step 1: Vehicle & Schedule</h2>
-                    
-                    <div class="form-group">
-                        <label for="vehicleSelect" class="form-group__label">Select Your Vehicle</label>
-                        <div class="form-group__input-wrapper">
-                            <select id="vehicleSelect" name="vehicleID" class="form-group__input form-group__select" required>
-                                <option value="" disabled selected>-- Choose a registered vehicle --</option>
-                                <c:forEach items="${VEHICLE_LIST}" var="car">
-                                    <option value="${car.vehicleID}" data-name="${car.licensePlate} - ${car.model}">
-                                        ${car.licensePlate} - ${car.brand} ${car.model} (${car.color})
+                        <h2 class="booking-page__step-title">Step 1: Vehicle & Schedule</h2>
+
+                        <div class="form-group">
+                            <label for="vehicleSelect" class="form-group__label">Select Your Vehicle</label>
+                            <div class="form-group__input-wrapper">
+                                <select id="vehicleSelect"
+                                        name="vehicleID"
+                                        class="form-group__input form-group__select"
+                                        required>
+
+                                    <option value="">
+                                        -- Choose a registered vehicle --
                                     </option>
-                                </c:forEach>
-                            </select>
+
+                                    <c:forEach items="${VEHICLE_LIST}" var="car">
+
+                                        <option value="${car.vehicleID}"
+                                                ${not empty VEHICLE && car.vehicleID == VEHICLE.vehicleID ? 'selected' : ''}>
+
+                                            ${car.licensePlate} - ${car.brand} ${car.model} (${car.color})
+
+                                        </option>
+
+                                    </c:forEach>
+                                </select>
+                            </div>
+                            <a href="${pageContext.request.contextPath}/MainController?action=viewAddVehicle" class="booking-page__add-link">+ Register a new vehicle</a>
                         </div>
-                        <a href="${pageContext.request.contextPath}/MainController?action=viewAddVehicle" class="booking-page__add-link">+ Register a new vehicle</a>
-                    </div>
 
                         <div class="grid-cols-2">
                             <div class="form-group">

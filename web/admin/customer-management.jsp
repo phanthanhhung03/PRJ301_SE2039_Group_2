@@ -89,47 +89,106 @@
             </div>
 
             <!-- SEARCH & FILTER TOOLBAR -->
-            <section class="glass-panel" style="padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); flex-wrap: wrap;">
+            <section class="glass-panel" style="padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); display: block; align-items: center; justify-content: space-between; gap: var(--spacing-md); flex-wrap: wrap;">
 
-                <!-- Search Form -->
-                <form action="MainController" method="POST" style="display:flex; gap:var(--spacing-sm); flex-grow:1; max-width: 500px;">
-                    <input type="hidden" name="action" value="viewCustomerManagement">
-                    <input type="text" 
-                           class="form-group__input" 
-                           value="${param.search}"
-                           name="search"
-                           placeholder="Search by name, email, phone..." 
-                           style="padding: 0.6rem 1.0rem; font-size: 0.85rem;">
-                    <button class="btn btn--primary btn--sm" style="padding:0.6rem 1.2rem;">
-                        Search
-                    </button>
+                <form id="customerFilterForm"
+                      action="ADManagementCustomer"
+                      method="POST"
+                      style="display:flex; justify-content:space-between; align-items:center; gap:var(--spacing-md);">
+
+                    <input type="hidden" name="action" value="viewCustomers">
+
+                    <!-- Search -->
+                    <div style="display:flex; gap:var(--spacing-sm); flex-grow:1; max-width:500px;">
+
+                        <input type="text"
+                               class="form-group__input"
+                               name="search"
+                               value="${param.search}"
+                               placeholder="Search by name, email, phone..."
+                               style="padding:0.6rem 1rem; font-size:0.85rem;">
+
+                        <button type="submit"
+                                class="btn btn--primary btn--sm"
+                                style="padding:0.6rem 1.2rem;">
+                            Search
+                        </button>
+
+                    </div>
+
+                    <!-- Filters -->
+                    <div style="display:flex; gap:var(--spacing-md); align-items:center;">
+
+                        <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
+                            <span style="font-size:0.8rem; font-weight:600; text-transform:uppercase; color:var(--color-text-tertiary);">
+                                Tier:
+                            </span>
+
+                            <select id="tierFilter"
+                                    name="tier"
+                                    class="form-group__input"
+                                    style="padding:0.5rem 2rem 0.5rem 1rem; font-size:0.85rem; width:auto;">
+
+                                <option value="all"
+                                        ${empty param.tier || param.tier == 'all' ? 'selected' : ''}>
+                                    All Tiers
+                                </option>
+
+                                <option value="PLATINUM"
+                                        ${param.tier == 'PLATINUM' ? 'selected' : ''}>
+                                    Platinum
+                                </option>
+
+                                <option value="GOLD"
+                                        ${param.tier == 'GOLD' ? 'selected' : ''}>
+                                    Gold
+                                </option>
+
+                                <option value="SILVER"
+                                        ${param.tier == 'SILVER' ? 'selected' : ''}>
+                                    Silver
+                                </option>
+
+                                <option value="MEMBER"
+                                        ${param.tier == 'MEMBER' ? 'selected' : ''}>
+                                    Member
+                                </option>
+
+                            </select>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
+
+                            <span style="font-size:0.8rem; font-weight:600; text-transform:uppercase; color:var(--color-text-tertiary);">
+                                Status:
+                            </span>
+
+                            <select id="statusFilter"
+                                    name="status"
+                                    class="form-group__input"
+                                    style="padding:0.5rem 2rem 0.5rem 1rem; font-size:0.85rem; width:auto;">
+
+                                <option value="all"
+                                        ${empty param.status || param.status == 'all' ? 'selected' : ''}>
+                                    All Statuses
+                                </option>
+
+                                <option value="ACTIVE"
+                                        ${param.status == 'ACTIVE' ? 'selected' : ''}>
+                                    Active
+                                </option>
+
+                                <option value="INACTIVE"
+                                        ${param.status == 'INACTIVE' ? 'selected' : ''}>
+                                    Inactive
+                                </option>
+
+                            </select>
+                        </div>
+
+                    </div>
+
                 </form>
-
-                <!-- Filters Selects -->
-                <div style="display:flex; gap:var(--spacing-md); align-items:center;">
-                    <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
-                        <span style="font-size:0.8rem; font-weight:600; text-transform:uppercase; color:var(--color-text-tertiary);">
-                            Tier:
-                        </span>
-                        <select disabled="" class="form-group__input" style="padding: 0.5rem 2.0rem 0.5rem 1.0rem; font-size:0.85rem; width: auto; background-color: var(--color-surface-hover); cursor: pointer;">
-                            <option value="all">All Tiers</option>
-                            <option value="vip">Platinum</option>
-                            <option value="signature">Gold</option>
-                            <option value="elite">Silver</option>
-                            <option value="none">Member</option>
-                        </select>
-                    </div>
-
-                    <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
-                        <span style="font-size:0.8rem; font-weight:600; text-transform:uppercase; color:var(--color-text-tertiary);">Status:</span>
-                        <select disabled="" class="form-group__input" style="padding: 0.5rem 2.0rem 0.5rem 1.0rem; font-size:0.85rem; width: auto; background-color: var(--color-surface-hover); cursor: pointer;">
-                            <option value="all">All Statuses</option>
-                            <option value="active">Active Members</option>
-                            <option value="suspended">Suspended</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div>
-                </div>
             </section>
 
             <!-- CUSTOMERS DATA TABLE -->
@@ -282,6 +341,16 @@
                 }, 3000);
 
             });
+
+            document.getElementById("tierFilter")
+                    .addEventListener("change", function () {
+                        document.getElementById("customerFilterForm").submit();
+                    });
+
+            document.getElementById("statusFilter")
+                    .addEventListener("change", function () {
+                        document.getElementById("customerFilterForm").submit();
+                    });
         </script>
     </body>
 </html>
