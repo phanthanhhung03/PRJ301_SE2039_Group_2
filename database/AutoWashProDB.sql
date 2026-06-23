@@ -1,5 +1,3 @@
-CREATE DATABASE AutoWashProDB;
-GO
 
 USE AutoWashProDB;
 GO

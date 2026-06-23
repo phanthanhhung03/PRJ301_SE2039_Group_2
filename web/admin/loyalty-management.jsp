@@ -141,7 +141,7 @@
                                 ${tier.discountPercent}% discount
                             </div>
 
-                            <a href="MainController?action=showConfigureTier&tierID=${tier.tierID}"
+                            <a href="MainController?action=showConfigureTier"
                                class="btn btn--secondary btn--sm btn--block">
                                 Configure Tier
                             </a>
