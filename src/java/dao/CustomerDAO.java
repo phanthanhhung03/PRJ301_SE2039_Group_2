@@ -1005,7 +1005,7 @@ public class CustomerDAO {
         return result;
     }
 
-    public List<Customer> searchCustomer(String keyword) {
+    public List<Customer> filterCustomers(String keyword, String tier, String status) {
 
         List<Customer> list = new ArrayList<>();
 
@@ -1019,43 +1019,66 @@ public class CustomerDAO {
 
             if (cn != null) {
 
-                String sql
-                        = "    SELECT DISTINCT\n"
-                        + "    c.CustomerID,\n"
-                        + "    c.FullName,\n"
-                        + "    c.PhoneNumber,\n"
-                        + "    c.Email,\n"
-                        + "    c.Address,\n"
-                        + "    c.CurrentPoints,\n"
-                        + "    c.TotalBookings,\n"
-                        + "    c.TotalSpend,\n"
-                        + "    c.Status,\n"
-                        + "    c.CreatedAt,\n"
-                        + "    t.TierID,\n"
-                        + "    t.TierName,\n"
-                        + "    (\n"
-                        + "        SELECT COUNT(*)\n"
-                        + "        FROM Vehicles v2\n"
-                        + "        WHERE v2.CustomerID = c.CustomerID\n"
-                        + "    ) AS VehicleCount\n"
-                        + "FROM Customers c\n"
-                        + "INNER JOIN CustomerTiers t\n"
-                        + "    ON c.TierID = t.TierID\n"
-                        + "LEFT JOIN Vehicles v\n"
-                        + "    ON v.CustomerID = c.CustomerID\n"
-                        + "WHERE c.FullName LIKE ?\n"
-                        + "   OR c.Email LIKE ?\n"
-                        + "   OR c.PhoneNumber LIKE ?\n"
-                        + "   OR v.LicensePlate LIKE ?\n"
-                        + "ORDER BY c.CustomerID DESC";
+                StringBuilder sql = new StringBuilder();
+                sql.append("SELECT "
+                        + "c.CustomerID, "
+                        + "c.FullName, "
+                        + "c.PhoneNumber, "
+                        + "c.Email, "
+                        + "c.Address, "
+                        + "c.CurrentPoints, "
+                        + "c.TotalBookings, "
+                        + "c.TotalSpend, "
+                        + "c.Status, "
+                        + "c.CreatedAt, "
+                        + "t.TierID, "
+                        + "t.TierName, "
+                        + "("
+                        + "    SELECT COUNT(*) "
+                        + "    FROM Vehicles v2 "
+                        + "    WHERE v2.CustomerID = c.CustomerID"
+                        + ") AS VehicleCount "
+                        + "FROM Customers c "
+                        + "INNER JOIN CustomerTiers t "
+                        + "ON c.TierID = t.TierID "
+                        + "WHERE 1 = 1 ");
 
-                st = cn.prepareStatement(sql);
-                String search = "%" + keyword + "%";
-                st.setString(1, search);
-                st.setString(2, search);
-                st.setString(3, search);
-                st.setString(4, search);
+                List<Object> params = new ArrayList<>();
 
+                //Search
+                if (keyword != null && !keyword.trim().isEmpty()) {
+                    sql.append("AND ("
+                            + "c.FullName LIKE ? "
+                            + "OR c.Email LIKE ? "
+                            + "OR c.PhoneNumber LIKE ? "
+                            + ") ");
+
+                    String search = "%" + keyword.trim() + "%";
+                    params.add(search);
+                    params.add(search);
+                    params.add(search);
+                }
+                
+                // Tier filter
+                if (tier != null && !tier.trim().isEmpty() && !"all".equalsIgnoreCase(tier)) {
+                    sql.append("AND t.TierName = ? ");
+                    params.add(tier);
+                }
+                
+                // Status
+                if (status != null && !status.trim().isEmpty() && !"all".equalsIgnoreCase(status)) {
+                    boolean active = "ACTIVE".equalsIgnoreCase(status);
+                    sql.append("AND c.Status = ? ");
+                    params.add(active);
+                }
+
+                sql.append("ORDER BY c.CustomerID DESC");
+                st = cn.prepareStatement(sql.toString());
+                
+                for (int i = 0; i < params.size(); i++) {
+                    st.setObject(i+1, params.get(i));
+                }
+                
                 table = st.executeQuery();
 
                 while (table.next()) {
@@ -1072,11 +1095,11 @@ public class CustomerDAO {
                     c.setStatus(table.getBoolean("Status"));
                     c.setVehicleCount(table.getInt("VehicleCount"));
 
-                    CustomerTier tier = new CustomerTier();
-                    tier.setTierID(table.getInt("TierID"));
-                    tier.setTierName(table.getString("TierName"));
+                    CustomerTier customerTier = new CustomerTier();
+                    customerTier.setTierID(table.getInt("TierID"));
+                    customerTier.setTierName(table.getString("TierName"));
 
-                    c.setTierId(tier);
+                    c.setTierId(customerTier);
 
                     list.add(c);
                 }

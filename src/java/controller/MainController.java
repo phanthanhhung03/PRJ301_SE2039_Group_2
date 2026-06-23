@@ -82,7 +82,6 @@ public class MainController extends HttpServlet {
                             request.getParameter("vehicleId"));
 
                     VehicleDAO dao = new VehicleDAO();
-
                     Vehicle vehicle = dao.getActiveVehicleById(vehicleID);
                     request.setAttribute("VEHICLE", vehicle);
                 }

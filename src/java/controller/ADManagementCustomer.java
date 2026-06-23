@@ -18,15 +18,25 @@ public class ADManagementCustomer extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
 
         CustomerDAO customerDao = new CustomerDAO();
+
         String keyword = (String) request.getParameter("search");
+        String tier = (String) request.getParameter("tier");
+        String status = request.getParameter("status");
+
         List<Customer> customers;
-        
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            customers = customerDao.searchCustomer(keyword);
-        } else {
-            customers = customerDao.getAllCustomers();
+
+        if (keyword == null) {
+            keyword = "";
         }
-        
+        if (tier == null) {
+            tier = "all";
+        }
+        if (status == null) {
+            status = "all";
+        }
+
+        customers = customerDao.filterCustomers(keyword, tier, status);
+
         request.setAttribute("customers", customers);
         request.setAttribute("customerCount", customers.size());
         request.getRequestDispatcher("admin/customer-management.jsp")
