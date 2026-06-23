@@ -200,7 +200,7 @@
                                 <tr>
                                     <th>Tier</th>
                                     <th>Customers</th>
-                                    <th>Avg Pts/Booking</th>
+                                    <th>Avg Pts</th>
                                     <th>% Revenue</th>
                                 </tr>
                             </thead>

@@ -100,7 +100,7 @@ public class PointTransactionDAO {
     }
 
 // Map<MonthLabel, [PointsEarned, PointsDeducted]>
-public Map<String, Integer[]> getMonthlyPointsSummary(int monthsBack) {
+    public Map<String, Integer[]> getMonthlyPointsSummary(int monthsBack) {
         Map<String, Integer[]> result = new LinkedHashMap<>();
         Connection cn = null;
         PreparedStatement st = null;
@@ -149,7 +149,7 @@ public Map<String, Integer[]> getMonthlyPointsSummary(int monthsBack) {
         return result;
     }
 
-// Map<TierName, AvgPointsPerBooking>
+// Map<TierName, AvgCurrentPoints>
     public Map<String, Double> getAveragePointsByTier() {
         Map<String, Double> result = new LinkedHashMap<>();
         Connection cn = null;
@@ -161,11 +161,9 @@ public Map<String, Integer[]> getMonthlyPointsSummary(int monthsBack) {
             if (cn != null) {
                 String sql = "SELECT "
                         + "t.TierName, "
-                        + "AVG(CAST(pt.PointsChanged AS FLOAT)) AS AvgPoints "
-                        + "FROM PointTransactions pt "
-                        + "JOIN Customers c ON pt.CustomerID = c.CustomerID "
+                        + "AVG(CAST(c.CurrentPoints AS FLOAT)) AS AvgPoints "
+                        + "FROM Customers c "
                         + "JOIN CustomerTiers t ON c.TierID = t.TierID "
-                        + "WHERE pt.TransactionType = 'EARN' "
                         + "GROUP BY t.TierName, t.PriorityLevel "
                         + "ORDER BY t.PriorityLevel DESC";
 
@@ -173,7 +171,8 @@ public Map<String, Integer[]> getMonthlyPointsSummary(int monthsBack) {
                 rs = st.executeQuery();
 
                 while (rs.next()) {
-                    result.put(rs.getString("TierName"), rs.getDouble("AvgPoints"));
+                    result.put(rs.getString("TierName"),
+                            rs.getDouble("AvgPoints"));
                 }
             }
         } catch (Exception e) {
@@ -193,6 +192,7 @@ public Map<String, Integer[]> getMonthlyPointsSummary(int monthsBack) {
                 e.printStackTrace();
             }
         }
+
         return result;
     }
 }
