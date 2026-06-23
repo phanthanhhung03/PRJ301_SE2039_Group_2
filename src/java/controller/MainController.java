@@ -122,7 +122,11 @@ public class MainController extends HttpServlet {
             case "updateTier":
                 url = "/TierController";
                 break;
-
+                
+            case "showConfigureTier":
+                url = "/LoyaltyManagementController";
+                break;
+                
             case "registerVehicle":
                 url = "/vehicle/register";
                 break;

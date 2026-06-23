@@ -37,18 +37,14 @@
 
                 <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); border-radius: var(--radius-md); background: rgba(255,255,255,0.03); border: 1px solid var(--color-border);">
                     <div style="font-size:0.75rem; color:var(--color-text-tertiary); text-transform:uppercase;">Customer</div>
-                    <div style="font-weight:600; margin-top:2px;">${targetCust.customerName}</div>
-                    <div style="font-size:0.85rem; color:var(--color-accent-orange); margin-top:4px;">
-                        Last booking:
-                        <c:choose>
-                            <c:when test="${empty targetCust.lastBookingDate}">Never booked</c:when>
-                            <c:otherwise><fmt:formatDate value="${targetCust.lastBookingDate}" pattern="dd/MM/yyyy"/></c:otherwise>
-                        </c:choose>
+                    <div style="font-weight:600; margin-top:2px;">${targetCust.fullName}</div>
+                    <div style="font-size:0.85rem; color:var(--color-accent-gold); margin-top:4px;">
+                        Tier: ${targetCust.tierId.tierName} &middot; Current Points: ${targetCust.currentPoint} pts
                     </div>
                 </div>
 
                 <form action="PromotionManagementController?action=assignPromotion" method="POST">
-                    <input type="hidden" name="customerID" value="${targetCust.customerID}">
+                    <input type="hidden" name="customerID" value="${targetCust.cusId}">
 
                     <div class="tier-form-group">
                         <label>Promotion to Grant *</label>

@@ -4,9 +4,11 @@
  */
 package controller;
 
+import dao.CustomerDAO;
 import dao.CustomerTierDAO;
 import dao.PointTransactionDAO;
 import dto.Admin;
+import dto.Customer;
 import dto.CustomerTier;
 import dto.PointTransaction;
 import java.io.IOException;
@@ -47,27 +49,63 @@ public class LoyaltyManagementController extends HttpServlet {
                     + "/MainController?action=viewAdminSignIn");
             return;
         }
-        Admin admin = (Admin) session.getAttribute("ADMIN_USER");
+
+        String action = request.getParameter("action");
 
         try {
             CustomerTierDAO tierDAO = new CustomerTierDAO();
-            List<CustomerTier> tierList = tierDAO.getAllTiers();
 
+            // ------------------------------------------------------------------
+            // Hiển thị trang Configure Tier (thay cho modal)
+            // ------------------------------------------------------------------
+            if ("showConfigureTier".equals(action)) {
+                int tierID = Integer.parseInt(request.getParameter("tierID"));
+
+                CustomerTier tier = tierDAO.getTierByID(tierID);
+                if (tier == null) {
+                    session.setAttribute("TIER_ERR", "Tier not found.");
+                    response.sendRedirect("MainController?action=viewLoyaltyManagement");
+                    return;
+                }
+
+                request.setAttribute("tier", tier);
+                request.getRequestDispatcher("/admin/configure-tier.jsp").forward(request, response);
+                return;
+            }
+
+            // ------------------------------------------------------------------
+            // DEFAULT: load and display loyalty management page
+            // ------------------------------------------------------------------
+            CustomerDAO customerDAO = new CustomerDAO();
             PointTransactionDAO pointTransactionDAO = new PointTransactionDAO();
+            List<CustomerTier> tierList = tierDAO.getAllTiers();
+            Map<Integer, Integer> customerTierCountMap = tierDAO.getCustomerCountByTier();
             List<PointTransaction> transactionList = pointTransactionDAO.getRecentTransactions(50);
             Map<String, Integer[]> monthlySummary = pointTransactionDAO.getMonthlyPointsSummary(6);
             Map<String, Double> tierPointsAvgMap = pointTransactionDAO.getAveragePointsByTier();
+            Map<Integer, Double> revenueByTierMap = customerDAO.getRevenueByTier();
+            List<Customer> topCustomersByPoints = customerDAO.getTopCustomersByPoints(5);
 
-            
-            // Send Data To JSP
+            double totalRevenue = 0;
+            for (double v : revenueByTierMap.values()) {
+                totalRevenue += v;
+            }
+
             request.setAttribute("tierList", tierList);
+            request.setAttribute("customerTierCountMap", customerTierCountMap);
             request.setAttribute("transactionList", transactionList);
             request.setAttribute("monthlySummary", monthlySummary);
             request.setAttribute("tierPointsAvgMap", tierPointsAvgMap);
-            // Forward
+            request.setAttribute("revenueByTierMap", revenueByTierMap);
+            request.setAttribute("totalRevenue", totalRevenue);
+            request.setAttribute("topCustomersByPoints", topCustomersByPoints);
+
             request.getRequestDispatcher("/admin/loyalty-management.jsp").forward(request, response);
+
         } catch (Exception e) {
             e.printStackTrace();
+            session.setAttribute("TIER_ERR", "An unexpected error occurred: " + e.getMessage());
+            response.sendRedirect("MainController?action=viewLoyaltyManagement");
         }
     }
 

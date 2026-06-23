@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 @WebServlet(name = "TierController", urlPatterns = {"/TierController"})
 public class TierController extends HttpServlet {
 
@@ -31,13 +30,34 @@ public class TierController extends HttpServlet {
             // UPDATE TIER
             // =========================
             case "updateTier": {
-
                 try {
                     int tierID = Integer.parseInt(request.getParameter("tierID"));
                     int minBookings = Integer.parseInt(request.getParameter("minBookings"));
                     double minSpend = Double.parseDouble(request.getParameter("minSpend"));
                     double pointMultiplier = Double.parseDouble(request.getParameter("pointMultiplier"));
                     double discountPercent = Double.parseDouble(request.getParameter("discountPercent"));
+
+                    // ===== VALIDATE =====
+                    if (minBookings < 0) {
+                        request.getSession().setAttribute("ERROR_MESSAGE", "Minimum bookings cannot be negative.");
+                        response.sendRedirect("MainController?action=viewLoyaltyManagement");
+                        return;
+                    }
+                    if (minSpend < 0) {
+                        request.getSession().setAttribute("ERROR_MESSAGE", "Minimum spend cannot be negative.");
+                        response.sendRedirect("MainController?action=viewLoyaltyManagement");
+                        return;
+                    }
+                    if (pointMultiplier < 0) {
+                        request.getSession().setAttribute("ERROR_MESSAGE", "Point multiplier cannot be negative.");
+                        response.sendRedirect("MainController?action=viewLoyaltyManagement");
+                        return;
+                    }
+                    if (discountPercent < 0 || discountPercent > 100) {
+                        request.getSession().setAttribute("ERROR_MESSAGE", "Discount percent must be between 0 and 100.");
+                        response.sendRedirect("MainController?action=viewLoyaltyManagement");
+                        return;
+                    }
 
                     CustomerTier tier = new CustomerTier();
                     tier.setTierID(tierID);
@@ -47,18 +67,15 @@ public class TierController extends HttpServlet {
                     tier.setDiscountPercent(discountPercent);
 
                     boolean updated = tierDAO.updateTier(tier);
-
                     if (updated) {
                         request.getSession().setAttribute("SUCCESS_MESSAGE", "Update tier successfully!");
                     } else {
                         request.getSession().setAttribute("ERROR_MESSAGE", "Update tier failed!");
                     }
-
                 } catch (Exception e) {
                     request.getSession().setAttribute("ERROR_MESSAGE", "Invalid input data!");
                     e.printStackTrace();
                 }
-
                 response.sendRedirect("MainController?action=viewLoyaltyManagement");
                 return;
             }
