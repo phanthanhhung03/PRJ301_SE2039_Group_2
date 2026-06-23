@@ -474,40 +474,7 @@ public class CustomerDAO {
         }
 
         return list;
-    }
-
-    // CẬP NHẬT ĐIỂM (Dùng khi phạt hủy lịch sát giờ)
-    public boolean updateCustomerPoint(int cusID, int newPoints) {
-        boolean check = false;
-        Connection cn = null;
-        PreparedStatement st = null;
-
-        try {
-            cn = dbutils.DBUtils.getConnection();
-            if (cn != null) {
-                String sql = "UPDATE Customers SET CurrentPoints = ? WHERE CustomerID = ?";
-                st = cn.prepareStatement(sql);
-                st.setInt(1, newPoints);
-                st.setInt(2, cusID);
-
-                check = st.executeUpdate() > 0;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return check;
-    }
+    }   
 
     // ADMIN MANAGER  
     // Cong diem theo point mutipiler trong CustomerTier
@@ -806,6 +773,38 @@ public class CustomerDAO {
         }
 
         return result;
+    }
+    // ==========================================================
+    // AUTO-UPGRADE TIER: KIỂM TRA VÀ TỰ ĐỘNG NÂNG HẠNG
+    // ==========================================================
+    public boolean checkAndUpdateTier(int cusID) {
+        boolean check = false;
+        java.sql.Connection cn = null;
+        java.sql.PreparedStatement st = null;
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn != null) {
+                // SQL Server: Tự động tìm Tier cao nhất mà khách đủ điều kiện (Dựa vào Tiền HOẶC Lượt)
+                String sql = "UPDATE Customers "
+                           + "SET TierID = ( "
+                           + "    SELECT TOP 1 TierID "
+                           + "    FROM CustomerTiers "
+                           + "    WHERE Customers.TotalSpend >= MinSpend OR Customers.TotalBookings >= MinBookings "
+                           + "    ORDER BY PriorityLevel DESC "
+                           + ") "
+                           + "WHERE CustomerID = ?";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, cusID);
+                
+                check = st.executeUpdate() > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try { if (st != null) st.close(); if (cn != null) cn.close(); } catch (Exception e) {}
+        }
+        return check;
     }
 
     public int updateCustomer(int cusId, String newName, String newPhoneNumber, String newAddress) {
