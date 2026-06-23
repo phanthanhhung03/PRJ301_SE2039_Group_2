@@ -64,6 +64,7 @@ public class AdminBookingController extends HttpServlet {
                         // Hủy -> Hoàn thành: Cộng lại tiền, cộng điểm thưởng, trả lại 20đ phạt cũ
                         cDao.restoreCancelledToCompleted(customerID, amount); 
                     }
+                    cDao.checkAndUpdateTier(customerID);
                 }
                 
                 response.sendRedirect("MainController?action=viewAdminBookings");
