@@ -18,7 +18,14 @@ public class ADManagementCustomer extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
 
         CustomerDAO customerDao = new CustomerDAO();
-        List<Customer> customers = customerDao.getAllCustomers();
+        String keyword = (String) request.getParameter("search");
+        List<Customer> customers;
+        
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            customers = customerDao.searchCustomer(keyword);
+        } else {
+            customers = customerDao.getAllCustomers();
+        }
         
         request.setAttribute("customers", customers);
         request.setAttribute("customerCount", customers.size());

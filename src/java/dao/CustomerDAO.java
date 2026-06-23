@@ -1005,6 +1005,107 @@ public class CustomerDAO {
         return result;
     }
 
+    public List<Customer> searchCustomer(String keyword) {
+
+        List<Customer> list = new ArrayList<>();
+
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet table = null;
+
+        try {
+
+            cn = dbutils.DBUtils.getConnection();
+
+            if (cn != null) {
+
+                String sql
+                        = "    SELECT DISTINCT\n"
+                        + "    c.CustomerID,\n"
+                        + "    c.FullName,\n"
+                        + "    c.PhoneNumber,\n"
+                        + "    c.Email,\n"
+                        + "    c.Address,\n"
+                        + "    c.CurrentPoints,\n"
+                        + "    c.TotalBookings,\n"
+                        + "    c.TotalSpend,\n"
+                        + "    c.Status,\n"
+                        + "    c.CreatedAt,\n"
+                        + "    t.TierID,\n"
+                        + "    t.TierName,\n"
+                        + "    (\n"
+                        + "        SELECT COUNT(*)\n"
+                        + "        FROM Vehicles v2\n"
+                        + "        WHERE v2.CustomerID = c.CustomerID\n"
+                        + "    ) AS VehicleCount\n"
+                        + "FROM Customers c\n"
+                        + "INNER JOIN CustomerTiers t\n"
+                        + "    ON c.TierID = t.TierID\n"
+                        + "LEFT JOIN Vehicles v\n"
+                        + "    ON v.CustomerID = c.CustomerID\n"
+                        + "WHERE c.FullName LIKE ?\n"
+                        + "   OR c.Email LIKE ?\n"
+                        + "   OR c.PhoneNumber LIKE ?\n"
+                        + "   OR v.LicensePlate LIKE ?\n"
+                        + "ORDER BY c.CustomerID DESC";
+
+                st = cn.prepareStatement(sql);
+                String search = "%" + keyword + "%";
+                st.setString(1, search);
+                st.setString(2, search);
+                st.setString(3, search);
+                st.setString(4, search);
+
+                table = st.executeQuery();
+
+                while (table.next()) {
+
+                    Customer c = new Customer();
+
+                    c.setCusId(table.getInt("CustomerID"));
+                    c.setFullName(table.getString("FullName"));
+                    c.setPhoneNumber(table.getString("PhoneNumber"));
+                    c.setEmail(table.getString("Email"));
+                    c.setAddress(table.getString("Address"));
+                    c.setCurrentPoint(table.getInt("CurrentPoints"));
+                    c.setTotalSpend(table.getDouble("TotalSpend"));
+                    c.setStatus(table.getBoolean("Status"));
+                    c.setVehicleCount(table.getInt("VehicleCount"));
+
+                    CustomerTier tier = new CustomerTier();
+                    tier.setTierID(table.getInt("TierID"));
+                    tier.setTierName(table.getString("TierName"));
+
+                    c.setTierId(tier);
+
+                    list.add(c);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            try {
+
+                if (table != null) {
+                    table.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return list;
+    }
+
     public List<Customer> getAllCustomers() {
 
         List<Customer> list = new ArrayList<>();
@@ -1133,8 +1234,8 @@ public class CustomerDAO {
         }
         return result;
     }
-    
-  // Top khách hàng có điểm cao nhất hiện tại
+
+    // Top khách hàng có điểm cao nhất hiện tại
     public List<Customer> getTopCustomersByPoints(int limit) {
         List<Customer> list = new ArrayList<>();
         Connection cn = null;

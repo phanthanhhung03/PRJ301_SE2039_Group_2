@@ -78,25 +78,39 @@
             <!-- HEADER BLOCK -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--spacing-xl);">
                 <div>
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--color-accent-cyan); text-transform:uppercase; letter-spacing:0.1em;">Customer Registry</span>
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--color-accent-cyan); text-transform:uppercase; letter-spacing:0.1em;">
+                        Customer Registry
+                    </span>
                     <h1 style="font-size:2.0rem; margin-top:var(--spacing-xs);">Manage Members</h1>
                 </div>
-                <a href="${pageContext.request.contextPath}/MainController?action=viewCreateCustomer" class="btn btn--primary btn--sm">+ Add New Customer</a>
+                <a href="${pageContext.request.contextPath}/MainController?action=viewCreateCustomer" class="btn btn--primary btn--sm">
+                    + Add New Customer
+                </a>
             </div>
 
             <!-- SEARCH & FILTER TOOLBAR -->
             <section class="glass-panel" style="padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); flex-wrap: wrap;">
 
                 <!-- Search Form -->
-                <form action="#" method="GET" style="display:flex; gap:var(--spacing-sm); flex-grow:1; max-width: 500px;" onsubmit="return false;">
-                    <input type="text" class="form-group__input" placeholder="Search by name, email, phone or plate..." style="padding: 0.6rem 1.0rem; font-size: 0.85rem;">
-                    <button class="btn btn--primary btn--sm" style="padding:0.6rem 1.2rem;">Search</button>
+                <form action="MainController" method="POST" style="display:flex; gap:var(--spacing-sm); flex-grow:1; max-width: 500px;">
+                    <input type="hidden" name="action" value="viewCustomerManagement">
+                    <input type="text" 
+                           class="form-group__input" 
+                           value="${param.search}"
+                           name="search"
+                           placeholder="Search by name, email, phone..." 
+                           style="padding: 0.6rem 1.0rem; font-size: 0.85rem;">
+                    <button class="btn btn--primary btn--sm" style="padding:0.6rem 1.2rem;">
+                        Search
+                    </button>
                 </form>
 
                 <!-- Filters Selects -->
                 <div style="display:flex; gap:var(--spacing-md); align-items:center;">
                     <div style="display:flex; align-items:center; gap:var(--spacing-sm);">
-                        <span style="font-size:0.8rem; font-weight:600; text-transform:uppercase; color:var(--color-text-tertiary);">Tier:</span>
+                        <span style="font-size:0.8rem; font-weight:600; text-transform:uppercase; color:var(--color-text-tertiary);">
+                            Tier:
+                        </span>
                         <select disabled="" class="form-group__input" style="padding: 0.5rem 2.0rem 0.5rem 1.0rem; font-size:0.85rem; width: auto; background-color: var(--color-surface-hover); cursor: pointer;">
                             <option value="all">All Tiers</option>
                             <option value="vip">Platinum</option>
