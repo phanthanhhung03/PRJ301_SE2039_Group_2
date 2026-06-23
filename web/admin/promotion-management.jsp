@@ -270,55 +270,6 @@
                     </table>
                 </div>
             </section>
-            <!-- ===== TOP CUSTOMERS BY POINTS ===== -->
-            <div style="margin-bottom:var(--spacing-md);">
-                <h3 style="font-size:1.2rem;">Top Customers by Points</h3>
-                <p style="font-size:0.85rem; color:var(--color-text-tertiary);">
-                    Customers with the highest current points. Consider rewarding loyalty with a promotion.
-                </p>
-            </div>
-
-            <section class="glass-panel" style="border-radius: var(--radius-xl); overflow: hidden; margin-bottom: var(--spacing-xl);">
-                <div class="data-table-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Customer</th>
-                                <th>Tier</th>
-                                <th>Current Points</th>
-                                <th style="text-align: right;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            <c:if test="${empty topCustomersByPoints}">
-                                <tr>
-                                    <td colspan="4" style="text-align:center; padding: var(--spacing-xl); color: var(--color-text-tertiary); font-style:italic;">
-                                        No customer data found.
-                                    </td>
-                                </tr>
-                            </c:if>
-
-                            <c:forEach var="topCust" items="${topCustomersByPoints}">
-                                <tr>
-                                    <td style="font-weight:600;">${topCust.fullName}</td>
-                                    <td>
-                                        <span class="status-badge status-badge--${fn:toLowerCase(topCust.tierId.tierName)}">${topCust.tierId.tierName}</span>
-                                    </td>
-                                    <td style="font-weight:700; color:var(--color-accent-gold);">${topCust.currentPoint} pts</td>
-                                    <td style="text-align: right;">
-                                        <a href="MainController?action=showAssignPromotion&customerID=${topCust.cusId}" class="btn btn--gold btn--sm">
-                                            Grant Promotion
-                                        </a>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
             <!-- ===== ASSIGNMENT LOG ===== -->
             <section class="glass-panel" style="padding: var(--spacing-xl); border-radius: var(--radius-xl); margin-bottom: var(--spacing-xl);">
                 <h2 style="font-size:1.25rem; margin-bottom:var(--spacing-lg);">Promotion Assignment Log</h2>

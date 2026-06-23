@@ -229,8 +229,6 @@ public class PromotionManagementController extends HttpServlet {
             List<Promotion> promotionList = promotionDAO.getAllPromotions();
             List<CustomerPromotion> assignments = customerPromotionDAO.getAllAssignments();
             List<CustomerPromotion> lowEngagementCustomer = customerPromotionDAO.getLowEngagementCustomers();
-            CustomerDAO customerDAO = new dao.CustomerDAO();
-            List<Customer> topCustomersByPoints = customerDAO.getTopCustomersByPoints(5);
 
             int activeCount = 0;
             for (Promotion p : promotionList) {
@@ -264,7 +262,6 @@ public class PromotionManagementController extends HttpServlet {
             request.setAttribute("promotionList", promotionList);
             request.setAttribute("assignedPromotions", assignments);
             request.setAttribute("lowEngagementCustomer", lowEngagementCustomer);
-            request.setAttribute("topCustomersByPoints", topCustomersByPoints);
 
             // Forward
             request.getRequestDispatcher("/admin/promotion-management.jsp").forward(request, response);
