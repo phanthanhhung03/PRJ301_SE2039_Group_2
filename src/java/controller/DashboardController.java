@@ -96,7 +96,7 @@ public class DashboardController extends HttpServlet {
         double progressPercent = 100;
         int remainingPoints = 0;
 
-        int currentPoints = (int) Math.ceil(currentSpend / 1000.0);
+        int currentPoints = user.getCurrentPoint();
 
         boolean isMaxTier = "Platinum".equals(tierName);
         if (!isMaxTier) {
