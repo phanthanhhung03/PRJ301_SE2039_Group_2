@@ -3130,3 +3130,98 @@ button, input, select, textarea {
     text-decoration: underline;
     opacity: 0.85;
 }
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+}
+
+/* Show Modal */
+.modal-overlay--show {
+    display: flex;
+}
+
+/* Modal Box */
+.modal-content {
+    width: 500px;
+    max-width: 90%;
+
+    background: #1e1e24;
+    border-radius: 12px;
+    padding: 24px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+}
+
+.modal-title {
+    margin: 0 0 16px;
+
+    font-size: 1.4rem;
+    font-weight: 700;
+
+    color: #ffffff;
+}
+
+.modal-desc {
+    margin-bottom: 28px;
+
+    line-height: 1.7;
+    color: #b0b3bd;
+
+    font-size: 0.95rem;
+}
+
+.modal-desc strong {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Danger Button */
+
+.btn--danger {
+    background: #dc3545;
+    color: white;
+    border: none;
+
+    transition: all .2s ease;
+}
+
+.btn--danger:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.btn--danger:active {
+    transform: translateY(0);
+}
+
+/* Animation */
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
