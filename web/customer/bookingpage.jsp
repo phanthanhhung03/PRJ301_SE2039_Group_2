@@ -29,10 +29,10 @@
             maxAdvanceDays = 14;
         }
     }
-    // Gọi DAO để lấy danh sách voucher hợp lệ của Tier này
-    // Giả sử em có PromotionDAO và hàm getVouchersByTier
+    // Gọi DAO để lấy danh sách voucher hợp lệ của Tier này, loại bỏ những cái khách đã dùng rồi
     PromotionDAO pDao = new PromotionDAO();
-    List<Promotion> myVouchers = pDao.getActiveVouchersByTier(currentUser.getTierId().getTierID());
+    List<Promotion> myVouchers = pDao.getActiveVouchersByTierForCustomer(
+            currentUser.getTierId().getTierID(), currentUser.getCusId());
     request.setAttribute("VOUCHER_LIST", myVouchers);
 %>
 <!DOCTYPE html>

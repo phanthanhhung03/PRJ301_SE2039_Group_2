@@ -45,16 +45,16 @@
                     boolean isSuccess = dao.cancelBooking(bookingID);
 
                     if (isSuccess) {
-                        // 2. GỌI HÀM DAO CHUẨN (Tự động trừ 20đ và +1 TotalBooking dưới Database)
+                        // 2. GỌI HÀM DAO CẬP NHẬT DỮ LIỆU & QUÉT LẠI HẠNG
                         dao.CustomerDAO cDao = new dao.CustomerDAO();
                         cDao.updateCustomerAfterCancelled(user.getCusId()); 
-                        
-                        // 3. ĐỒNG BỘ LẠI BỘ NHỚ SESSION ĐỂ GIAO DIỆN KHÁCH NHẢY SỐ NGAY
-                        int currentPoints = user.getCurrentPoint();
-                        user.setCurrentPoint(Math.max(0, currentPoints - 20)); // Trừ điểm trong Session
-                        user.setTotalBooking(user.getTotalBooking() + 1);      // Cộng 1 lượt vào Session
-                        
-                        session.setAttribute("USER", user);
+                        cDao.checkAndUpdateTier(user.getCusId()); 
+
+                        // Cách này an toàn tuyệt đối, hệ thống tự động load điểm mới, lượt mới và Hạng mới nhất!
+                        dto.Customer updatedUser = cDao.getCustomer(user.getCusId());
+                        if (updatedUser != null) {
+                            session.setAttribute("USER", updatedUser); 
+                        }
                         
                         session.setAttribute("MSG", "Booking cancelled successfully! Notice: 20 points were deducted for cancellation.");
                     } else {
@@ -192,6 +192,14 @@
 
                     if (isSuccess) {
                         user.setTotalBooking(user.getTotalBooking() + 1);
+
+                        // Nếu booking có sử dụng promotion, đánh dấu IsUsed = 1 trong bảng CustomerPromotions
+                        // để lần sau không hiện promotion này nữa cho khách hàng này
+                        if (promoID != 0) {
+                            dao.CustomerPromotionDAO cpDao = new dao.CustomerPromotionDAO();
+                            cpDao.markAsUsed(user.getCusId(), promoID);
+                        }
+
                         session.setAttribute("MSG", "Booking created successfully!"); 
                         response.sendRedirect("MainController?action=viewDashBoard");
                     } else {
