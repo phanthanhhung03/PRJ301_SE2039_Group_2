@@ -32,6 +32,12 @@ public class DashboardController extends HttpServlet {
 
             return;
         }
+        dao.CustomerDAO cDao = new dao.CustomerDAO();
+        Customer freshUser = cDao.getCustomer(user.getCusId());
+        if (freshUser != null) {
+            user = freshUser; // Gán lại data mới
+            request.getSession().setAttribute("USER", user); // Đè ngược lại vào Session
+        }
         VehicleDAO vd = new VehicleDAO();
         List<Vehicle> vehicleList = vd.getVehiclesByCustomerId(user.getCusId());
 
