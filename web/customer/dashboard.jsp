@@ -270,7 +270,9 @@
                             </div>
                             <span class="vehicle-card__plate">${vehicle.licensePlate}</span>
                             <div class="vehicle-card__actions">
-                                <a href="${pageContext.request.contextPath}/MainController?action=viewNewBooking&vehicleId=${vehicle.vehicleID}" class="btn btn--primary btn--sm">Book Wash</a>
+                                <a href="${pageContext.request.contextPath}/MainController?action=viewNewBooking&vehicleId=${vehicle.vehicleID}" class="btn btn--primary btn--sm">
+                                    Book Wash
+                                </a>
                             </div>
                         </div>
                     </c:forEach>
