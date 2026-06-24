@@ -251,8 +251,7 @@ public class CustomerPromotionDAO {
                 rs = st.executeQuery();
 
                 while (rs.next()) {
-                    // Map thủ công, KHÔNG dùng mapRow() — vì query này không JOIN Customers,
-                    // không có cột CustomerName, gọi mapRow() sẽ throw SQLException và nuốt mất kết quả
+
                     CustomerPromotion cp = new CustomerPromotion();
                     cp.setCustomerPromotionID(rs.getInt("CustomerPromotionID"));
                     cp.setCustomerID(rs.getInt("CustomerID"));

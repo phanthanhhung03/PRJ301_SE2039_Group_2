@@ -1,8 +1,10 @@
 package controller;
 
     import dao.BookingDAO;
+import dao.CustomerPromotionDAO;
     import dto.Booking;
     import dto.Customer;
+import dto.Promotion;
     import java.io.IOException;
     import java.sql.Timestamp;
     import java.text.SimpleDateFormat;
@@ -142,14 +144,14 @@ package controller;
                         try {
                         promoID = Integer.parseInt(promoCodeStr);
                         dao.PromotionDAO pDao = new dao.PromotionDAO();
-                        dao.CustomerPromotionDAO cpDao = new dao.CustomerPromotionDAO(); // MỚI
+                        CustomerPromotionDAO cpDao = new CustomerPromotionDAO(); // MỚI
 
                         boolean eligibleByTier = pDao.isVoucherValidForTier(promoID, user.getTierId().getTierID());
                         boolean eligibleByAssignment = cpDao.hasActiveAssignment(user.getCusId(), promoID); // MỚI
 
                             if (eligibleByTier || eligibleByAssignment) {
 
-                            dto.Promotion p = pDao.getPromotionByID(promoID);
+                            Promotion p = pDao.getPromotionByID(promoID);
 
                             if (p != null && p.isStatus()) {
                                 double voucherDiscount = totalAmount * (p.getDiscountPercent() / 100.0);
