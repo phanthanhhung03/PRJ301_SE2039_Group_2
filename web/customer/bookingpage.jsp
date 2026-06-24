@@ -30,7 +30,7 @@
 
     // Nguồn 1: voucher mở theo tier (cũ)
     PromotionDAO pDao = new PromotionDAO();
-    List<Promotion> tierVouchers = pDao.getActiveVouchersByTier(currentUser.getTierId().getTierID());
+    List<Promotion> tierVouchers = pDao.getActiveVouchersByTierForCustomer(currentUser.getTierId().getTierID(), currentUser.getCusId());
 
     // Nguồn 2: voucher admin gán riêng cho khách này (MỚI — trước đây không hiện ra ở đâu cả)
     CustomerPromotionDAO cpDao = new CustomerPromotionDAO();
