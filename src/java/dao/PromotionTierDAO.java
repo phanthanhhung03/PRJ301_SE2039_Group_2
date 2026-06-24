@@ -179,46 +179,50 @@ public class PromotionTierDAO {
 
     public String getTargetTierNames(int promotionID) {
 
-        StringBuilder result = new StringBuilder();
-
+        String tierName = "-";
         Connection cn = null;
         PreparedStatement st = null;
         ResultSet rs = null;
 
         try {
-
             cn = DBUtils.getConnection();
-
             if (cn != null) {
-
-                String sql
-                        = "SELECT ct.TierName "
+                // Chỉ lấy tier THẤP NHẤT (anchor tier) — vì giờ 1 promo "Silver+"
+                // sẽ có nhiều dòng (Silver, Gold, Platinum) trong PromotionTiers,
+                // hiển thị hết ra sẽ thành "Platinum, Gold, Silver+" rất rối.
+                String sql = "SELECT TOP 1 ct.TierName "
                         + "FROM PromotionTiers pt "
-                        + "JOIN CustomerTiers ct "
-                        + "ON pt.TierID = ct.TierID "
+                        + "JOIN CustomerTiers ct ON pt.TierID = ct.TierID "
                         + "WHERE pt.PromotionID = ? "
-                        + "ORDER BY ct.PriorityLevel DESC";
+                        + "ORDER BY ct.PriorityLevel ASC";
 
                 st = cn.prepareStatement(sql);
                 st.setInt(1, promotionID);
-
                 rs = st.executeQuery();
 
-                while (rs.next()) {
-
-                    if (result.length() > 0) {
-                        result.append(", ");
-                    }
-
-                    result.append(rs.getString("TierName"));
+                if (rs.next()) {
+                    tierName = rs.getString("TierName");
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
-        return result.toString();
+        return tierName;
     }
 
     public void deleteTierMappingByPromotionID(int promotionID) {
@@ -257,10 +261,64 @@ public class PromotionTierDAO {
      */
     public int setMinimumTier(int promotionID, int minTierID) {
 
-        // Xóa mapping cũ trước (đảm bảo luôn chỉ có 1 dòng)
+        // Xóa mapping cũ trước (đảm bảo không lẫn dữ liệu cũ)
         deleteTierMappingByPromotionID(promotionID);
 
-        return addTierToPromotion(promotionID, minTierID);
+        int result = 0;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+
+                // 1. Lấy tất cả TierID có PriorityLevel >= PriorityLevel của minTierID
+                String sql = "SELECT TierID FROM CustomerTiers "
+                        + "WHERE PriorityLevel >= ("
+                        + "    SELECT PriorityLevel FROM CustomerTiers WHERE TierID = ?"
+                        + ")";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, minTierID);
+                rs = st.executeQuery();
+
+                List<Integer> eligibleTierIDs = new ArrayList<>();
+                while (rs.next()) {
+                    eligibleTierIDs.add(rs.getInt("TierID"));
+                }
+                rs.close();
+                st.close();
+
+                // 2. Insert 1 dòng cho MỖI tier hợp lệ (tier đó + mọi tier cao hơn)
+                String insertSql = "INSERT INTO PromotionTiers (PromotionID, TierID) VALUES (?, ?)";
+                st = cn.prepareStatement(insertSql);
+
+                for (int tierID : eligibleTierIDs) {
+                    st.setInt(1, promotionID);
+                    st.setInt(2, tierID);
+                    result += st.executeUpdate();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
     }
 
     /*
@@ -268,7 +326,46 @@ public class PromotionTierDAO {
      */
     public Integer getMinimumTierID(int promotionID) {
 
-        List<Integer> list = getTierIDsByPromotion(promotionID);
-        return list.isEmpty() ? null : list.get(0);
+        Integer minTierID = null;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT TOP 1 pt.TierID "
+                        + "FROM PromotionTiers pt "
+                        + "JOIN CustomerTiers ct ON pt.TierID = ct.TierID "
+                        + "WHERE pt.PromotionID = ? "
+                        + "ORDER BY ct.PriorityLevel ASC";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, promotionID);
+                rs = st.executeQuery();
+
+                if (rs.next()) {
+                    minTierID = rs.getInt("TierID");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return minTierID;
     }
 }

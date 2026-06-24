@@ -1,23 +1,21 @@
 <%@page import="dto.Promotion"%>
 <%@page import="dao.PromotionDAO"%>
+<%@page import="dao.CustomerPromotionDAO"%>
+<%@page import="dto.CustomerPromotion"%>
 <%@page import="java.util.List"%>
+<%@page import="java.util.Map"%>
+<%@page import="java.util.LinkedHashMap"%>
 <%@page import="dto.Vehicle"%>
 <%@page import="dao.VehicleDAO"%>
 <%@page import="dto.Customer"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
-    // Lấy thông tin khách hàng đang đăng nhập từ Session
     Customer currentUser = (Customer) session.getAttribute("USER");
-    int maxAdvanceDays = 7; // Mặc định cho hạng Member
+    int maxAdvanceDays = 7;
     if (currentUser != null) {
-        // Gọi thẳng VehicleDAO ngay trong JSP
         VehicleDAO vDao = new VehicleDAO();
-
-        // Gọi hàm lấy danh sách xe (Bạn nhớ kiểm tra lại tên hàm này trong VehicleDAO của bạn cho đúng nhé)
         List<Vehicle> myCars = vDao.getVehiclesByCustomerId(currentUser.getCusId());
-
-        // Nhét danh sách này vào request để JSTL bên dưới có thể in ra
         request.setAttribute("VEHICLE_LIST", myCars);
 
         String tierName = currentUser.getTierId().getTierName();
@@ -29,11 +27,31 @@
             maxAdvanceDays = 14;
         }
     }
-    // Gọi DAO để lấy danh sách voucher hợp lệ của Tier này
-    // Giả sử em có PromotionDAO và hàm getVouchersByTier
+
+    // Nguồn 1: voucher mở theo tier (cũ)
     PromotionDAO pDao = new PromotionDAO();
-    List<Promotion> myVouchers = pDao.getActiveVouchersByTier(currentUser.getTierId().getTierID());
-    request.setAttribute("VOUCHER_LIST", myVouchers);
+    List<Promotion> tierVouchers = pDao.getActiveVouchersByTier(currentUser.getTierId().getTierID());
+
+    // Nguồn 2: voucher admin gán riêng cho khách này (MỚI — trước đây không hiện ra ở đâu cả)
+    CustomerPromotionDAO cpDao = new CustomerPromotionDAO();
+    List<CustomerPromotion> assignedVouchers = cpDao.getActiveAssignmentsForCustomer(currentUser.getCusId());
+
+    // Gộp 2 nguồn, tránh trùng PromotionID
+    Map<Integer, Promotion> merged = new LinkedHashMap<>();
+    for (Promotion p : tierVouchers) {
+        merged.put(p.getPromotionID(), p);
+    }
+    for (CustomerPromotion cp : assignedVouchers) {
+        if (!merged.containsKey(cp.getPromotionID())) {
+            Promotion p = new Promotion();
+            p.setPromotionID(cp.getPromotionID());
+            p.setPromotionName(cp.getPromotionName() + " (Personal Offer)");
+            p.setDiscountPercent(cp.getDiscountPercent());
+            merged.put(cp.getPromotionID(), p);
+        }
+    }
+
+    request.setAttribute("VOUCHER_LIST", merged.values());
 %>
 <!DOCTYPE html>
 <html lang="en">
