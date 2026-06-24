@@ -422,8 +422,8 @@ public class PromotionDAO {
         return false;
     }
 
-    // 1. Lấy danh sách Voucher hợp lệ theo Tier
-    public List<Promotion> getActiveVouchersByTier(int tierID) { 
+    // 1. Lấy danh sách Voucher hợp lệ theo Tier, loại bỏ những promotion khách đã dùng rồi
+    public List<Promotion> getActiveVouchersByTierForCustomer(int tierID, int customerID) {
         List<Promotion> list = new ArrayList<>();
         Connection cn = null;
         PreparedStatement st = null;
@@ -432,13 +432,18 @@ public class PromotionDAO {
         try {
             cn = DBUtils.getConnection();
             if (cn != null) {
-                String sql = "SELECT p.* FROM Promotions p " +
-                             "JOIN PromotionTiers pt ON p.PromotionID = pt.PromotionID " +
-                             "WHERE pt.TierID = ? AND p.Status = 1 " +
-                             "AND CAST(GETDATE() AS DATE) BETWEEN p.StartDate AND p.EndDate";
+                String sql = "SELECT p.* FROM Promotions p "
+                        + "JOIN PromotionTiers pt ON p.PromotionID = pt.PromotionID "
+                        + "WHERE pt.TierID = ? AND p.Status = 1 "
+                        + "AND CAST(GETDATE() AS DATE) BETWEEN p.StartDate AND p.EndDate "
+                        + "AND p.PromotionID NOT IN ( "
+                        + "    SELECT cp.PromotionID FROM CustomerPromotions cp "
+                        + "    WHERE cp.CustomerID = ? AND cp.IsUsed = 1 AND cp.IsDeleted = 0 "
+                        + ")";
 
                 st = cn.prepareStatement(sql);
-                st.setInt(1, tierID); 
+                st.setInt(1, tierID);
+                st.setInt(2, customerID);
                 rs = st.executeQuery();
 
                 while (rs.next()) {
@@ -463,7 +468,7 @@ public class PromotionDAO {
         }
         return list;
     }
-    
+
     // 2. Kiểm tra voucher khi booking
     public boolean isVoucherValidForTier(int promotionID, int tierID) {
         boolean isValid = false;

@@ -1,4 +1,4 @@
-    package controller;
+package controller;
 
     import dao.BookingDAO;
     import dto.Booking;
@@ -45,16 +45,16 @@
                     boolean isSuccess = dao.cancelBooking(bookingID);
 
                     if (isSuccess) {
-                        // 2. GỌI HÀM DAO CHUẨN (Tự động trừ 20đ và +1 TotalBooking dưới Database)
+                        // 2. GỌI HÀM DAO CẬP NHẬT DỮ LIỆU & QUÉT LẠI HẠNG
                         dao.CustomerDAO cDao = new dao.CustomerDAO();
                         cDao.updateCustomerAfterCancelled(user.getCusId()); 
-                        
-                        // 3. ĐỒNG BỘ LẠI BỘ NHỚ SESSION ĐỂ GIAO DIỆN KHÁCH NHẢY SỐ NGAY
-                        int currentPoints = user.getCurrentPoint();
-                        user.setCurrentPoint(Math.max(0, currentPoints - 20)); // Trừ điểm trong Session
-                        user.setTotalBooking(user.getTotalBooking() + 1);      // Cộng 1 lượt vào Session
-                        
-                        session.setAttribute("USER", user);
+                        cDao.checkAndUpdateTier(user.getCusId()); 
+
+                        // Cách này an toàn tuyệt đối, hệ thống tự động load điểm mới, lượt mới và Hạng mới nhất!
+                        dto.Customer updatedUser = cDao.getCustomer(user.getCusId());
+                        if (updatedUser != null) {
+                            session.setAttribute("USER", updatedUser); 
+                        }
                         
                         session.setAttribute("MSG", "Booking cancelled successfully! Notice: 20 points were deducted for cancellation.");
                     } else {
@@ -133,40 +133,42 @@
                     double tierDiscountAmount = totalAmount * (tierDiscountPercent / 100.0);
                     discountAmount += tierDiscountAmount;
 
-                    // 4.2 KIỂM TRA VÀ ÁP DỤNG VOUCHER BẰNG DAO
+                      // 4.2 KIỂM TRA VÀ ÁP DỤNG VOUCHER BẰNG DAO
                     String promoCodeStr = request.getParameter("promoCode");
-                    int promoID = 0; // Mặc định là 0 (Không dùng voucher)
+                    int promoID = 0;
+                    boolean usedPersonalAssignment = false; // MỚI
 
                     if (promoCodeStr != null && !promoCodeStr.equals("0")) {
                         try {
-                            promoID = Integer.parseInt(promoCodeStr);
-                            dao.PromotionDAO pDao = new dao.PromotionDAO();
+                        promoID = Integer.parseInt(promoCodeStr);
+                        dao.PromotionDAO pDao = new dao.PromotionDAO();
+                        dao.CustomerPromotionDAO cpDao = new dao.CustomerPromotionDAO(); // MỚI
 
-                            // GỌI FUNCTION DAO: Check xem Voucher này có đúng là của Tier khách không?
-                            if (pDao.isVoucherValidForTier(promoID, user.getTierId().getTierID())) {
+                        boolean eligibleByTier = pDao.isVoucherValidForTier(promoID, user.getTierId().getTierID());
+                        boolean eligibleByAssignment = cpDao.hasActiveAssignment(user.getCusId(), promoID); // MỚI
 
-                                // Lấy chi tiết Voucher ra 
-                                dto.Promotion p = pDao.getPromotionByID(promoID);
+                            if (eligibleByTier || eligibleByAssignment) {
 
-                                // Code check voucher còn hay không (Check Status và Ngày)
-                                if (p != null && p.isStatus()) { 
-                                    double voucherDiscount = totalAmount * (p.getDiscountPercent() / 100.0);
-                                    discountAmount += voucherDiscount; // Cộng dồn với giảm giá Tier
-                                } else {
-                                    request.setAttribute("BOOKING_ERROR", "This voucher is expired or unavailable!");
-                                    request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
-                                    return;
-                                }
+                            dto.Promotion p = pDao.getPromotionByID(promoID);
+
+                            if (p != null && p.isStatus()) {
+                                double voucherDiscount = totalAmount * (p.getDiscountPercent() / 100.0);
+                                discountAmount += voucherDiscount;
+                                usedPersonalAssignment = eligibleByAssignment; // MỚI — nhớ là dùng voucher cá nhân
                             } else {
-                                // Trường hợp khách dùng F12 sửa code HTML để cheat voucher hạng cao hơn
-                                request.setAttribute("BOOKING_ERROR", "This voucher is not applicable for your tier!");
+                                request.setAttribute("BOOKING_ERROR", "This voucher is expired or unavailable!");
                                 request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
                                 return;
                             }
-                        } catch (NumberFormatException e) {
-                            e.printStackTrace();
+                        } else {
+                            request.setAttribute("BOOKING_ERROR", "This voucher is not applicable for your account!");
+                            request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
+                            return;
                         }
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
                     }
+                }
 
                     // Chốt số tiền cuối cùng (Đảm bảo không bao giờ bị âm tiền)
                     double finalAmount = totalAmount - discountAmount;
@@ -191,9 +193,12 @@
                     boolean isSuccess = dao.insertBooking(booking);
 
                     if (isSuccess) {
-                        user.setTotalBooking(user.getTotalBooking() + 1);
-                        session.setAttribute("MSG", "Booking created successfully!"); 
-                        response.sendRedirect("MainController?action=viewDashBoard");
+                    if (usedPersonalAssignment) {
+                        new dao.CustomerPromotionDAO().markAssignmentUsed(user.getCusId(), promoID); // MỚI
+                    }
+                    user.setTotalBooking(user.getTotalBooking() + 1);
+                    session.setAttribute("MSG", "Booking created successfully!");
+                    response.sendRedirect("MainController?action=viewDashBoard");
                     } else {
                         request.setAttribute("BOOKING_ERROR", "Failed to create appointment. Please try again.");
                         request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
