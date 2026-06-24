@@ -11,6 +11,7 @@ import dto.Promotion;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -239,8 +240,8 @@ public class PromotionManagementController extends HttpServlet {
 
             //  Build map promotionID -> selected tierIDs
             PromotionTierDAO tierDAO = new PromotionTierDAO();
-            java.util.Map<Integer, Integer> promotionMinTierMap = new java.util.HashMap<>();
-            java.util.Map<Integer, String> promotionMinTierNameMap = new java.util.HashMap<>();
+            Map<Integer, Integer> promotionMinTierMap = new java.util.HashMap<>();
+            Map<Integer, String> promotionMinTierNameMap = new java.util.HashMap<>();
             for (Promotion p : promotionList) {
                 if ("TIER_ONLY".equals(p.getTargetType())) {
                     Integer minTierID = tierDAO.getMinimumTierID(p.getPromotionID());
@@ -252,6 +253,7 @@ public class PromotionManagementController extends HttpServlet {
                     }
                 }
             }
+
 
             // Set data to JSP
             request.setAttribute("activePromotionsCount", (int) activeCount);
