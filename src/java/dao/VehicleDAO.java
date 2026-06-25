@@ -84,8 +84,8 @@ public class VehicleDAO {
                 return vehicleList;
             }
 
-            String sql = "SELECT [VehicleID], [LicensePlate], [Brand], [Model], [Color], [CreatedAt]\n"
-                    + "FROM Vehicles\n"
+            String sql = "SELECT VehicleID, LicensePlate, Brand, Model, Color, CreatedAt, Status "
+                    + "FROM Vehicles "
                     + "WHERE CustomerID = ? AND Status = ?";
 
             st = cn.prepareStatement(sql);
@@ -102,6 +102,8 @@ public class VehicleDAO {
                         table.getString("Model"),
                         table.getString("Color"),
                         table.getDate("CreatedAt"));
+
+                vehicle.setStatus(table.getBoolean("Status"));
 
                 vehicleList.add(vehicle);
 

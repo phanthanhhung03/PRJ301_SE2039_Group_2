@@ -1,9 +1,11 @@
 package controller;
 
 import dao.BookingDAO;
+import dao.CustomerDAO;
 import dao.CustomerPromotionDAO;
 import dao.PromotionDAO;
 import dto.Booking;
+import dto.BookingDraft;
 import dto.Customer;
 import dto.Promotion;
 import java.io.IOException;
@@ -200,20 +202,84 @@ public class BookingController extends HttpServlet {
                 booking.setFinalAmount(finalAmount);
 
                 // 6. GỌI DAO ĐỂ THỰC THI
+                //BookingDAO dao = new BookingDAO();
+                //boolean isSuccess = dao.insertBooking(booking);
+                session.setAttribute("BOOKING_DRAFT", booking);
+                session.setAttribute("PROMO_ID", promoID);
+
+                request.getRequestDispatcher("/customer/payment.jsp")
+                        .forward(request, response);
+
+//                if (isSuccess) {
+//                    if (promoID != 0) {
+//                        cpDao.markAsUsed(user.getCusId(), promoID);
+//                    }
+//                    user.setTotalBooking(user.getTotalBooking() + 1);
+//                    session.setAttribute("MSG", "Booking created successfully!");
+//                    response.sendRedirect("MainController?action=viewDashBoard");
+//                } else {
+//                    request.setAttribute("BOOKING_ERROR", "Failed to create appointment. Please try again.");
+//                    request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
+//                }
+            } else if ("completeBooking".equals(action)) {
+
+                BookingDraft draft = (BookingDraft) session.getAttribute("BOOKING_DRAFT");
+
+                if (draft == null) {
+                    response.sendRedirect("MainController?action=viewBooking");
+                    return;
+                }
+
+                Booking booking = new Booking();
+
+                booking.setVehicleID(draft.getVehicleId());
+                Timestamp bookingTimestamp = Timestamp.valueOf(
+                        draft.getBookingDate().toString()
+                        + " "
+                        + draft.getBookingTime().toString());
+
+                booking.setBookingDate(bookingTimestamp);
+
+                booking.setTimeSlot(draft.getBookingTime().toString());
+                booking.setServiceType(draft.getServiceType());
+
+                booking.setBookingStatus("Pending");
+                booking.setNotes("");
+
+                booking.setTotalAmount(draft.getTotalAmount());
+
+                booking.setDiscountAmount(
+                        draft.getVoucherDiscount()
+                        + draft.getTierDiscount());
+
+                booking.setFinalAmount(draft.getFinalAmount());
+
+                Integer promoID = (Integer) session.getAttribute("PROMO_ID");
+
                 BookingDAO dao = new BookingDAO();
+
                 boolean isSuccess = dao.insertBooking(booking);
 
                 if (isSuccess) {
-                    if (promoID != 0) {
+
+                    if (promoID != null && promoID != 0) {
+                        CustomerPromotionDAO cpDao = new CustomerPromotionDAO();
                         cpDao.markAsUsed(user.getCusId(), promoID);
                     }
                     user.setTotalBooking(user.getTotalBooking() + 1);
+                    session.removeAttribute("BOOKING_DRAFT");
+                    session.removeAttribute("PROMO_ID");
+                    session.removeAttribute("BOOKING_CODE");
                     session.setAttribute("MSG", "Booking created successfully!");
                     response.sendRedirect("MainController?action=viewDashBoard");
+
                 } else {
-                    request.setAttribute("BOOKING_ERROR", "Failed to create appointment. Please try again.");
+
+                    session.setAttribute("BOOKING_ERROR", "Create booking failed!");
                     request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
                 }
+
+                return;
             }
 
         } catch (Exception e) {

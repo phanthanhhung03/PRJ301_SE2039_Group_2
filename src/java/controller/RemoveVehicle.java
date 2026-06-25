@@ -4,8 +4,11 @@
  */
 package controller;
 
+import dao.BookingDAO;
 import dao.VehicleDAO;
+import dto.Booking;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -32,11 +35,22 @@ public class RemoveVehicle extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
 
-        int vehicleId
-                = Integer.parseInt(
-                        request.getParameter("vehicleID"));
+        int vehicleId = Integer.parseInt(request.getParameter("vehicleID"));
 
         VehicleDAO dao = new VehicleDAO();
+        BookingDAO bookingDao = new BookingDAO();
+        List<Booking> bookings = bookingDao.getBookingsByVehicleId(vehicleId, "Pending");
+
+        if (!bookings.isEmpty()) {
+            request.getSession().setAttribute(
+                    "ERROR_MESSAGE",
+                    "Failed to remove vehicle. You must cancel booking first");
+
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/MainController?action=viewDashboard");
+            return;
+        }
 
         int result = dao.softDeleteVehicle(vehicleId);
 
