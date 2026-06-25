@@ -10,7 +10,9 @@ import dto.CustomerPromotion;
 import dto.Promotion;
 import java.io.IOException;
 import java.sql.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -44,14 +46,14 @@ public class PromotionManagementController extends HttpServlet {
         CustomerPromotionDAO customerPromotionDAO = new CustomerPromotionDAO();
         try {
             // ------------------------------------------------------------------
-            // GET actions: hiển thị trang form riêng (thay cho modal)
+            // GET actions
             // ------------------------------------------------------------------
 
-            // Hiển thị trang Add Promotion
+            // Show Add Promotion page
             if ("showAddPromotion".equals(action)) {
                 request.getRequestDispatcher("/admin/add-promotion.jsp").forward(request, response);
                 return;
-            } // Hiển thị trang Edit Promotion
+            } // Show Edit Promotion page
             else if ("showEditPromotion".equals(action)) {
                 int promotionID = Integer.parseInt(request.getParameter("promotionID"));
 
@@ -72,12 +74,13 @@ public class PromotionManagementController extends HttpServlet {
                 request.setAttribute("curMinTier", curMinTier);
                 request.getRequestDispatcher("/admin/edit-promotion.jsp").forward(request, response);
                 return;
-            } // Hiển thị trang Assign Promotion
-            else if ("showAssignPromotion".equals(action)) {
+
+                // Show Assign Promotion page
+            } else if ("showAssignPromotion".equals(action)) {
                 int customerID = Integer.parseInt(request.getParameter("customerID"));
 
-                dao.CustomerDAO customerDAO = new dao.CustomerDAO();
-                dto.Customer targetCust = customerDAO.getCustomer(customerID);
+                CustomerDAO customerDAO = new CustomerDAO();
+                Customer targetCust = customerDAO.getCustomer(customerID);
 
                 if (targetCust == null) {
                     session.setAttribute("PROMO_ERR", "Customer not found.");
@@ -91,11 +94,12 @@ public class PromotionManagementController extends HttpServlet {
                 request.setAttribute("promotionList", activePromotions);
                 request.getRequestDispatcher("/admin/assign-promotion.jsp").forward(request, response);
                 return;
-            } // ------------------------------------------------------------------
-            // POST actions
-            // ------------------------------------------------------------------
-            // Add Promotion
-            else if ("addPromotion".equals(action)) {
+
+                // ------------------------------------------------------------------
+                // POST actions
+                // ------------------------------------------------------------------
+                // Add Promotion
+            } else if ("addPromotion".equals(action)) {
 
                 String validateError = validatePromotionInput(request);
                 if (validateError != null) {
@@ -168,10 +172,13 @@ public class PromotionManagementController extends HttpServlet {
                         tierDAO.deleteTierMappingByPromotionID(p.getPromotionID());
                     }
                 }
+
                 session.setAttribute(isValid ? "PROMO_MSG" : "PROMO_ERR",
                         isValid ? "Promotion updated successfully!" : "Failed to update promotion. Check inputs.");
                 response.sendRedirect("MainController?action=viewPromotionManagement");
                 return;
+
+                // Delete Promotion
             } else if ("deletePromotion".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("promotionID"));
 
@@ -237,26 +244,30 @@ public class PromotionManagementController extends HttpServlet {
                 }
             }
 
-            //  Build map promotionID -> selected tierIDs
+            //  Build map promotionID to get selected minTierId
             PromotionTierDAO tierDAO = new PromotionTierDAO();
-            java.util.Map<Integer, Integer> promotionMinTierMap = new java.util.HashMap<>();
-            java.util.Map<Integer, String> promotionMinTierNameMap = new java.util.HashMap<>();
+            Map<Integer, String> promotionMinTierNameMap = new HashMap<>();
             for (Promotion p : promotionList) {
                 if ("TIER_ONLY".equals(p.getTargetType())) {
-                    Integer minTierID = tierDAO.getMinimumTierID(p.getPromotionID());
-                    if (minTierID != null) {
-                        promotionMinTierMap.put(p.getPromotionID(), minTierID);
-                        //  Get tierName to show
-                        String tierName = tierDAO.getTargetTierNames(p.getPromotionID());
-                        promotionMinTierNameMap.put(p.getPromotionID(), tierName);
-                    }
+                    String tierName = tierDAO.getTargetTierNames(p.getPromotionID());
+                    promotionMinTierNameMap.put(p.getPromotionID(), tierName);
                 }
             }
 
+            // Auto update active or inactive promo Up to Date
+            java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
+            Map<Integer, Boolean> promotionActiveMap = new java.util.HashMap<>();
+            for (Promotion p : promotionList) {
+                boolean isActuallyActive = p.isStatus()
+                        && !p.getStartDate().after(today)
+                        && !p.getEndDate().before(today);
+                promotionActiveMap.put(p.getPromotionID(), isActuallyActive);
+
+            }
             // Set data to JSP
             request.setAttribute("activePromotionsCount", (int) activeCount);
-            request.setAttribute("promotionTiersMap", promotionMinTierMap);
             request.setAttribute("promotionMinTierNameMap", promotionMinTierNameMap);
+            request.setAttribute("promotionActiveMap", promotionActiveMap);
             request.setAttribute("assignedCount", assignments.size());
             request.setAttribute("lowEngagementCustomerCount", lowEngagementCustomer.size());
             request.setAttribute("promotionList", promotionList);
@@ -283,14 +294,15 @@ public class PromotionManagementController extends HttpServlet {
         String endStr = request.getParameter("endDate");
         String targetType = request.getParameter("targetType");
 
+        // Validate promo name input
         if (name == null || name.trim().isEmpty()) {
             return "Promotion name is required.";
         }
-
         if (name.trim().length() > 100) {
             return "Promotion name must be at most 100 characters.";
         }
 
+        // Validate discount input
         double discount;
         try {
             discount = Double.parseDouble(discountStr);
@@ -301,6 +313,7 @@ public class PromotionManagementController extends HttpServlet {
             return "Discount percent must be between 0 and 100.";
         }
 
+        // Validate bonus points input
         int bonus;
         try {
             bonus = Integer.parseInt(bonusStr);
@@ -311,6 +324,7 @@ public class PromotionManagementController extends HttpServlet {
             return "Bonus points cannot be negative.";
         }
 
+        // Prevent endDate before startDate
         Date startDate, endDate;
         try {
             startDate = Date.valueOf(startStr);
@@ -322,11 +336,15 @@ public class PromotionManagementController extends HttpServlet {
             return "End date must be after start date.";
         }
 
+        // Prevent End-Date in Past
+        Date today = new Date(System.currentTimeMillis());
+        if (endDate.before(today)) {
+            return "End date cannot be in the past.";
+        }
+
         if (targetType == null
-                || !(targetType.equals("ALL")
-                || targetType.equals("TIER_ONLY")
-                || targetType.equals("LOW_ENGAGEMENT")
-                || targetType.equals("FIRST_TIME"))) {
+                || !(targetType.equals("TIER_ONLY")
+                || targetType.equals("LOW_ENGAGEMENT"))) {
             return "Target type is invalid.";
         }
 
@@ -342,7 +360,7 @@ public class PromotionManagementController extends HttpServlet {
             }
         }
 
-        return null; // Hợp lệ
+        return null; // Valid
     }
 
     @Override

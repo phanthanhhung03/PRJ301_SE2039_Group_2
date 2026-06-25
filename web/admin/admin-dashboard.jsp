@@ -127,7 +127,7 @@
                     <!-- Stat 3: Revenue -->
                     <div class="stat-card glass-panel">
                         <div class="stat-card__header">
-                            <span class="stat-card__label"> Revenue of <%= currentYear %></span>
+                            <span class="stat-card__label"> Revenue of <%= currentYear%></span>
                             <div class="stat-card__icon" style="color: var(--color-accent-gold);">
                                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
                             </div>
@@ -429,11 +429,7 @@
 
                                     <td>
                                         <%
-                                            if ("ALL".equals(type)) {
-                                        %>
-                                        <span class="status-badge status-badge--completed">All Customers</span>
-                                        <%
-                                        } else if ("TIER_ONLY".equals(type)) {
+                                            if ("TIER_ONLY".equals(type)) {
                                         %>
                                         <span class="status-badge status-badge--pending">Tier: <%= target%>+</span>
                                         <%
@@ -466,15 +462,25 @@
                                         <%= sdf.format(p.getStartDate())%> &ndash; <%= sdf.format(p.getEndDate())%>
                                     </td>
 
+                                    <%
+                                        java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
+                                        boolean isActuallyActive = p.isStatus()
+                                                && !p.getStartDate().after(today)
+                                                && !p.getEndDate().before(today);
+                                    %>
                                     <td>
                                         <%
-                                            if (p.isStatus()) {
+                                            if (isActuallyActive) {
                                         %>
                                         <span class="status-badge status-badge--completed">Active</span>
                                         <%
-                                        } else {
+                                        } else if (!p.isStatus()) {
                                         %>
                                         <span class="status-badge status-badge--cancelled">Inactive</span>
+                                        <%
+                                        } else {
+                                        %>
+                                        <span class="status-badge status-badge--pending">Expired</span>
                                         <%
                                             }
                                         %>

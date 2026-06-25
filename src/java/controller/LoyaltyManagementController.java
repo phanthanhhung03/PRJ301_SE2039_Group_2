@@ -81,7 +81,6 @@ public class LoyaltyManagementController extends HttpServlet {
             List<CustomerTier> tierList = tierDAO.getAllTiers();
             Map<Integer, Integer> customerTierCountMap = tierDAO.getCustomerCountByTier();
             List<PointTransaction> transactionList = pointTransactionDAO.getRecentTransactions(50);
-            Map<String, Integer[]> monthlySummary = pointTransactionDAO.getMonthlyPointsSummary(6);
             Map<String, Double> tierPointsAvgMap = pointTransactionDAO.getAveragePointsByTier();
             Map<Integer, Double> revenueByTierMap = customerDAO.getRevenueByTier();
             List<Customer> topCustomersByPoints = customerDAO.getTopCustomersByPoints(5);
@@ -94,7 +93,6 @@ public class LoyaltyManagementController extends HttpServlet {
             request.setAttribute("tierList", tierList);
             request.setAttribute("customerTierCountMap", customerTierCountMap);
             request.setAttribute("transactionList", transactionList);
-            request.setAttribute("monthlySummary", monthlySummary);
             request.setAttribute("tierPointsAvgMap", tierPointsAvgMap);
             request.setAttribute("revenueByTierMap", revenueByTierMap);
             request.setAttribute("totalRevenue", totalRevenue);

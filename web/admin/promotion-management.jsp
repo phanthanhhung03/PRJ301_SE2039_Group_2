@@ -151,9 +151,6 @@
 
                                     <td>
                                         <c:choose>
-                                            <c:when test="${promo.targetType == 'ALL'}">
-                                                <span class="status-badge status-badge--completed">All Customers</span>
-                                            </c:when>
                                             <c:when test="${promo.targetType == 'TIER_ONLY'}">
                                                 <span class="status-badge status-badge--pending">
                                                     Tier: ${promotionMinTierNameMap[promo.promotionID]}+
@@ -184,11 +181,14 @@
 
                                     <td>
                                         <c:choose>
-                                            <c:when test="${promo.status}">
+                                            <c:when test="${promotionActiveMap[promo.promotionID]}">
                                                 <span class="status-badge status-badge--completed">Active</span>
                                             </c:when>
-                                            <c:otherwise>
+                                            <c:when test="${!promo.status}">
                                                 <span class="status-badge status-badge--cancelled">Inactive</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="status-badge status-badge--pending">Expired</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </td>

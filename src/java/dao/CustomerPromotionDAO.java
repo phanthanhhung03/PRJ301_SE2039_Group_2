@@ -25,6 +25,10 @@ public class CustomerPromotionDAO {
         if (!promotionDAO.isCustomerEligibleForPromotion(customerID, promotionID)) {
             return 0;
         }
+        if (hasActiveAssignment(customerID, promotionID)) { 
+            return 0;
+        }
+        
         int result = 0;
         Connection cn = null;
         PreparedStatement st = null;
@@ -94,6 +98,33 @@ public class CustomerPromotionDAO {
         return false;
     }
 
+// Check: khách này đã từng DÙNG voucher TIER_ONLY này chưa (bất kể được grant tay hay tự nhập)
+    public boolean hasCustomerUsedPromotion(int customerID, int promotionID) {
+        boolean exists = false;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT 1 FROM CustomerPromotions "
+                        + "WHERE CustomerID = ? AND PromotionID = ? "
+                        + "AND IsUsed = 1 AND IsDeleted = 0";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, customerID);
+                st.setInt(2, promotionID);
+                rs = st.executeQuery();
+                exists = rs.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeAll(cn, st, rs);
+        }
+        return exists;
+    }
 
     // Revoke an assignment
     public int revokeAssignment(int customerPromotionID) {
@@ -190,7 +221,7 @@ public class CustomerPromotionDAO {
                         + "LEFT JOIN Bookings b ON b.VehicleID = v.VehicleID "
                         + "WHERE c.CustomerID NOT IN ( "
                         + "    SELECT cp.CustomerID FROM CustomerPromotions cp "
-                        + "    WHERE cp.IsDeleted = 0 "
+                        + "    WHERE cp.IsDeleted = 0 AND cp.IsUsed = 0  "
                         + ") "
                         + "GROUP BY c.CustomerID, c.FullName "
                         + "HAVING MAX(b.BookingDate) IS NULL "
@@ -251,8 +282,7 @@ public class CustomerPromotionDAO {
                 rs = st.executeQuery();
 
                 while (rs.next()) {
-                    // Map thủ công, KHÔNG dùng mapRow() — vì query này không JOIN Customers,
-                    // không có cột CustomerName, gọi mapRow() sẽ throw SQLException và nuốt mất kết quả
+
                     CustomerPromotion cp = new CustomerPromotion();
                     cp.setCustomerPromotionID(rs.getInt("CustomerPromotionID"));
                     cp.setCustomerID(rs.getInt("CustomerID"));
@@ -300,42 +330,6 @@ public class CustomerPromotionDAO {
             closeAll(cn, st, rs);
         }
         return exists;
-    }
-
-// Đánh dấu đã dùng — gọi NGAY SAU khi tạo booking thành công với voucher gán riêng
-    public boolean markAssignmentUsed(int customerID, int promotionID) {
-        boolean check = false;
-        Connection cn = null;
-        PreparedStatement st = null;
-
-        try {
-            cn = DBUtils.getConnection();
-            if (cn != null) {
-                String sql = "UPDATE TOP (1) CustomerPromotions "
-                        + "SET IsUsed = 1, UsedDate = GETDATE() "
-                        + "WHERE CustomerID = ? AND PromotionID = ? "
-                        + "AND IsUsed = 0 AND IsDeleted = 0";
-
-                st = cn.prepareStatement(sql);
-                st.setInt(1, customerID);
-                st.setInt(2, promotionID);
-                check = st.executeUpdate() > 0;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return check;
     }
 
     // -----------------------------------------------------------------------
