@@ -10,6 +10,11 @@
 <%@page import="dto.Customer"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<c:if test="${empty USER}">
+    <c:redirect url="MainController?action=viewAdminSignIn"/>
+</c:if>
+
 <%
     Customer currentUser = (Customer) session.getAttribute("USER");
     int maxAdvanceDays = 7;
@@ -87,8 +92,8 @@
         <main class="main-wrapper booking-page">
             <div class="booking-page__grid">
                 <div class="booking-page__form-section glass-panel">
-                    <form id="bookingForm" action="${pageContext.request.contextPath}/BookingController" method="POST">
-                        <input type="hidden" name="action" value="createBookingProcess">
+                    <form id="bookingForm" action="${pageContext.request.contextPath}/MainController" method="POST">
+                        <input type="hidden" name="action" value="viewPayment">
                         <input type="hidden" id="tierDiscountPercent" value="${sessionScope.USER.tierId.discountPercent}">
                         <input type="hidden" id="tierPointMultiplier" value="${sessionScope.USER.tierId.pointMultiplier}">
                         <h2 class="booking-page__step-title">Step 1: Vehicle & Schedule</h2>

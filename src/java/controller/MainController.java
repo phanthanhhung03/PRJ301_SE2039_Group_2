@@ -90,6 +90,10 @@ public class MainController extends HttpServlet {
                 break;
             }
 
+            case "viewPayment":
+                url = "PaymentServlet";
+                break;
+
             case "createBookingProcess":
                 url = "/BookingController";
                 break;
@@ -121,11 +125,11 @@ public class MainController extends HttpServlet {
             case "updateTier":
                 url = "/TierController";
                 break;
-                
+
             case "showConfigureTier":
                 url = "/LoyaltyManagementController";
                 break;
-                
+
             case "registerVehicle":
                 url = "/vehicle/register";
                 break;

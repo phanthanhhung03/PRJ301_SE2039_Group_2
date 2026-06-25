@@ -85,6 +85,77 @@ public class PromotionDAO {
         return 0;
     }
 
+    public Promotion getPromotionById(int promotionID) {
+
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+
+            cn = DBUtils.getConnection();
+
+            if (cn != null) {
+
+                String sql = "SELECT PromotionID, AdminID, PromotionName, "
+                        + "Description, DiscountPercent, BonusPoints, "
+                        + "StartDate, EndDate, Status, TargetType "
+                        + "FROM Promotions "
+                        + "WHERE PromotionID = ?";
+
+                st = cn.prepareStatement(sql);
+
+                st.setInt(1, promotionID);
+
+                rs = st.executeQuery();
+
+                if (rs.next()) {
+
+                    Promotion p = new Promotion();
+
+                    p.setPromotionID(rs.getInt("PromotionID"));
+                    p.setAdminID(rs.getInt("AdminID"));
+                    p.setPromotionName(rs.getString("PromotionName"));
+                    p.setDescription(rs.getString("Description"));
+                    p.setDiscountPercent(rs.getDouble("DiscountPercent"));
+                    p.setBonusPoints(rs.getInt("BonusPoints"));
+                    p.setStartDate(rs.getDate("StartDate"));
+                    p.setEndDate(rs.getDate("EndDate"));
+                    p.setStatus(rs.getBoolean("Status"));
+                    p.setTargetType(rs.getString("TargetType"));
+
+                    return p;
+                }
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            try {
+
+                if (rs != null) {
+                    rs.close();
+                }
+
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        return null;
+    }
+
     public int updatePromotion(Promotion p) {
 
         int result = 0;
@@ -460,7 +531,6 @@ public class PromotionDAO {
         }
         return list;
     }
-
 
     // Checking is Low Engagement
     public boolean isLowEngagement(int customerID) {

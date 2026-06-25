@@ -68,6 +68,19 @@
 
         <% }%>
 
+        <c:if test="${not empty ERROR_MESSAGE}">
+            <div id="error-toast"
+                 class="toast toast--error">
+
+                <span class="toast__icon">✕</span>
+
+                <span class="toast__message">
+                    ${ERROR_MESSAGE}
+                </span>
+            </div>
+            <c:remove var="ERROR_MESSAGE" scope="session"/>
+        </c:if>
+
 
         <!-- NAVIGATION -->
         <header class="site-header">
@@ -242,7 +255,18 @@
                                     </span>
                                 </div>
                                 <div class="vehicle-card__header-actions">
-                                    <span class="status-badge status-badge--completed" style="margin-right: var(--spacing-sm);">Active</span>
+                                    <c:choose>
+                                        <c:when test="${vehicle.status}">
+                                            <span class="status-badge status-badge--completed">
+                                                Active
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="status-badge status-badge--cancelled">
+                                                Inactive
+                                            </span>
+                                        </c:otherwise>
+                                    </c:choose>
                                     <a href="${pageContext.request.contextPath}/MainController?action=viewUpdateVehicle&vehicleID=${vehicle.vehicleID}"
                                        class="vehicle-card__action-icon vehicle-card__action-icon--edit"
                                        title="Edit Vehicle">
@@ -544,23 +568,21 @@
         <script>
             document.addEventListener("DOMContentLoaded", function () {
 
-                const toast =
-                        document.getElementById("success-toast");
+                const toasts = document.querySelectorAll(".toast");
 
-                if (!toast) {
-                    return;
-                }
+                toasts.forEach(function (toast) {
 
-                setTimeout(() => {
+                    setTimeout(function () {
 
-                    toast.classList.add(
-                            "toast--hide");
+                        toast.classList.add("toast--hide");
 
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 500);
+                        setTimeout(function () {
+                            toast.remove();
+                        }, 500);
 
-                }, 3000);
+                    }, 3000);
+
+                });
 
             });
 
