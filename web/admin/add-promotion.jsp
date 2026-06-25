@@ -70,7 +70,6 @@
                     <div class="tier-form-group">
                         <label>Target Type *</label>
                         <select name="targetType" id="targetType" class="form-group__select form-group__input" required>
-                            <option value="ALL">All Customers</option>
                             <option value="TIER_ONLY">Specific Tiers</option>
                             <option value="LOW_ENGAGEMENT">Low Engagement</option>
                         </select>

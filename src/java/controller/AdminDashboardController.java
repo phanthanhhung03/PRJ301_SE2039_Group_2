@@ -53,29 +53,29 @@ public class AdminDashboardController extends HttpServlet {
             PromotionDAO promotionDAO = new PromotionDAO();
             PromotionTierDAO promotionTierDAO = new PromotionTierDAO();
             BookingDAO bookingDAO = new BookingDAO();
+            
             // Statistics
             int totalCustomers = customerDAO.countCustomers();
             int totalVehicles = vehicleDAO.countVehicles();
             List<Customer> topCustomers = customerDAO.getTopCustomers();
             List<Promotion> promotionList = promotionDAO.getAllPromotions();
             List<Booking> allBookings = bookingDAO.getAllAdminBookings();
+
             // Tier Data
             List<CustomerTier> tierList = tierDAO.getAllTiers();
             Map<Integer, Integer> customerTierCountMap = tierDAO.getCustomerCountByTier();
-
             Map<Integer, Double> percentageMap = new HashMap<>(); // Lay percentage de hien thi
             for (CustomerTier tier : tierList) {
-
                 int customerCount = customerTierCountMap.getOrDefault(tier.getTierID(), 0);
                 double percentage = 0;
                 if (totalCustomers > 0) {
                     percentage = customerCount * 100.0 / totalCustomers;
                 }
-
                 percentageMap.put(tier.getTierID(), percentage);
             }
 
-            Map<Integer, String> targetTierMap = new HashMap<>(); // Lay tier target
+            // Get Tier Target
+            Map<Integer, String> targetTierMap = new HashMap<>();
             for (Promotion p : promotionList) {
                 targetTierMap.put(p.getPromotionID(), promotionTierDAO.getTargetTierNames(p.getPromotionID()));
             }
@@ -86,24 +86,15 @@ public class AdminDashboardController extends HttpServlet {
 
             // Send Data To JSP
             request.setAttribute("totalCustomers", totalCustomers);
-
             request.setAttribute("totalVehicles", totalVehicles);
-
             request.setAttribute("tierList", tierList);
-
             request.setAttribute("customerTierCountMap", customerTierCountMap);
-
             request.setAttribute("percentageMap", percentageMap);
-
             request.setAttribute("topCustomers", topCustomers);
-
             request.setAttribute("promotionList", promotionList);
-
             request.setAttribute("targetTierMap", targetTierMap);
-
             request.setAttribute("yearRevenue", yearRevenue);
             request.setAttribute("currentYear", currentYear);
-
             request.setAttribute("ALL_BOOKINGS", allBookings);
             request.setAttribute("totalBookings", allBookings.size());
             // Forward
