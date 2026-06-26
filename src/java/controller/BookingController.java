@@ -122,7 +122,8 @@ public class BookingController extends HttpServlet {
 
                 // VALIDATE TRÙNG SLOT
                 BookingDAO checkDao = new BookingDAO();
-                if (checkDao.isSlotBooked(dateStr, timeStr)) {
+                // Phải thêm ":00" vào timeStr vì trong DB TimeSlot được lưu dưới dạng "HH:mm:ss"
+                if (checkDao.isSlotBooked(dateStr, timeStr + ":00")) {
                     request.setAttribute("BOOKING_ERROR", "This time slot has already been booked. Please choose a different time!");
                     request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
                     return;

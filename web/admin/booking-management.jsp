@@ -2,6 +2,7 @@
 <%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -56,7 +57,6 @@
                                 <th>Vehicle Details</th>
                                 <th>Service Selection</th>
                                 <th>Schedule Time</th>
-                                <th>Assigned Bay</th>
                                 <th>Payment</th>
                                 <th>Status</th>
                                 <th class="table-header-align-right">Ops Actions</th>
@@ -85,11 +85,9 @@
                                     </td>
                                     
                                     <td>
-                                        <div>${b.bookingDate}</div>
+                                        <div><fmt:formatDate value="${b.bookingDate}" pattern="yyyy-MM-dd" /></div>
                                         <div class="booking-timeslot">${b.timeSlot}</div>
                                     </td>
-                                    
-                                    <td>Bay 1</td>
                                     
                                     <td>
                                         <span class="status-badge 
@@ -116,7 +114,7 @@
                             
                             <c:if test="${empty ALL_BOOKINGS}">
                                 <tr>
-                                    <td colspan="8" class="table-no-data-cell">
+                                    <td colspan="7" class="table-no-data-cell">
                                         No bookings found in the database.
                                     </td>
                                 </tr>
