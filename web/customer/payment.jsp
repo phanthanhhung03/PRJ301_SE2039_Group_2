@@ -349,7 +349,7 @@
         <script>
 
             const bookingCode = "${BOOKING_DRAFT.bookingCode}";
-            const totalAmount = ${BOOKING_DRAFT.totalAmount / 10};
+            const totalAmount = ${total / 10};
             const expiredAt = ${BOOKING_DRAFT.expiredAt};
         </script>
 

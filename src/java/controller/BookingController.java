@@ -205,7 +205,7 @@ public class BookingController extends HttpServlet {
                 draft.setTierDiscount(tierDiscountAmount);
                 draft.setFinalAmount(finalAmount);
                 draft.setNotes(notes);
-                draft.setBookingCode("BK" + user.getCusId() + "-" + System.currentTimeMillis());
+                draft.setBookingCode("BK" + user.getCusId() + " " + System.currentTimeMillis());
                 draft.setExpiredAt(System.currentTimeMillis() + 10 * 60 * 1000L);
 
                 session.setAttribute("BOOKING_DRAFT", draft);
