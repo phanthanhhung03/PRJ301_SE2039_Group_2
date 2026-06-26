@@ -595,9 +595,60 @@ public class CustomerDAO {
         return check;
     }
 
+    // ==========================================================
+    // CẬP NHẬT ĐIỂM + TOTALSPEND KHI TẠO BOOKING (SAU THANH TOÁN)
+    // TotalBookings chỉ cộng khi Admin mark Completed
+    // ==========================================================
+    public boolean updateCustomerAfterBookingCreated(int cusID, double finalAmount) {
+        boolean check = false;
+        Connection cn = null;
+        PreparedStatement tierSt = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        try {
+            cn = dbutils.DBUtils.getConnection();
+            if (cn != null) {
+                // Lấy PointMultiplier của tier hiện tại
+                double multiplier = 1.0;
+                String tierSql = "SELECT t.PointMultiplier "
+                        + "FROM Customers c "
+                        + "JOIN CustomerTiers t ON c.TierID = t.TierID "
+                        + "WHERE c.CustomerID = ?";
+                tierSt = cn.prepareStatement(tierSql);
+                tierSt.setInt(1, cusID);
+                rs = tierSt.executeQuery();
+                if (rs.next()) {
+                    multiplier = rs.getDouble("PointMultiplier");
+                }
 
+                // Tính điểm thưởng: 1000đ = 1 điểm x multiplier
+                int earnedPoints = (int) Math.floor((finalAmount / 1000) * multiplier);
 
+                String sql = "UPDATE Customers SET "
+                        + "TotalSpend = ISNULL(TotalSpend, 0) + ?, "
+                        + "CurrentPoints = ISNULL(CurrentPoints, 0) + ?, "
+                        + "TotalBookings = ISNULL(TotalBookings, 0) + 1 "
+                        + "WHERE CustomerID = ?";
 
+                st = cn.prepareStatement(sql);
+                st.setDouble(1, finalAmount);
+                st.setInt(2, earnedPoints);
+                st.setInt(3, cusID);
+                check = st.executeUpdate() > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (tierSt != null) tierSt.close();
+                if (st != null) st.close();
+                if (cn != null) cn.close();
+            } catch (Exception e) {
+            }
+        }
+        return check;
+    }
 
     public boolean updateCustomer(Customer customer) {
 

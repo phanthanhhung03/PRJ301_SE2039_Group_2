@@ -20,6 +20,7 @@ public class BookingDraft implements Serializable {
     private double voucherDiscount;
     private double tierDiscount;
     private double finalAmount;
+    private String notes;
 
     public BookingDraft() {
     }
@@ -145,6 +146,14 @@ public class BookingDraft implements Serializable {
 
     public void setFinalAmount(double finalAmount) {
         this.finalAmount = finalAmount;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
 }

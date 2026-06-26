@@ -93,7 +93,7 @@
             <div class="booking-page__grid">
                 <div class="booking-page__form-section glass-panel">
                     <form id="bookingForm" action="${pageContext.request.contextPath}/MainController" method="POST">
-                        <input type="hidden" name="action" value="viewPayment">
+                        <input type="hidden" name="action" value="createBookingProcess">
                         <input type="hidden" id="tierDiscountPercent" value="${sessionScope.USER.tierId.discountPercent}">
                         <input type="hidden" id="tierPointMultiplier" value="${sessionScope.USER.tierId.pointMultiplier}">
                         <h2 class="booking-page__step-title">Step 1: Vehicle & Schedule</h2>
