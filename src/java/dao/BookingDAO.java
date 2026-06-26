@@ -418,6 +418,28 @@ public class BookingDAO {
         return revenue;
     }
 
+    public boolean hasPendingBooking(int vehicleId) {
+
+        String sql = "SELECT 1 "
+                + "FROM Bookings "
+                + "WHERE VehicleID = ? "
+                + "AND BookingStatus = 'Pending'";
+
+        try ( Connection cn = DBUtils.getConnection();  PreparedStatement st = cn.prepareStatement(sql)) {
+
+            st.setInt(1, vehicleId);
+
+            try ( ResultSet rs = st.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     public List<Booking> getBookingsByCustomerId(int customerId) {
 
         List<Booking> list = new ArrayList<>();
@@ -536,7 +558,6 @@ public class BookingDAO {
                     booking.setTotalAmount(rs.getDouble("TotalAmount"));
                     booking.setDiscountAmount(rs.getDouble("DiscountAmount"));
                     booking.setFinalAmount(rs.getDouble("FinalAmount"));
-                    booking.setPaymentStatus(rs.getBoolean("PaymentStatus"));
 
                     bookingList.add(booking);
                 }

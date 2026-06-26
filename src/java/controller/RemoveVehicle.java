@@ -39,12 +39,12 @@ public class RemoveVehicle extends HttpServlet {
 
         VehicleDAO dao = new VehicleDAO();
         BookingDAO bookingDao = new BookingDAO();
-        List<Booking> bookings = bookingDao.getBookingsByVehicleId(vehicleId, "Pending");
 
-        if (!bookings.isEmpty()) {
+        if (bookingDao.hasPendingBooking(vehicleId)) {
+
             request.getSession().setAttribute(
                     "ERROR_MESSAGE",
-                    "Failed to remove vehicle. You must cancel booking first");
+                    "Unable to remove this vehicle because it has a pending booking.");
 
             response.sendRedirect(
                     request.getContextPath()
