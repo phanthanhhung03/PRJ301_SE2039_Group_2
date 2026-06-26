@@ -1057,47 +1057,6 @@ public class CustomerDAO {
         return list;
     }
 
-    // Map<TierID, TotalRevenue> - tổng doanh thu (TotalSpend) theo từng Tier
-    public Map<Integer, Double> getRevenueByTier() {
-        Map<Integer, Double> result = new HashMap<>();
-        Connection cn = null;
-        PreparedStatement st = null;
-        ResultSet rs = null;
-
-        try {
-            cn = DBUtils.getConnection();
-            if (cn != null) {
-                String sql = "SELECT TierID, SUM(TotalSpend) AS TierRevenue "
-                        + "FROM Customers "
-                        + "GROUP BY TierID";
-
-                st = cn.prepareStatement(sql);
-                rs = st.executeQuery();
-
-                while (rs.next()) {
-                    result.put(rs.getInt("TierID"), rs.getDouble("TierRevenue"));
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (st != null) {
-                    st.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
-
     // Top khách hàng có điểm cao nhất hiện tại
     public List<Customer> getTopCustomersByPoints(int limit) {
         List<Customer> list = new ArrayList<>();
@@ -1191,8 +1150,8 @@ public class CustomerDAO {
         return check;
     }
 
-// Trả về điểm trung bình HIỆN TẠI (CurrentPoints) theo từng Tier — không phải avg/booking lịch sử.
-    public Map<Integer, Double> getAvgPointsByTier() {
+// Map<TierID, TotalRevenue> - tổng doanh thu trong NĂM hiện tại, theo Tier hiện tại của khách
+    public Map<Integer, Double> getRevenueByTier(int year) {
         Map<Integer, Double> result = new HashMap<>();
         Connection cn = null;
         PreparedStatement st = null;
@@ -1201,12 +1160,71 @@ public class CustomerDAO {
         try {
             cn = DBUtils.getConnection();
             if (cn != null) {
-                String sql = "SELECT TierID, AVG(CAST(CurrentPoints AS FLOAT)) AS AvgPoints "
-                        + "FROM Customers "
-                        + "WHERE Status = 1 "
-                        + "GROUP BY TierID";
+                String sql = "SELECT t.TierID, ISNULL(SUM(b.FinalAmount), 0) AS TierRevenue "
+                        + "FROM CustomerTiers t "
+                        + "LEFT JOIN Customers c ON c.TierID = t.TierID "
+                        + "LEFT JOIN Vehicles v ON v.CustomerID = c.CustomerID "
+                        + "LEFT JOIN Bookings b ON b.VehicleID = v.VehicleID "
+                        + "    AND b.BookingStatus = 'Completed' "
+                        + "    AND YEAR(b.BookingDate) = ? "
+                        + "GROUP BY t.TierID";
 
                 st = cn.prepareStatement(sql);
+                st.setInt(1, year);
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+                    result.put(rs.getInt("TierID"), rs.getDouble("TierRevenue"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+// Điểm trung bình KIẾM ĐƯỢC trong NĂM hiện tại, theo Tier — khách không có booking trong năm tính là 0 điểm
+    public Map<Integer, Double> getAvgPointsByTier(int year) {
+        Map<Integer, Double> result = new HashMap<>();
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT t.TierID, AVG(CAST(ISNULL(yp.YearPoints, 0) AS FLOAT)) AS AvgPoints "
+                        + "FROM CustomerTiers t "
+                        + "JOIN Customers c ON c.TierID = t.TierID AND c.Status = 1 "
+                        + "LEFT JOIN ( "
+                        + "    SELECT v.CustomerID, "
+                        + "           SUM(FLOOR((b.FinalAmount / 1000.0) * t2.PointMultiplier)) AS YearPoints "
+                        + "    FROM Bookings b "
+                        + "    JOIN Vehicles v ON b.VehicleID = v.VehicleID "
+                        + "    JOIN Customers cc ON v.CustomerID = cc.CustomerID "
+                        + "    JOIN CustomerTiers t2 ON cc.TierID = t2.TierID "
+                        + "    WHERE b.BookingStatus = 'Completed' "
+                        + "      AND YEAR(b.BookingDate) = ? "
+                        + "    GROUP BY v.CustomerID "
+                        + ") yp ON yp.CustomerID = c.CustomerID "
+                        + "GROUP BY t.TierID";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, year);
                 rs = st.executeQuery();
 
                 while (rs.next()) {
@@ -1232,6 +1250,7 @@ public class CustomerDAO {
         }
         return result;
     }
+
     // Khách chưa lên tier kế tiếp nhưng đang gần đạt nhất (theo % tiến độ Spend/Bookings)
     public List<Customer> getCustomersNearNextTier(int limit) {
         List<Customer> list = new ArrayList<>();

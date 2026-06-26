@@ -76,12 +76,16 @@ public class LoyaltyManagementController extends HttpServlet {
             // DEFAULT: load and display loyalty management page
             // ------------------------------------------------------------------
             CustomerDAO customerDAO = new CustomerDAO();
-            BookingDAO bookingDAO = new BookingDAO();   // MỚI
+            BookingDAO bookingDAO = new BookingDAO();   
             List<CustomerTier> tierList = tierDAO.getAllTiers();
             Map<Integer, Integer> customerTierCountMap = tierDAO.getCustomerCountByTier();
-            List<Booking> pointsActivityList = bookingDAO.getRecentPointsActivity(50);
-            Map<Integer, Double> tierAvgPointsMap = customerDAO.getAvgPointsByTier(); 
-            Map<Integer, Double> revenueByTierMap = customerDAO.getRevenueByTier();
+            List<Booking> pointsActivityList = bookingDAO.getRecentPointsActivity(12);
+            
+            // Tinh diem theo nam hien tai
+            int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+            Map<Integer, Double> tierAvgPointsMap = customerDAO.getAvgPointsByTier(currentYear); 
+            Map<Integer, Double> revenueByTierMap = customerDAO.getRevenueByTier(currentYear);
+            
             List<Customer> customersNearNextTier = customerDAO.getCustomersNearNextTier(5);
 
             double totalRevenue = 0;
@@ -89,6 +93,7 @@ public class LoyaltyManagementController extends HttpServlet {
                 totalRevenue += v;
             }
 
+            // Set Data to JSP
             request.setAttribute("tierList", tierList);
             request.setAttribute("customerTierCountMap", customerTierCountMap);
             request.setAttribute("pointsActivityList", pointsActivityList);  
@@ -97,6 +102,7 @@ public class LoyaltyManagementController extends HttpServlet {
             request.setAttribute("totalRevenue", totalRevenue);
             request.setAttribute("customersNearNextTier", customersNearNextTier);
 
+            // Forward
             request.getRequestDispatcher("/admin/loyalty-management.jsp").forward(request, response);
 
         } catch (Exception e) {
