@@ -140,7 +140,6 @@ public class PaymentServlet extends HttpServlet {
             draft.setBookingCode(
                     "BK"
                     + customer.getCusId()
-                    + "-"
                     + System.currentTimeMillis());
 
             draft.setExpiredAt(
