@@ -18,6 +18,13 @@ public class Customer {
     private Date createdAt;
     private int vehicleCount;
     private double walletBalance;
+
+    // Virtual
+    private String nextTierName;
+    private double upgradeProgressPercent; // 0-100, % gần nhất tới tier kế tiếp
+    private double spendNeeded;            // còn thiếu bao nhiêu VND
+    private int bookingsNeeded;            // còn thiếu bao nhiêu lượt
+
     public Customer() {
     }
 
@@ -146,6 +153,38 @@ public class Customer {
 
     public void setWalletBalance(double walletBalance) {
         this.walletBalance = walletBalance;
+    }
+
+    public String getNextTierName() {
+        return nextTierName;
+    }
+
+    public void setNextTierName(String nextTierName) {
+        this.nextTierName = nextTierName;
+    }
+
+    public double getUpgradeProgressPercent() {
+        return upgradeProgressPercent;
+    }
+
+    public void setUpgradeProgressPercent(double upgradeProgressPercent) {
+        this.upgradeProgressPercent = upgradeProgressPercent;
+    }
+
+    public double getSpendNeeded() {
+        return spendNeeded;
+    }
+
+    public void setSpendNeeded(double spendNeeded) {
+        this.spendNeeded = spendNeeded;
+    }
+
+    public int getBookingsNeeded() {
+        return bookingsNeeded;
+    }
+
+    public void setBookingsNeeded(int bookingsNeeded) {
+        this.bookingsNeeded = bookingsNeeded;
     }
 
     public String getInitials() {
