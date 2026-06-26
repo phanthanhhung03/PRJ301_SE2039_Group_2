@@ -32,39 +32,6 @@ public class AdminBookingController extends HttpServlet {
                 return;
             }
             
-            // NHÁNH 2: XỬ LÝ ĐỔI STATUS TỰ ĐỘNG (Khi Admin chọn thẻ select)
-            else if ("updateBookingStatus".equals(action)) {
-                int bID = Integer.parseInt(request.getParameter("bookingID"));
-                int customerID = Integer.parseInt(request.getParameter("cusID"));
-                String newStatus = request.getParameter("newStatus");
-
-                // 1. Lấy trạng thái cũ trước khi cập nhật
-                Booking oldBooking = bDao.getBookingByID(bID);
-                String oldStatus = (oldBooking != null) ? oldBooking.getBookingStatus() : "";
-
-                // 2. Cập nhật trạng thái mới vào Database
-                boolean isUpdated = bDao.updateBookingStatus(bID, newStatus);
-
-                if (isUpdated && oldBooking != null) {
-                    double amount = oldBooking.getFinalAmount();
-
-                    // Chỉ xử lý điểm/tiền cho 2 luồng từ Pending
-                    if ("Pending".equals(oldStatus) && "Completed".equals(newStatus)) {
-                        // Chờ xử lý -> Hoàn thành: Cộng tiền, cộng điểm thưởng, +1 lượt rửa
-                        cDao.updateCustomerAfterCompleted(customerID, bID, amount);
-                        cDao.checkAndUpdateTier(customerID);
-                    } else if ("Pending".equals(oldStatus) && "Cancelled".equals(newStatus)) {
-                        // Chờ xử lý -> Hủy: Trừ thẳng 20đ phạt cố định, +1 lượt rửa
-                        cDao.updateCustomerAfterCancelled(customerID);
-                        cDao.checkAndUpdateTier(customerID);
-                    }
-                    // Không xử lý điểm/tiền cho Completed->Cancelled và Cancelled->Completed
-                }
-                
-                response.sendRedirect("MainController?action=viewAdminBookings");
-                return;
-            }
-
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/MainController?action=viewAdminDashboard");
