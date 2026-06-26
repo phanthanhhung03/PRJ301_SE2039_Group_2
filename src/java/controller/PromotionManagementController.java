@@ -98,6 +98,7 @@ public class PromotionManagementController extends HttpServlet {
                 // ------------------------------------------------------------------
                 // POST actions
                 // ------------------------------------------------------------------
+                
                 // Add Promotion
             } else if ("addPromotion".equals(action)) {
 
