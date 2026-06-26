@@ -2,7 +2,6 @@ package controller;
 
 import dao.PromotionDAO;
 import dao.VehicleDAO;
-import dto.BookingDraft;
 import dto.Customer;
 import dto.CustomerTier;
 import dto.Promotion;
@@ -24,9 +23,6 @@ public class PaymentServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-
-        BookingDraft draft
-                = (BookingDraft) session.getAttribute("BOOKING_DRAFT");
 
         // ==========================
         // Booking Information
@@ -87,7 +83,7 @@ public class PaymentServlet extends HttpServlet {
         // Tier Discount
         // ==========================
         Customer customer = (Customer) session.getAttribute("USER");
-        String bookingCode = "BK" + customer.getCusId() + " " + System.currentTimeMillis();
+        
         long expiredAt = System.currentTimeMillis() + (10 * 60 * 1000);
 
         double tierDiscount = 0;
@@ -114,41 +110,6 @@ public class PaymentServlet extends HttpServlet {
         double total = amount - voucherDiscount - tierDiscount;
 
         int rewardPoint = (int) Math.floor((total * customerTier.getPointMultiplier() / 1000));
-
-        if (draft == null) {
-
-            draft = new BookingDraft();
-
-            // set toàn bộ dữ liệu
-            draft.setCustomerId(customer.getCusId());
-            draft.setVehicleId(vehicleID);
-            draft.setPromotionId(promotionID);
-
-            draft.setServiceType(serviceType);
-
-            draft.setBookingDate(Date.valueOf(bookingDate));
-            draft.setBookingTime(Time.valueOf(bookingTime + ":00"));
-
-            draft.setTotalAmount(total);
-            draft.setVoucherDiscount(voucherDiscount);
-            draft.setTierDiscount(tierDiscount);
-            draft.setFinalAmount(total);
-
-            draft.setBookingCode(bookingCode);
-            draft.setExpiredAt(expiredAt);
-
-            draft.setBookingCode(
-                    "BK"
-                    + customer.getCusId()
-                    + System.currentTimeMillis());
-
-            draft.setExpiredAt(
-                    System.currentTimeMillis()
-                    + 10 * 60 * 1000);
-
-            session.setAttribute("BOOKING_DRAFT", draft);
-
-        }
 
         // ==========================
         // Send to payment.jsp
