@@ -378,34 +378,6 @@ public class BookingDAO {
         return list;
     }
 
-    public boolean updateBookingStatus(int bookingID, String status) {
-        boolean check = false;
-        java.sql.Connection cn = null;
-        java.sql.PreparedStatement st = null;
-        try {
-            cn = dbutils.DBUtils.getConnection();
-            if (cn != null) {
-                String sql = "UPDATE Bookings SET BookingStatus = ? WHERE BookingID = ?";
-                st = cn.prepareStatement(sql);
-                st.setString(1, status);
-                st.setInt(2, bookingID);
-                check = st.executeUpdate() > 0;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-            }
-        }
-        return check;
-    }
 
     // Get Revenue by Year
     public double getRevenueByYear(int year) {
