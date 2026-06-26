@@ -9,9 +9,10 @@ import dto.BookingDraft;
 import dto.Customer;
 import dto.Promotion;
 import java.io.IOException;
+import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -40,97 +41,97 @@ public class BookingController extends HttpServlet {
             String action = request.getParameter("action");
 
             // =========================================================
-            // NHÁNH 1: XỬ LÝ HỦY LỊCH 
+            // NHÁNH 1: HỦY LỊCH
             // =========================================================
             if ("cancelBooking".equals(action)) {
                 int bookingID = Integer.parseInt(request.getParameter("bookingID"));
                 BookingDAO dao = new BookingDAO();
 
-                // 1. THỰC HIỆN HỦY LỊCH NGAY LẬP TỨC (Đổi Status thành Cancelled)
+                Booking b = dao.getBookingByID(bookingID);
+                if (b == null) {
+                    session.setAttribute("ERROR", "Booking not found.");
+                    response.sendRedirect("MainController?action=viewDashBoard");
+                    return;
+                }
+
                 boolean isSuccess = dao.cancelBooking(bookingID);
 
                 if (isSuccess) {
-                    // 2. GỌI HÀM DAO CẬP NHẬT DỮ LIỆU & QUÉT LẠI HẠNG
-                    dao.CustomerDAO cDao = new dao.CustomerDAO();
-                    cDao.updateCustomerAfterCancelled(user.getCusId());
+                    CustomerDAO cDao = new CustomerDAO();
+                    
+                    double multiplier = user.getTierId().getPointMultiplier();
+                    int deductPoints = (int) Math.floor((b.getFinalAmount() / 1000) * multiplier);
+                    double refundAmount = b.getFinalAmount();
+
+                    cDao.processCancellationRefund(user.getCusId(), deductPoints, refundAmount);
                     cDao.checkAndUpdateTier(user.getCusId());
 
-                    // Cách này an toàn tuyệt đối, hệ thống tự động load điểm mới, lượt mới và Hạng mới nhất!
-                    dto.Customer updatedUser = cDao.getCustomer(user.getCusId());
+                    Customer updatedUser = cDao.getCustomer(user.getCusId());
                     if (updatedUser != null) {
                         session.setAttribute("USER", updatedUser);
                     }
 
-                    session.setAttribute("MSG", "Booking cancelled successfully! Notice: 20 points were deducted for cancellation.");
+                    session.setAttribute("MSG", "Booking cancelled successfully! " + deductPoints + " reward points were deducted and " + refundAmount + " VNĐ has been refunded to your wallet.");
                 } else {
                     session.setAttribute("ERROR", "Failed to cancel booking. Please try again.");
                 }
 
                 response.sendRedirect("MainController?action=viewDashBoard");
                 return;
-            } // =========================================================
-            // NHÁNH 2: TẠO LỊCH MỚI
+
             // =========================================================
-            else if ("createBookingProcess".equals(action)) {
-                // 1. LẤY DỮ LIỆU TỪ FORM JSP GỬI LÊN
-                int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));
-                String dateStr = request.getParameter("bookingDate");
-                String timeStr = request.getParameter("bookingTime");
+            // NHÁNH 2: TẠO LỊCH MỚI → Validate + Tính tiền + Tạo BookingDraft + Lưu Session
+            // =========================================================
+            } else if ("createBookingProcess".equals(action)) {
+
+                // 1. LẤY DỮ LIỆU TỪ FORM
+                int vehicleID    = Integer.parseInt(request.getParameter("vehicleID"));
+                String dateStr   = request.getParameter("bookingDate");
+                String timeStr   = request.getParameter("bookingTime");
                 String serviceType = request.getParameter("serviceType");
-                String notes = request.getParameter("notes");
+                String notes     = request.getParameter("notes");
 
-                // 2. CHUYỂN ĐỔI NGÀY & GIỜ THÀNH JAVA.SQL.TIMESTAMP
-                String dateTimeStr = dateStr + " " + timeStr + ":00";
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date parsedDate = dateFormat.parse(dateTimeStr);
-                Timestamp bookingDate = new Timestamp(parsedDate.getTime());
-
-                // BẮT ĐẦU CHỐT CHẶN BẢO MẬT NGÀY THÁNG
+                // 2. VALIDATE NGÀY
                 java.time.LocalDate inputDate = java.time.LocalDate.parse(dateStr);
-                java.time.LocalDate today = java.time.LocalDate.now();
+                java.time.LocalDate today     = java.time.LocalDate.now();
 
                 if (inputDate.isBefore(today)) {
                     request.setAttribute("BOOKING_ERROR", "Invalid booking date. Please select a future date.");
                     request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
                     return;
                 }
-                // KIỂM TRA GIỚI HẠN ÐAT LICH THEO TIER
+
+                // VALIDATE GIỚI HẠN ĐẶT LỊCH THEO TIER
                 int maxDays = 7;
                 String tierName = user.getTierId().getTierName();
-                if ("Silver".equalsIgnoreCase(tierName)) {
-                    maxDays = 10;
-                } else if ("Gold".equalsIgnoreCase(tierName)) {
-                    maxDays = 12;
-                } else if ("Platinum".equalsIgnoreCase(tierName)) {
-                    maxDays = 14;
-                }
+                if ("Silver".equalsIgnoreCase(tierName))   maxDays = 10;
+                else if ("Gold".equalsIgnoreCase(tierName))     maxDays = 12;
+                else if ("Platinum".equalsIgnoreCase(tierName)) maxDays = 14;
 
-                // Tính toán thời gian giới hạn cuối cùng (Max allowed time)
+                String dateTimeStr = dateStr + " " + timeStr + ":00";
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                java.util.Date parsedDate = dateFormat.parse(dateTimeStr);
+                Timestamp bookingTimestamp = new Timestamp(parsedDate.getTime());
+
                 long maxMillis = System.currentTimeMillis() + (maxDays * 24L * 60L * 60L * 1000L);
-                Timestamp maxAllowedTime = new Timestamp(maxMillis);
-
-                // Hàm after() trả về true nếu ngày khách gửi lên nằm xa hơn ngày giới hạn
-                if (bookingDate.after(maxAllowedTime)) {
+                if (bookingTimestamp.after(new Timestamp(maxMillis))) {
                     request.setAttribute("BOOKING_ERROR", tierName + " tier privileges only allow booking up to " + maxDays + " days in advance.");
                     request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
-                    return; // Dừng hệ thống
+                    return;
                 }
-                // CHỐT CHẶN TRÙNG LỊCH 
+
+                // VALIDATE TRÙNG SLOT
                 BookingDAO checkDao = new BookingDAO();
-                boolean isBooked = checkDao.isSlotBooked(dateStr, timeStr);
-                if (isBooked) {
+                if (checkDao.isSlotBooked(dateStr, timeStr)) {
                     request.setAttribute("BOOKING_ERROR", "This time slot has already been booked. Please choose a different time!");
                     request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
                     return;
                 }
 
-                // 3. TÍNH TOÁN GIÁ TIỀN GỐC DỊCH VỤ
+                // 3. TÍNH GIÁ GỐC
                 double totalAmount = 0;
-                if (serviceType.equals("Normal Wash")) {
-                    totalAmount = 150000;
-                } else if (serviceType.equals("Premium Wash")) {
-                    totalAmount = 300000;
-                }
+                if ("Normal Wash".equals(serviceType))   totalAmount = 150000;
+                else if ("Premium Wash".equals(serviceType)) totalAmount = 300000;
 
                 // 4. TÍNH TOÁN GIẢM GIÁ (TIER + VOUCHER)
                 double discountAmount = 0;
@@ -143,6 +144,7 @@ public class BookingController extends HttpServlet {
                 // 4.2 KIỂM TRA VÀ ÁP DỤNG VOUCHER BẰNG DAO
                 String promoCodeStr = request.getParameter("promoCode");
                 int promoID = 0;
+                double voucherDiscount = 0;
                 CustomerPromotionDAO cpDao = new CustomerPromotionDAO();
 
                 if (promoCodeStr != null && !promoCodeStr.equals("0")) {
@@ -164,7 +166,7 @@ public class BookingController extends HttpServlet {
 
                             Promotion p = pDao.getPromotionByID(promoID);
                             if (p != null && p.isStatus()) {
-                                double voucherDiscount = totalAmount * (p.getDiscountPercent() / 100.0);
+                                voucherDiscount = totalAmount * (p.getDiscountPercent() / 100.0);
                                 discountAmount += voucherDiscount;
                             } else {
                                 request.setAttribute("BOOKING_ERROR", "This voucher is expired or unavailable!");
@@ -189,94 +191,120 @@ public class BookingController extends HttpServlet {
                     finalAmount = 0;
                 }
 
-                // 5. ĐÓNG GÓI DỮ LIỆU VÀO DTO
-                Booking booking = new Booking();
-                booking.setVehicleID(vehicleID);
-                booking.setBookingDate(bookingDate);
-                booking.setTimeSlot(timeStr);
-                booking.setServiceType(serviceType);
-                booking.setBookingStatus("Pending");
-                booking.setNotes(notes);
-                booking.setTotalAmount(totalAmount);
-                booking.setDiscountAmount(discountAmount);
-                booking.setFinalAmount(finalAmount);
+                // 7. TẠO BOOKING DRAFT VÀ LƯU SESSION
+                BookingDraft draft = new BookingDraft();
+                draft.setCustomerId(user.getCusId());
+                draft.setVehicleId(vehicleID);
+                draft.setPromotionId(promoID);
+                draft.setServiceType(serviceType);
+                draft.setBookingDate(Date.valueOf(dateStr));
+                draft.setBookingTime(Time.valueOf(timeStr + ":00"));
+                draft.setTotalAmount(totalAmount);
+                draft.setVoucherDiscount(voucherDiscount);
+                draft.setTierDiscount(tierDiscountAmount);
+                draft.setFinalAmount(finalAmount);
+                draft.setNotes(notes);
+                draft.setBookingCode("BK" + user.getCusId() + "-" + System.currentTimeMillis());
+                draft.setExpiredAt(System.currentTimeMillis() + 10 * 60 * 1000L);
 
-                // 6. GỌI DAO ĐỂ THỰC THI
-                //BookingDAO dao = new BookingDAO();
-                //boolean isSuccess = dao.insertBooking(booking);
-                session.setAttribute("BOOKING_DRAFT", booking);
-                session.setAttribute("PROMO_ID", promoID);
+                session.setAttribute("BOOKING_DRAFT", draft);
 
-                request.getRequestDispatcher("/customer/payment.jsp")
-                        .forward(request, response);
+                // 8. CHUYỂN QUA PAYMENT SERVLET ĐỂ HIỂN THỊ TRANG THANH TOÁN
+                // Dùng forward thay vì sendRedirect để giữ lại toàn bộ dữ liệu request.getParameter cho PaymentServlet
+                request.getRequestDispatcher("/PaymentServlet").forward(request, response);
+                return;
 
-//                if (isSuccess) {
-//                    if (promoID != 0) {
-//                        cpDao.markAsUsed(user.getCusId(), promoID);
-//                    }
-//                    user.setTotalBooking(user.getTotalBooking() + 1);
-//                    session.setAttribute("MSG", "Booking created successfully!");
-//                    response.sendRedirect("MainController?action=viewDashBoard");
-//                } else {
-//                    request.setAttribute("BOOKING_ERROR", "Failed to create appointment. Please try again.");
-//                    request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
-//                }
+            // =========================================================
+            // NHÁNH 3: HOÀN TẤT BOOKING SAU KHI THANH TOÁN THÀNH CÔNG
+            // Lấy BOOKING_DRAFT → insertBooking → Update Voucher → Update Customer → Xóa Session
+            // =========================================================
             } else if ("completeBooking".equals(action)) {
 
                 BookingDraft draft = (BookingDraft) session.getAttribute("BOOKING_DRAFT");
 
                 if (draft == null) {
-                    response.sendRedirect("MainController?action=viewBooking");
+                    response.sendRedirect("MainController?action=viewNewBooking");
                     return;
                 }
 
-                Booking booking = new Booking();
+                // Kiểm tra hết hạn
+                if (System.currentTimeMillis() > draft.getExpiredAt()) {
+                    session.removeAttribute("BOOKING_DRAFT");
+                    session.setAttribute("ERROR", "Payment session expired. Please try again.");
+                    response.sendRedirect("MainController?action=viewNewBooking");
+                    return;
+                }
 
+                // RE-VALIDATE trước khi insertBooking
+                // 1. Kiểm tra ngày không được là ngày quá khứ
+                java.time.LocalDate bookingLocalDate = draft.getBookingDate().toLocalDate();
+                if (bookingLocalDate.isBefore(java.time.LocalDate.now())) {
+                    session.removeAttribute("BOOKING_DRAFT");
+                    session.setAttribute("BOOKING_ERROR", "Booking date has already passed. Please create a new booking.");
+                    response.sendRedirect("MainController?action=viewNewBooking");
+                    return;
+                }
+
+                // 2. Re-validate trùng slot (ai đó có thể đã đặt trong lúc user đang thanh toán)
+                BookingDAO dao = new BookingDAO();
+                String dateStr = draft.getBookingDate().toString();
+                String timeStr = draft.getBookingTime().toString();
+                if (dao.isSlotBooked(dateStr, timeStr)) {
+                    session.removeAttribute("BOOKING_DRAFT");
+                    session.setAttribute("BOOKING_ERROR", "Sorry, this time slot was just booked by someone else. Please choose a different time.");
+                    response.sendRedirect("MainController?action=viewNewBooking");
+                    return;
+                }
+
+                // Xây dựng Booking từ BookingDraft
+                Booking booking = new Booking();
                 booking.setVehicleID(draft.getVehicleId());
+
                 Timestamp bookingTimestamp = Timestamp.valueOf(
                         draft.getBookingDate().toString()
                         + " "
                         + draft.getBookingTime().toString());
-
                 booking.setBookingDate(bookingTimestamp);
-
                 booking.setTimeSlot(draft.getBookingTime().toString());
                 booking.setServiceType(draft.getServiceType());
-
                 booking.setBookingStatus("Pending");
-                booking.setNotes("");
-
+                booking.setNotes(draft.getNotes() != null ? draft.getNotes() : "");
                 booking.setTotalAmount(draft.getTotalAmount());
-
-                booking.setDiscountAmount(
-                        draft.getVoucherDiscount()
-                        + draft.getTierDiscount());
-
+                booking.setDiscountAmount(draft.getVoucherDiscount() + draft.getTierDiscount());
                 booking.setFinalAmount(draft.getFinalAmount());
-
-                Integer promoID = (Integer) session.getAttribute("PROMO_ID");
-
-                BookingDAO dao = new BookingDAO();
+                booking.setPaymentStatus(true);
 
                 boolean isSuccess = dao.insertBooking(booking);
 
                 if (isSuccess) {
 
-                    if (promoID != null && promoID != 0) {
+                    // Update Voucher (đánh dấu đã sử dụng)
+                    int promoID = draft.getPromotionId();
+                    if (promoID != 0) {
                         CustomerPromotionDAO cpDao = new CustomerPromotionDAO();
                         cpDao.markAsUsed(user.getCusId(), promoID);
                     }
-                    user.setTotalBooking(user.getTotalBooking() + 1);
+
+                    // Update Customer (điểm + số lượt + tier)
+                    CustomerDAO cDao = new CustomerDAO();
+                    cDao.updateCustomerAfterBookingCreated(user.getCusId(), draft.getFinalAmount());
+                    cDao.checkAndUpdateTier(user.getCusId());
+
+                    // Refresh session USER
+                    Customer updatedUser = cDao.getCustomer(user.getCusId());
+                    if (updatedUser != null) {
+                        session.setAttribute("USER", updatedUser);
+                    }
+
+                    // Xóa Session Draft
                     session.removeAttribute("BOOKING_DRAFT");
-                    session.removeAttribute("PROMO_ID");
-                    session.removeAttribute("BOOKING_CODE");
-                    session.setAttribute("MSG", "Booking created successfully!");
+
+                    session.setAttribute("MSG", "Booking created successfully! Thank you for your payment.");
                     response.sendRedirect("MainController?action=viewDashBoard");
 
                 } else {
-
-                    session.setAttribute("BOOKING_ERROR", "Create booking failed!");
-                    request.getRequestDispatcher("/customer/bookingpage.jsp").forward(request, response);
+                    session.setAttribute("ERROR", "Failed to create booking. Please contact support.");
+                    response.sendRedirect("MainController?action=viewDashBoard");
                 }
 
                 return;

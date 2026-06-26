@@ -16,6 +16,7 @@ public class Booking {
     private double discountAmount;
     private double finalAmount;
     private Timestamp createdAt;
+    private boolean paymentStatus;
 
     // --- CỘT ẢO (VIRTUAL COLUMN) ĐỂ HIỂN THỊ UI ---
     // Cột này không có trong SQL, nhưng cực kỳ cần thiết để hứng dữ liệu 
@@ -132,6 +133,14 @@ public class Booking {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(boolean paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
     public String getVehicleName() {

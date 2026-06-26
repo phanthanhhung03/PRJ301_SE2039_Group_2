@@ -24,8 +24,8 @@ public class BookingDAO {
             if (cn != null) {
                 // BookingID và CreatedAt sẽ tự động sinh trong SQL Server, không cần Insert
                 String sql = "INSERT INTO Bookings "
-                        + "(VehicleID, BookingDate, TimeSlot, ServiceType, BookingStatus, Notes, TotalAmount, DiscountAmount, FinalAmount) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        + "(VehicleID, BookingDate, TimeSlot, ServiceType, BookingStatus, Notes, TotalAmount, DiscountAmount, FinalAmount, PaymentStatus) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
                 st = cn.prepareStatement(sql);
                 st.setInt(1, booking.getVehicleID());
@@ -37,6 +37,7 @@ public class BookingDAO {
                 st.setDouble(7, booking.getTotalAmount());
                 st.setDouble(8, booking.getDiscountAmount());
                 st.setDouble(9, booking.getFinalAmount());
+                st.setBoolean(10, booking.isPaymentStatus());
 
                 // Nếu executeUpdate trả về số dòng thay đổi > 0 tức là Insert thành công
                 int rows = st.executeUpdate();
@@ -91,6 +92,7 @@ public class BookingDAO {
                     b.setTotalAmount(rs.getDouble("TotalAmount"));
                     b.setDiscountAmount(rs.getDouble("DiscountAmount"));
                     b.setFinalAmount(rs.getDouble("FinalAmount"));
+                    b.setPaymentStatus(rs.getBoolean("PaymentStatus"));
                     b.setCreatedAt(rs.getTimestamp("CreatedAt"));
                 }
             }
@@ -149,6 +151,7 @@ public class BookingDAO {
                     b.setTotalAmount(rs.getDouble("TotalAmount"));
                     b.setDiscountAmount(rs.getDouble("DiscountAmount"));
                     b.setFinalAmount(rs.getDouble("FinalAmount"));
+                    b.setPaymentStatus(rs.getBoolean("PaymentStatus"));
                     b.setCreatedAt(rs.getTimestamp("CreatedAt"));
 
                     // Cột ảo (Virtual Column) dùng để hiển thị giao diện
@@ -211,6 +214,7 @@ public class BookingDAO {
                     b.setTotalAmount(rs.getDouble("TotalAmount"));
                     b.setDiscountAmount(rs.getDouble("DiscountAmount"));
                     b.setFinalAmount(rs.getDouble("FinalAmount"));
+                    b.setPaymentStatus(rs.getBoolean("PaymentStatus"));
                     b.setCreatedAt(rs.getTimestamp("CreatedAt"));
 
                     String carName = rs.getString("LicensePlate") + " • " + rs.getString("Brand") + " " + rs.getString("Model");
@@ -311,63 +315,6 @@ public class BookingDAO {
         return isBooked;
     }
 
-    public List<Booking> getTop5PendingBookings() {
-        List<Booking> list = new ArrayList<>();
-        Connection cn = null;
-        PreparedStatement st = null;
-        ResultSet rs = null;
-
-        try {
-            cn = DBUtils.getConnection();
-            if (cn != null) {
-                // Lấy 5 booking gần nhất (Pending) kèm tên khách hàng và xe
-                String sql = "SELECT TOP 5 b.*, c.FullName AS CustomerName, v.Brand, v.Model, v.LicensePlate "
-                        + "FROM Bookings b "
-                        + "JOIN Vehicles v ON b.VehicleID = v.VehicleID "
-                        + "JOIN Customers c ON v.CustomerID = c.CustomerID "
-                        + "WHERE b.BookingStatus = 'Pending' "
-                        + "AND b.BookingDate >= CAST(GETDATE() AS DATE) " // Chỉ lấy từ hôm nay trở đi
-                        + "ORDER BY b.BookingDate ASC, b.TimeSlot ASC";
-
-                st = cn.prepareStatement(sql);
-                rs = st.executeQuery();
-
-                while (rs.next()) {
-                    Booking b = new Booking();
-                    b.setBookingID(rs.getInt("BookingID"));
-                    b.setTimeSlot(rs.getString("TimeSlot"));
-                    b.setServiceType(rs.getString("ServiceType"));
-                    b.setBookingStatus(rs.getString("BookingStatus"));
-
-                    // Cột ảo hiển thị Tên Khách & Tên Xe
-                    b.setCustomerName(rs.getString("CustomerName"));
-                    String carName = rs.getString("LicensePlate") + " • " + rs.getString("Brand") + " " + rs.getString("Model");
-                    b.setVehicleName(carName);
-
-                    list.add(b);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            // FIX BUG #2: Đóng connection để tránh connection leak
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (st != null) {
-                    st.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (java.sql.SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return list;
-    }
-
     public List<Booking> getAllAdminBookings() {
         List<Booking> list = new ArrayList<>();
         java.sql.Connection cn = null;
@@ -397,6 +344,7 @@ public class BookingDAO {
                     b.setBookingStatus(rs.getString("BookingStatus"));
                     b.setTotalAmount(rs.getDouble("TotalAmount"));
                     b.setFinalAmount(rs.getDouble("FinalAmount"));
+                    b.setPaymentStatus(rs.getBoolean("PaymentStatus"));
 
                     // Lấy CustomerID (Rất quan trọng để lát nữa cộng điểm)
                     b.setCusId(rs.getInt("CustomerID"));
@@ -542,6 +490,7 @@ public class BookingDAO {
                     b.setTotalAmount(table.getDouble("TotalAmount"));
                     b.setDiscountAmount(table.getDouble("DiscountAmount"));
                     b.setFinalAmount(table.getDouble("FinalAmount"));
+                    b.setPaymentStatus(table.getBoolean("PaymentStatus"));
                     b.setCreatedAt(table.getTimestamp("CreatedAt"));
 
                     b.setVehicleName(table.getString("VehicleName"));
@@ -616,6 +565,7 @@ public class BookingDAO {
                     booking.setTotalAmount(rs.getDouble("TotalAmount"));
                     booking.setDiscountAmount(rs.getDouble("DiscountAmount"));
                     booking.setFinalAmount(rs.getDouble("FinalAmount"));
+                    booking.setPaymentStatus(rs.getBoolean("PaymentStatus"));
 
                     bookingList.add(booking);
                 }
@@ -641,5 +591,34 @@ public class BookingDAO {
 
         return bookingList;
     }
-  
+
+    public int autoCompletePastBookings() {
+        int rows = 0;
+        Connection cn = null;
+        PreparedStatement st = null;
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                // Tự động chuyển những booking đã quá hạn thành Complete
+                String sql = "UPDATE Bookings SET BookingStatus = 'Completed' WHERE BookingStatus = 'Pending' AND BookingDate < GETDATE()";
+                st = cn.prepareStatement(sql);
+                rows = st.executeUpdate();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return rows;
+    }
+
 }

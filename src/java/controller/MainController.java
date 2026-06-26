@@ -91,7 +91,7 @@ public class MainController extends HttpServlet {
             }
 
             case "viewPayment":
-                url = "PaymentServlet";
+                url = "/PaymentServlet";
                 break;
 
             case "createBookingProcess":

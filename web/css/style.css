@@ -3461,3 +3461,39 @@ button, input, select, textarea {
     }
 
 }
+
+/* Payment Confirm Button */
+.btn--payment-confirm {
+    background: linear-gradient(135deg, #00d26a, #00a854);
+    border: none;
+    font-size: 1rem;
+    padding: var(--spacing-md);
+    cursor: pointer;
+    color: white;
+    font-weight: 600;
+    transition: var(--transition-smooth, all 0.3s ease);
+}
+
+.btn--payment-confirm:hover {
+    background: linear-gradient(135deg, #00b85c, #009348);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 210, 106, 0.4);
+}
+
+/* Payment Confirm Button */
+.btn--payment-confirm {
+    background: linear-gradient(135deg, #00d26a, #00a854);
+    border: none;
+    font-size: 1rem;
+    padding: var(--spacing-md);
+    cursor: pointer;
+    color: white;
+    font-weight: 600;
+    transition: var(--transition-smooth, all 0.3s ease);
+}
+
+.btn--payment-confirm:hover {
+    background: linear-gradient(135deg, #00b85c, #009348);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 210, 106, 0.4);
+}

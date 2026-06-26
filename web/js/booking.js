@@ -22,6 +22,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const pointMultiplier = tierPointMultiplierInput ? (parseFloat(tierPointMultiplierInput.value) || 1.0) : 1.0;
     let currentServicePrice = 0;
     
+    const bookingDate = document.getElementById('bookingDate');
+    const bookingTime = document.getElementById('bookingTime');
+    const summaryTime = document.getElementById('summaryTime');
+    
     // === CODE MỚI: CHẶN NGÀY GIỜ QUÁ KHỨ ===
     if (bookingDate && bookingTime) {
         // Lấy ngày hiện tại chuẩn theo múi giờ máy tính
@@ -75,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- HÀM 1: CẬP NHẬT XE ---
     function updateVehicle() {
         if (vehicleSelect && summaryVehicle && vehicleSelect.selectedIndex > 0) {
-            summaryVehicle.innerText = vehicleSelect.options[vehicleSelect.selectedIndex].getAttribute('data-name') || "-- Not selected --";
+            summaryVehicle.innerText = vehicleSelect.options[vehicleSelect.selectedIndex].textContent.trim() || "-- Not selected --";
         }
     }
 
@@ -159,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if(vehicleSelect) vehicleSelect.addEventListener('change', syncAllData);
     serviceRadios.forEach(r => r.addEventListener('change', syncAllData));
     if(voucherSelect) voucherSelect.addEventListener('change', syncAllData);
-    if(usePointsCheckbox) usePointsCheckbox.addEventListener('change', syncAllData);
 
     // 3. KHỞI CHẠY QUÉT DỮ LIỆU ĐỂ TRỊ LỖI CACHE TRÌNH DUYỆT
     syncAllData(); // Lần 1: Chạy ngay lập tức khi load xong HTML
