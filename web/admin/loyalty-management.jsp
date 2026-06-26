@@ -218,7 +218,7 @@
 
                 <!-- Tier Activity Summary (table) -->
                 <div class="glass-panel" style="padding:var(--spacing-lg); border-radius:var(--radius-xl);">
-                    <h3 style="font-size:1.2rem; margin-bottom:var(--spacing-md);">Tier Activity Summary</h3>
+                    <h3 style="font-size:1.2rem; margin-bottom:var(--spacing-md);">Tier Activity Summary of Current Years</h3>
 
                     <div class="data-table-wrapper">
                         <table class="data-table">

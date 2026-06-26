@@ -109,7 +109,9 @@
             <section class="dashboard-section" id="dashboard">
                 <div class="dashboard-section__header">
                     <h2 class="dashboard-section__title">Overview</h2>
-                    <span class="status-badge status-badge--completed">Account Active</span>
+                    <span class="status-badge <%= user.isStatus() ? "status-badge--completed" : "status-badge--inactive"%>">
+                        <%= user.isStatus() ? "Active" : "Inactive"%>
+                    </span>
                 </div>
 
                 <div class="grid-cols-2">

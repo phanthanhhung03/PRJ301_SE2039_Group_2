@@ -178,8 +178,16 @@
                             </thead>
                             <tbody>
                                 <%
+                                    int displayLimit = 10;
+                                    int count = 0;
+
                                     if (upcomingBookings != null && !upcomingBookings.isEmpty()) {
                                         for (Booking b : upcomingBookings) {
+
+                                            if (count >= displayLimit) {
+                                                break;
+                                            }
+                                            count++;
 
                                             String status = b.getBookingStatus();
                                             String badgeClass;
@@ -189,7 +197,6 @@
                                             } else if ("Cancelled".equalsIgnoreCase(status)) {
                                                 badgeClass = "status-badge--cancelled";
                                             } else {
-                                                // Pending, Confirmed, In Progress, ...
                                                 badgeClass = "status-badge--pending";
                                             }
                                 %>
