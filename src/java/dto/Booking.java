@@ -3,7 +3,7 @@ package dto;
 import java.sql.Timestamp;
 
 public class Booking {
-    
+
     // --- 10 CỘT KHỚP 100% VỚI DATABASE ---
     private int bookingID;
     private int vehicleID;
@@ -21,9 +21,12 @@ public class Booking {
     // --- CỘT ẢO (VIRTUAL COLUMN) ĐỂ HIỂN THỊ UI ---
     // Cột này không có trong SQL, nhưng cực kỳ cần thiết để hứng dữ liệu 
     // khi viết lệnh JOIN sang bảng Vehicles để in tên xe ra màn hình.
-    private String vehicleName; 
+    private String vehicleName;
     private String customerName;
     private int cusId;
+    private int estimatedPoints;
+    private double tierPointMultiplier;
+
     // 1. Hàm khởi tạo rỗng (Bắt buộc)
     public Booking() {
     }
@@ -44,8 +47,6 @@ public class Booking {
         this.vehicleName = vehicleName;
     }
 
-    
-    
     // 3. Getters và Setters
     public int getBookingID() {
         return bookingID;
@@ -166,8 +167,23 @@ public class Booking {
     public void setCusId(int cusId) {
         this.cusId = cusId;
     }
-    
-    
+
+    public double getTierPointMultiplier() {
+        return tierPointMultiplier;
+    }
+
+    public void setTierPointMultiplier(double tierPointMultiplier) {
+        this.tierPointMultiplier = tierPointMultiplier;
+    }
+
+    public int getEstimatedPoints() {
+        return estimatedPoints;
+    }
+
+    public void setEstimatedPoints(int estimatedPoints) {
+        this.estimatedPoints = estimatedPoints;
+    }
+
     // 4. Hàm toString để in ra Console tìm lỗi cho dễ
     @Override
     public String toString() {

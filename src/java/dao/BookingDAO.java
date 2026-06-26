@@ -378,7 +378,6 @@ public class BookingDAO {
         return list;
     }
 
-
     // Get Revenue by Year
     public double getRevenueByYear(int year) {
         double revenue = 0;
@@ -592,5 +591,64 @@ public class BookingDAO {
         }
         return rows;
     }
+// Lấy các booking Completed/Cancelled gần nhất kèm Customer + Tier multiplier hiện tại,
+    public List<Booking> getRecentPointsActivity(int limit) {
+        List<Booking> list = new ArrayList<>();
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
 
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT TOP (?) b.BookingID, b.BookingDate, b.FinalAmount, b.BookingStatus, "
+                        + "c.CustomerID, c.FullName AS CustomerName, t.PointMultiplier "
+                        + "FROM Bookings b "
+                        + "JOIN Vehicles v ON b.VehicleID = v.VehicleID "
+                        + "JOIN Customers c ON v.CustomerID = c.CustomerID "
+                        + "JOIN CustomerTiers t ON c.TierID = t.TierID "
+                        + "WHERE b.BookingStatus IN ('Completed', 'Cancelled') "
+                        + "ORDER BY b.BookingDate DESC";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, limit);
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+                    Booking b = new Booking();
+                    b.setBookingID(rs.getInt("BookingID"));
+                    b.setBookingDate(rs.getTimestamp("BookingDate"));
+                    b.setFinalAmount(rs.getDouble("FinalAmount"));
+                    b.setBookingStatus(rs.getString("BookingStatus"));
+                    b.setCusId(rs.getInt("CustomerID"));
+                    b.setCustomerName(rs.getString("CustomerName"));
+
+                    double multiplier = rs.getDouble("PointMultiplier");
+                    b.setTierPointMultiplier(multiplier);
+
+                    int points = (int) Math.floor((b.getFinalAmount() / 1000) * multiplier);
+                    b.setEstimatedPoints(points);
+
+                    list.add(b);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
+    }
 }
