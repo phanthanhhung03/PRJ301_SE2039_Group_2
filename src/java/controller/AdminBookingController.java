@@ -25,6 +25,7 @@ public class AdminBookingController extends HttpServlet {
         try {
             // NHÁNH 1: ĐỔ DATA RA TRANG QUẢN LÝ
             if ("viewAdminBookings".equals(action)) {
+                bDao.autoCompletePastBookings();
                 List<Booking> list = bDao.getAllAdminBookings();
                 request.setAttribute("ALL_BOOKINGS", list);
                 request.getRequestDispatcher("/admin/booking-management.jsp").forward(request, response);

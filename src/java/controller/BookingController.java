@@ -47,11 +47,23 @@ public class BookingController extends HttpServlet {
                 int bookingID = Integer.parseInt(request.getParameter("bookingID"));
                 BookingDAO dao = new BookingDAO();
 
+                Booking b = dao.getBookingByID(bookingID);
+                if (b == null) {
+                    session.setAttribute("ERROR", "Booking not found.");
+                    response.sendRedirect("MainController?action=viewDashBoard");
+                    return;
+                }
+
                 boolean isSuccess = dao.cancelBooking(bookingID);
 
                 if (isSuccess) {
                     CustomerDAO cDao = new CustomerDAO();
-                    cDao.updateCustomerAfterCancelled(user.getCusId());
+                    
+                    double multiplier = user.getTierId().getPointMultiplier();
+                    int deductPoints = (int) Math.floor((b.getFinalAmount() / 1000) * multiplier);
+                    double refundAmount = b.getFinalAmount();
+
+                    cDao.processCancellationRefund(user.getCusId(), deductPoints, refundAmount);
                     cDao.checkAndUpdateTier(user.getCusId());
 
                     Customer updatedUser = cDao.getCustomer(user.getCusId());
@@ -59,7 +71,7 @@ public class BookingController extends HttpServlet {
                         session.setAttribute("USER", updatedUser);
                     }
 
-                    session.setAttribute("MSG", "Booking cancelled successfully! Notice: 20 points were deducted for cancellation.");
+                    session.setAttribute("MSG", "Booking cancelled successfully! " + deductPoints + " reward points were deducted and " + refundAmount + " VNĐ has been refunded to your wallet.");
                 } else {
                     session.setAttribute("ERROR", "Failed to cancel booking. Please try again.");
                 }
@@ -198,7 +210,8 @@ public class BookingController extends HttpServlet {
                 session.setAttribute("BOOKING_DRAFT", draft);
 
                 // 8. CHUYỂN QUA PAYMENT SERVLET ĐỂ HIỂN THỊ TRANG THANH TOÁN
-                response.sendRedirect("MainController?action=viewPayment");
+                // Dùng forward thay vì sendRedirect để giữ lại toàn bộ dữ liệu request.getParameter cho PaymentServlet
+                request.getRequestDispatcher("/PaymentServlet").forward(request, response);
                 return;
 
             // =========================================================
@@ -259,6 +272,7 @@ public class BookingController extends HttpServlet {
                 booking.setTotalAmount(draft.getTotalAmount());
                 booking.setDiscountAmount(draft.getVoucherDiscount() + draft.getTierDiscount());
                 booking.setFinalAmount(draft.getFinalAmount());
+                booking.setPaymentStatus(true);
 
                 boolean isSuccess = dao.insertBooking(booking);
 

@@ -196,25 +196,14 @@
 
                     </div>
 
-                    <!-- CONFIRM PAYMENT BUTTON -->
-                    <div style="margin-top:var(--spacing-xl); display:flex; gap:var(--spacing-md); flex-direction:column;">
-
-                        <!-- Hidden form để gọi completeBooking -->
-                        <form id="completeBookingForm"
-                              method="POST"
-                              action="${pageContext.request.contextPath}/BookingController">
-                            <input type="hidden" name="action" value="completeBooking">
-                            <button type="submit"
-                                    id="confirmPaymentBtn"
-                                    class="btn btn--payment-confirm btn--block">
-                                 I've Completed Payment
-                            </button>
-                        </form>
+                    <div style="margin-top:var(--spacing-xl);">
 
                         <a id="cancelPaymentBtn"
                            href="${pageContext.request.contextPath}/MainController?action=viewNewBooking"
                            class="btn btn--outline btn--block">
+
                             Cancel Payment
+
                         </a>
 
                     </div>

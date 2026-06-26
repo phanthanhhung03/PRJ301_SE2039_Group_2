@@ -164,6 +164,8 @@ public class DashboardController extends HttpServlet {
                 "formattedRemainingSpend",
                 formattedRemainingSpend);
 
+        new dao.BookingDAO().autoCompletePastBookings();
+
         request.getSession().setAttribute("vehicleList", vehicleList);
         request.getRequestDispatcher("/customer/dashboard.jsp").forward(request, response);
 

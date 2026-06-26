@@ -129,6 +129,7 @@ public class CustomerDAO {
                         + "c.TotalSpend, "
                         + "c.Status, "
                         + "c.CreatedAt, "
+                        + "c.WalletBalance, "
                         + "t.TierID, " + "t.TierName, " + "t.MinBookings, " + "t.MinSpend, " + "t.PointMultiplier, "
                         + "t.DiscountPercent, "
                         + "t.PriorityLevel, "
@@ -181,6 +182,7 @@ public class CustomerDAO {
                     result.setTotalSpend(table.getDouble("TotalSpend"));
                     result.setStatus(table.getBoolean("Status"));
                     result.setCreatedAt(table.getDate("CreatedAt"));
+                    result.setWalletBalance(table.getDouble("WalletBalance"));
 
                     // Set Tier Object
                     result.setTierId(tier);
@@ -230,7 +232,7 @@ public class CustomerDAO {
                 // Step 2: SQL
                 String sql = "SELECT CustomerID, FullName, PhoneNumber, Address, "
                         + "TierID, CurrentPoints, TotalBookings, TotalSpend, "
-                        + "Status, CreatedAt "
+                        + "Status, CreatedAt, WalletBalance "
                         + "FROM Customers "
                         + "WHERE Email = ?";
 
@@ -256,6 +258,7 @@ public class CustomerDAO {
                     result.setTotalSpend(table.getDouble("TotalSpend"));
                     result.setStatus(table.getBoolean("Status"));
                     result.setCreatedAt(table.getDate("CreatedAt"));
+                    result.setWalletBalance(table.getDouble("WalletBalance"));
                 }
             }
         } catch (Exception e) {
@@ -301,7 +304,7 @@ public class CustomerDAO {
                 // Step 2: SQL
                 String sql = "SELECT CustomerID, FullName, Email, Address, "
                         + "TierID, CurrentPoints, TotalBookings, TotalSpend, "
-                        + "Status, CreatedAt "
+                        + "Status, CreatedAt, WalletBalance "
                         + "FROM Customers "
                         + "WHERE PhoneNumber = ?";
 
@@ -327,6 +330,7 @@ public class CustomerDAO {
                     result.setTotalSpend(table.getDouble("TotalSpend"));
                     result.setStatus(table.getBoolean("Status"));
                     result.setCreatedAt(table.getDate("CreatedAt"));
+                    result.setWalletBalance(table.getDouble("WalletBalance"));
                 }
             }
         } catch (Exception e) {
@@ -816,6 +820,7 @@ public class CustomerDAO {
                     + "c.TotalSpend, "
                     + "c.Status, "
                     + "c.CreatedAt, "
+                    + "c.WalletBalance, "
                     + "t.TierID, "
                     + "t.TierName, "
                     + "t.MinBookings, "
@@ -856,6 +861,7 @@ public class CustomerDAO {
 
                 result.setStatus(rs.getBoolean("Status"));
                 result.setCreatedAt(rs.getDate("CreatedAt"));
+                result.setWalletBalance(rs.getDouble("WalletBalance"));
                 result.setVehicleCount(rs.getInt("VehicleCount"));
 
                 // CustomerTier
@@ -967,6 +973,7 @@ public class CustomerDAO {
                         + "c.TotalSpend, "
                         + "c.Status, "
                         + "c.CreatedAt, "
+                        + "c.WalletBalance, "
                         + "t.TierID, "
                         + "t.TierName, "
                         + "("
@@ -1029,6 +1036,7 @@ public class CustomerDAO {
                     c.setCurrentPoint(table.getInt("CurrentPoints"));
                     c.setTotalSpend(table.getDouble("TotalSpend"));
                     c.setStatus(table.getBoolean("Status"));
+                    c.setWalletBalance(table.getDouble("WalletBalance"));
                     c.setVehicleCount(table.getInt("VehicleCount"));
 
                     CustomerTier customerTier = new CustomerTier();
@@ -1090,6 +1098,7 @@ public class CustomerDAO {
                         + "    c.CurrentPoints,\n"
                         + "    c.TotalSpend,\n"
                         + "    c.Status,\n"
+                        + "    c.WalletBalance,\n"
                         + "    c.TierID,\n"
                         + "    t.TierName,\n"
                         + "    (\n"
@@ -1117,6 +1126,7 @@ public class CustomerDAO {
                     c.setCurrentPoint(table.getInt("CurrentPoints"));
                     c.setTotalSpend(table.getDouble("TotalSpend"));
                     c.setStatus(table.getBoolean("Status"));
+                    c.setWalletBalance(table.getDouble("WalletBalance"));
                     c.setVehicleCount(table.getInt("VehicleCount"));
 
                     CustomerTier tier = new CustomerTier();
@@ -1246,5 +1256,40 @@ public class CustomerDAO {
             }
         }
         return list;
+    }
+
+    public boolean processCancellationRefund(int cusId, int deductPoints, double refundAmount) {
+        boolean check = false;
+        Connection cn = null;
+        PreparedStatement st = null;
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "UPDATE Customers SET "
+                        + "CurrentPoints = CASE WHEN ISNULL(CurrentPoints, 0) - ? < 0 THEN 0 ELSE ISNULL(CurrentPoints, 0) - ? END, "
+                        + "WalletBalance = ISNULL(WalletBalance, 0) + ? "
+                        + "WHERE CustomerID = ?";
+                st = cn.prepareStatement(sql);
+                st.setInt(1, deductPoints);
+                st.setInt(2, deductPoints);
+                st.setDouble(3, refundAmount);
+                st.setInt(4, cusId);
+                check = st.executeUpdate() > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return check;
     }
 }

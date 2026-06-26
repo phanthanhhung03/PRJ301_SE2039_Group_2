@@ -17,7 +17,7 @@ public class Customer {
     private boolean status;
     private Date createdAt;
     private int vehicleCount;
-
+    private double walletBalance;
     public Customer() {
     }
 
@@ -138,6 +138,14 @@ public class Customer {
 
     public void setVehicleCount(int vehicleCount) {
         this.vehicleCount = vehicleCount;
+    }
+
+    public double getWalletBalance() {
+        return walletBalance;
+    }
+
+    public void setWalletBalance(double walletBalance) {
+        this.walletBalance = walletBalance;
     }
 
     public String getInitials() {

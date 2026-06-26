@@ -57,6 +57,7 @@
                                 <th>Service Selection</th>
                                 <th>Schedule Time</th>
                                 <th>Assigned Bay</th>
+                                <th>Payment</th>
                                 <th>Status</th>
                                 <th class="table-header-align-right">Ops Actions</th>
                             </tr>
@@ -91,18 +92,18 @@
                                     <td>Bay 1</td>
                                     
                                     <td>
-                                        <form action="${pageContext.request.contextPath}/MainController" method="POST" class="booking-status-form">
-                                            <input type="hidden" name="action" value="updateBookingStatus">
-                                            <input type="hidden" name="bookingID" value="${b.bookingID}">
-                                            <input type="hidden" name="cusID" value="${b.cusId}">
-                                            
-                                            <select name="newStatus" onchange="this.form.submit()" 
-                                                    class="form-group__input booking-status-select ${b.bookingStatus == 'Completed' ? 'booking-status-select--completed' : ''} ${b.bookingStatus == 'Cancelled' ? 'booking-status-select--cancelled' : ''}">
-                                                <option value="Pending" ${b.bookingStatus == 'Pending' ? 'selected' : ''}>Pending</option>
-                                                <option value="Completed" ${b.bookingStatus == 'Completed' ? 'selected' : ''}>Completed</option>
-                                                <option value="Cancelled" ${b.bookingStatus == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-                                            </select>
-                                        </form>
+                                        <span class="status-badge 
+                                              ${b.paymentStatus ? 'status-badge--completed' : 'status-badge--cancelled'}">
+                                            ${b.paymentStatus ? 'Paid' : 'Unpaid'}
+                                        </span>
+                                    </td>
+                                    
+                                    <td>
+                                        <span class="status-badge 
+                                              ${b.bookingStatus == 'Cancelled' ? 'status-badge--cancelled' : 
+                                                b.bookingStatus == 'Completed' ? 'status-badge--completed' : 'status-badge--pending'}">
+                                            ${b.bookingStatus}
+                                        </span>
                                     </td>
                                     
                                     <td class="table-cell-align-right">
