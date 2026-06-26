@@ -478,131 +478,8 @@ public class CustomerDAO {
         }
 
         return list;
-    }   
-
-    // ADMIN MANAGER  
-    // Cong diem theo point mutipiler trong CustomerTier
-    public boolean updateCustomerAfterCompleted(int cusID, int bookingID, double finalAmount) {
-        boolean check = false;
-        Connection cn = null;
-        PreparedStatement tierSt = null;
-        PreparedStatement st = null;
-        ResultSet rs = null;
-
-        try {
-            cn = dbutils.DBUtils.getConnection();
-            if (cn != null) {
-                cn.setAutoCommit(false);
-
-                // Lấy PointMultiplier + TierName theo tier hiện tại của khách
-                double multiplier = 1.0;
-                String tierName = "Member";
-
-                String tierSql = "SELECT t.PointMultiplier, t.TierName "
-                        + "FROM Customers c "
-                        + "JOIN CustomerTiers t ON c.TierID = t.TierID "
-                        + "WHERE c.CustomerID = ?";
-
-                tierSt = cn.prepareStatement(tierSql);
-                tierSt.setInt(1, cusID);
-                rs = tierSt.executeQuery();
-
-                if (rs.next()) {
-                    multiplier = rs.getDouble("PointMultiplier");
-                    tierName = rs.getString("TierName");
-                }
-
-                // Tính điểm: 1000đ = 1 điểm, x theo multiplier của tier
-                int earnedPoints = (int) Math.floor((finalAmount / 1000) * multiplier);
-
-                String sql = "UPDATE Customers SET "
-                        + "TotalSpend = ISNULL(TotalSpend, 0) + ?, "
-                        + "CurrentPoints = ISNULL(CurrentPoints, 0) + ?, "
-                        + "TotalBookings = ISNULL(TotalBookings, 0) + 1 "
-                        + "WHERE CustomerID = ?";
-
-                st = cn.prepareStatement(sql);
-                st.setDouble(1, finalAmount);
-                st.setInt(2, earnedPoints);
-                st.setInt(3, cusID);
-
-                int rows = st.executeUpdate();
-
-                if (rows > 0) {
-                    new PointTransactionDAO().insertTransaction(cn, cusID, bookingID, earnedPoints,
-                            "EARN", "Booking #" + bookingID + " completed (" + tierName + " x" + multiplier + ")");
-                    cn.commit();
-                    check = true;
-                } else {
-                    cn.rollback();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            try {
-                if (cn != null) {
-                    cn.rollback();
-                }
-            } catch (Exception ex) {
-            }
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (tierSt != null) {
-                    tierSt.close();
-                }
-                if (st != null) {
-                    st.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-            }
-        }
-        return check;
     }
 
-    // ==========================================================
-    //CHỜ XỬ LÝ -> HỦY (Trừ thẳng 20đ cố định)
-
-    public boolean updateCustomerAfterCancelled(int cusID) {
-        boolean check = false;
-        java.sql.Connection cn = null;
-        java.sql.PreparedStatement st = null;
-        try {
-            cn = dbutils.DBUtils.getConnection();
-            if (cn != null) {
-                String sql = "UPDATE Customers SET "
-                        + "CurrentPoints = CASE WHEN ISNULL(CurrentPoints, 0) - 20 < 0 THEN 0 ELSE ISNULL(CurrentPoints, 0) - 20 END, "
-                        + "TotalBookings = ISNULL(TotalBookings, 0) + 1 "
-                        + "WHERE CustomerID = ?";
-                st = cn.prepareStatement(sql);
-                st.setInt(1, cusID);
-                check = st.executeUpdate() > 0;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-            }
-        }
-        return check;
-    }
-
-    // ==========================================================
-    // CẬP NHẬT ĐIỂM + TOTALSPEND KHI TẠO BOOKING (SAU THANH TOÁN)
-    // TotalBookings chỉ cộng khi Admin mark Completed
-    // ==========================================================
     public boolean updateCustomerAfterBookingCreated(int cusID, double finalAmount) {
         boolean check = false;
         Connection cn = null;
@@ -644,10 +521,18 @@ public class CustomerDAO {
             e.printStackTrace();
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (tierSt != null) tierSt.close();
-                if (st != null) st.close();
-                if (cn != null) cn.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (tierSt != null) {
+                    tierSt.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
             } catch (Exception e) {
             }
         }
@@ -715,6 +600,7 @@ public class CustomerDAO {
 
         return result;
     }
+
     // ==========================================================
     // AUTO-UPGRADE TIER: KIỂM TRA VÀ TỰ ĐỘNG NÂNG HẠNG
     // ==========================================================
@@ -727,23 +613,31 @@ public class CustomerDAO {
             if (cn != null) {
                 // SQL Server: Tự động tìm Tier cao nhất mà khách đủ điều kiện (Dựa vào Tiền HOẶC Lượt)
                 String sql = "UPDATE Customers "
-                           + "SET TierID = ( "
-                           + "    SELECT TOP 1 TierID "
-                           + "    FROM CustomerTiers "
-                           + "    WHERE Customers.TotalSpend >= MinSpend OR Customers.TotalBookings >= MinBookings "
-                           + "    ORDER BY PriorityLevel DESC "
-                           + ") "
-                           + "WHERE CustomerID = ?";
+                        + "SET TierID = ( "
+                        + "    SELECT TOP 1 TierID "
+                        + "    FROM CustomerTiers "
+                        + "    WHERE Customers.TotalSpend >= MinSpend OR Customers.TotalBookings >= MinBookings "
+                        + "    ORDER BY PriorityLevel DESC "
+                        + ") "
+                        + "WHERE CustomerID = ?";
 
                 st = cn.prepareStatement(sql);
                 st.setInt(1, cusID);
-                
+
                 check = st.executeUpdate() > 0;
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try { if (st != null) st.close(); if (cn != null) cn.close(); } catch (Exception e) {}
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+            }
         }
         return check;
     }
@@ -1001,13 +895,13 @@ public class CustomerDAO {
                     params.add(search);
                     params.add(search);
                 }
-                
+
                 // Tier filter
                 if (tier != null && !tier.trim().isEmpty() && !"all".equalsIgnoreCase(tier)) {
                     sql.append("AND t.TierName = ? ");
                     params.add(tier);
                 }
-                
+
                 // Status
                 if (status != null && !status.trim().isEmpty() && !"all".equalsIgnoreCase(status)) {
                     boolean active = "ACTIVE".equalsIgnoreCase(status);
@@ -1017,11 +911,11 @@ public class CustomerDAO {
 
                 sql.append("ORDER BY c.CustomerID DESC");
                 st = cn.prepareStatement(sql.toString());
-                
+
                 for (int i = 0; i < params.size(); i++) {
-                    st.setObject(i+1, params.get(i));
+                    st.setObject(i + 1, params.get(i));
                 }
-                
+
                 table = st.executeQuery();
 
                 while (table.next()) {
@@ -1267,13 +1161,17 @@ public class CustomerDAO {
             if (cn != null) {
                 String sql = "UPDATE Customers SET "
                         + "CurrentPoints = CASE WHEN ISNULL(CurrentPoints, 0) - ? < 0 THEN 0 ELSE ISNULL(CurrentPoints, 0) - ? END, "
-                        + "WalletBalance = ISNULL(WalletBalance, 0) + ? "
+                        + "WalletBalance = ISNULL(WalletBalance, 0) + ?, "
+                        + "TotalSpend = CASE WHEN ISNULL(TotalSpend, 0) - ? < 0 THEN 0 ELSE ISNULL(TotalSpend, 0) - ? END, "
+                        + "TotalBookings = CASE WHEN ISNULL(TotalBookings, 0) - 1 < 0 THEN 0 ELSE ISNULL(TotalBookings, 0) - 1 END "
                         + "WHERE CustomerID = ?";
                 st = cn.prepareStatement(sql);
                 st.setInt(1, deductPoints);
                 st.setInt(2, deductPoints);
                 st.setDouble(3, refundAmount);
-                st.setInt(4, cusId);
+                st.setDouble(4, refundAmount);
+                st.setDouble(5, refundAmount);
+                st.setInt(6, cusId);
                 check = st.executeUpdate() > 0;
             }
         } catch (Exception e) {
@@ -1291,5 +1189,120 @@ public class CustomerDAO {
             }
         }
         return check;
+    }
+
+// Trả về điểm trung bình HIỆN TẠI (CurrentPoints) theo từng Tier — không phải avg/booking lịch sử.
+    public Map<Integer, Double> getAvgPointsByTier() {
+        Map<Integer, Double> result = new HashMap<>();
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT TierID, AVG(CAST(CurrentPoints AS FLOAT)) AS AvgPoints "
+                        + "FROM Customers "
+                        + "WHERE Status = 1 "
+                        + "GROUP BY TierID";
+
+                st = cn.prepareStatement(sql);
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+                    result.put(rs.getInt("TierID"), rs.getDouble("AvgPoints"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+    // Khách chưa lên tier kế tiếp nhưng đang gần đạt nhất (theo % tiến độ Spend/Bookings)
+    public List<Customer> getCustomersNearNextTier(int limit) {
+        List<Customer> list = new ArrayList<>();
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT TOP (?) c.CustomerID, c.FullName, c.TotalSpend, c.TotalBookings, "
+                        + "ct.TierID AS CurTierID, ct.TierName AS CurTierName, "
+                        + "nt.TierName AS NextTierName, nt.MinSpend AS NextMinSpend, nt.MinBookings AS NextMinBookings, "
+                        + "CASE WHEN nt.MinSpend > 0 THEN CAST(c.TotalSpend AS FLOAT) / nt.MinSpend ELSE 0 END AS SpendProgress, "
+                        + "CASE WHEN nt.MinBookings > 0 THEN CAST(c.TotalBookings AS FLOAT) / nt.MinBookings ELSE 0 END AS BookingProgress "
+                        + "FROM Customers c "
+                        + "JOIN CustomerTiers ct ON c.TierID = ct.TierID "
+                        + "JOIN CustomerTiers nt ON nt.PriorityLevel = ct.PriorityLevel + 1 "
+                        + "WHERE c.Status = 1 "
+                        + "AND c.TotalSpend < nt.MinSpend "
+                        + "AND c.TotalBookings < nt.MinBookings "
+                        + "ORDER BY "
+                        + "  (CASE WHEN nt.MinSpend > 0 THEN CAST(c.TotalSpend AS FLOAT) / nt.MinSpend ELSE 0 END "
+                        + "  + CASE WHEN nt.MinBookings > 0 THEN CAST(c.TotalBookings AS FLOAT) / nt.MinBookings ELSE 0 END) DESC";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, limit);
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+                    Customer c = new Customer();
+                    c.setCusId(rs.getInt("CustomerID"));
+                    c.setFullName(rs.getString("FullName"));
+                    c.setTotalSpend(rs.getDouble("TotalSpend"));
+                    c.setTotalBooking(rs.getInt("TotalBookings"));
+
+                    CustomerTier tier = new CustomerTier();
+                    tier.setTierID(rs.getInt("CurTierID"));
+                    tier.setTierName(rs.getString("CurTierName"));
+                    c.setTierId(tier);
+
+                    c.setNextTierName(rs.getString("NextTierName"));
+
+                    double spendProgress = rs.getDouble("SpendProgress");
+                    double bookingProgress = rs.getDouble("BookingProgress");
+                    double bestProgress = Math.max(spendProgress, bookingProgress) * 100;
+                    c.setUpgradeProgressPercent(Math.min(100, bestProgress));
+
+                    c.setSpendNeeded(Math.max(0, rs.getDouble("NextMinSpend") - rs.getDouble("TotalSpend")));
+                    c.setBookingsNeeded(Math.max(0, rs.getInt("NextMinBookings") - rs.getInt("TotalBookings")));
+
+                    list.add(c);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
     }
 }

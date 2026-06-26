@@ -45,7 +45,14 @@
 
                 <form action="PromotionManagementController?action=assignPromotion" method="POST">
                     <input type="hidden" name="customerID" value="${targetCust.cusId}">
-
+                    <input type="hidden" name="overrideEligibility" value="${overrideEligibility}">
+                    
+                    <c:if test="${overrideEligibility}">
+                        <div style="margin-bottom: var(--spacing-md); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); background: rgba(255, 193, 7, 0.1); border: 1px solid var(--color-accent-gold); font-size: 0.8rem; color: var(--color-accent-gold);">
+                            &#9888; This customer closest to upgrading by spend or booking count. Consider granting a promo to push them over the line.
+                        </div>
+                    </c:if>
+                    
                     <div class="tier-form-group">
                         <label>Promotion to Grant *</label>
                         <select name="promotionID" class="form-group__select form-group__input" required>

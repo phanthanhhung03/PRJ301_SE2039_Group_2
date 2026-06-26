@@ -154,14 +154,17 @@
 
             </section>
             <!-- LOYALTY INSIGHTS -->
-            <div class="grid-cols-2" style="margin-bottom:var(--spacing-xl);">
+            <div class="grid-cols-2" style="margin-bottom:var(--spacing-xl);    display: flow;">
 
-                <!-- Top Customers by Points -->
+                <!-- Customers Near Next Tier -->
                 <div class="glass-panel" style="padding:var(--spacing-lg); border-radius:var(--radius-xl);">
-                    <h3 style="font-size:1.2rem; margin-bottom:var(--spacing-md);">Top 5 Customers by Points</h3>
+                    <h3 style="font-size:1.2rem; margin-bottom:var(--spacing-md);">Customers Near Next Tier</h3>
+                    <p style="font-size:0.8rem; color:var(--color-text-tertiary); margin-top:-8px; margin-bottom:var(--spacing-md);">
+                        Closest to upgrading by spend or booking count. Consider granting a promo to push them over the line.
+                    </p>
 
-                    <c:if test="${empty topCustomersByPoints}">
-                        <p style="color:var(--color-text-tertiary); font-style:italic;">No customer data found.</p>
+                    <c:if test="${empty customersNearNextTier}">
+                        <p style="color:var(--color-text-tertiary); font-style:italic;">No customers near an upgrade right now.</p>
                     </c:if>
 
                     <div class="data-table-wrapper">
@@ -169,19 +172,42 @@
                             <thead>
                                 <tr>
                                     <th>Customer</th>
-                                    <th>Tier</th>
-                                    <th style="text-align:right;">Current Points</th>
+                                    <th> Current Tier --> Next Tier</th>
+                                    <th>Progress</th>
+                                    <th>Needs</th>
+                                    <th style="text-align:right;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <c:forEach var="c" items="${topCustomersByPoints}">
+                                <c:forEach var="c" items="${customersNearNextTier}">
                                     <tr>
                                         <td style="font-weight:600;">${c.fullName}</td>
                                         <td>
                                             <span class="status-badge status-badge--${fn:toLowerCase(c.tierId.tierName)}">${c.tierId.tierName}</span>
+                                            &rarr;
+                                            <span class="status-badge status-badge--${fn:toLowerCase(c.nextTierName)}">${c.nextTierName}</span>
                                         </td>
-                                        <td style="text-align:right; font-weight:700; color:var(--color-accent-gold);">
-                                            ${c.currentPoint} pts
+                                        <td style="min-width:100px;">
+                                            <div style="background:rgba(255,255,255,0.08); border-radius:var(--radius-sm); height:8px; overflow:hidden; margin-bottom:4px;">
+                                                <div style="background:var(--color-accent-gold); height:100%; width:${c.upgradeProgressPercent}%;"></div>
+                                            </div>
+                                            <span style="font-size:0.75rem; color:var(--color-text-tertiary);">
+                                                <fmt:formatNumber value="${c.upgradeProgressPercent}" maxFractionDigits="0"/>%
+                                            </span>
+                                        </td>
+                                        <td style="font-size:0.8rem; color:var(--color-text-tertiary);">
+                                            <c:if test="${c.spendNeeded > 0}">
+                                                +<fmt:formatNumber value="${c.spendNeeded}" pattern="#,###"/> đ
+                                            </c:if>
+                                            <c:if test="${c.spendNeeded > 0 && c.bookingsNeeded > 0}"> or </c:if>
+                                            <c:if test="${c.bookingsNeeded > 0}">
+                                                +${c.bookingsNeeded} bookings
+                                            </c:if>
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <a href="MainController?action=showAssignPromotion&customerID=${c.cusId}&overrideEligibility=true" class="btn btn--gold btn--sm">
+                                                Grant Promotion
+                                            </a>
                                         </td>
                                     </tr>
                                 </c:forEach>
@@ -209,7 +235,8 @@
                                     <c:set var="custCount" value="${customerTierCountMap[tier.tierID] != null ? customerTierCountMap[tier.tierID] : 0}"/>
                                     <c:set var="tierRevenue" value="${revenueByTierMap[tier.tierID] != null ? revenueByTierMap[tier.tierID] : 0}"/>
                                     <c:set var="revenuePercent" value="${totalRevenue > 0 ? (tierRevenue / totalRevenue * 100) : 0}"/>
-                                    <c:set var="avgPts" value="${tierPointsAvgMap[tier.tierName]}"/>
+                                    <c:set var="avgPts" value="${tierAvgPointsMap[tier.tierID]}"/>
+
 
                                     <tr>
                                         <td>
@@ -232,38 +259,53 @@
 
             </div>
 
-            <!-- LOYALTY TRANSACTION LOGS -->
+            <!-- POINTS & WALLET ACTIVITY -->
             <section class="glass-panel" style="padding: var(--spacing-xl); border-radius: var(--radius-xl); margin-bottom: var(--spacing-xl);">
-                <h2 style="font-size:1.25rem; margin-bottom:var(--spacing-lg);">Loyalty Transaction Ledger</h2>
+                <h2 style="font-size:1.25rem; margin-bottom:var(--spacing-lg);">Recent Points &amp; Amount Activity</h2>
+                <p style="font-size:0.8rem; color:var(--color-text-tertiary); margin-top:-10px; margin-bottom:var(--spacing-lg);">
+                    Derived from recent Completed/Cancelled bookings. Points are estimated using each customer's current tier multiplier.
+                </p>
                 <div class="data-table-wrapper">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Timestamp</th>
-                                <th>Customer Name</th>
-                                <th>Points Flow</th>
-                                <th>Current Points</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Points Impact</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <c:if test="${empty transactionList}">
+                            <c:if test="${empty pointsActivityList}">
                                 <tr>
-                                    <td colspan="6" style="text-align:center; padding: var(--spacing-md); color: var(--color-text-tertiary); font-style:italic;">
-                                        No loyalty transactions found.
+                                    <td colspan="5" style="text-align:center; padding: var(--spacing-md); color: var(--color-text-tertiary); font-style:italic;">
+                                        No points activity found.
                                     </td>
                                 </tr>
                             </c:if>
 
-                            <c:forEach var="tx" items="${transactionList}">
+                            <c:forEach var="b" items="${pointsActivityList}">
                                 <tr>
-                                    <td><fmt:formatDate value="${tx.createdAt}" pattern="yyyy-MM-dd HH:mm"/></td>
-                                    <td style="font-weight:600; color:var(--color-text-primary);">${tx.customerName}</td>
+                                    <td><fmt:formatDate value="${b.bookingDate}" pattern="dd/MM/yyyy HH:mm"/></td>
+                                    <td style="font-weight:600; color:var(--color-text-primary);">${b.customerName}</td>
+                                    <td><fmt:formatNumber value="${b.finalAmount}" pattern="#,###"/> đ</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${b.bookingStatus == 'Completed'}">
+                                                <span class="status-badge status-badge--completed">Completed</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="status-badge status-badge--cancelled">Cancelled</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td style="font-weight:600;
-                                        color:${tx.pointsChanged >= 0 ? 'var(--color-accent-cyan)' : 'var(--color-accent-red)'};">
-                                        <c:if test="${tx.pointsChanged >= 0}">+</c:if>${tx.pointsChanged} pts
+                                        color: ${b.bookingStatus == 'Completed' ? 'var(--color-accent-cyan)' : 'var(--color-accent-red)'};">
+                                        <c:if test="${b.bookingStatus == 'Completed'}">+</c:if>
+                                        <c:if test="${b.bookingStatus != 'Completed'}">-</c:if>${b.estimatedPoints} pts
                                         </td>
-                                        <td style="font-weight:600; color:var(--color-text-primary);">${tx.currentBalance} pts</td>
-                                </tr>
+                                    </tr>
                             </c:forEach>
                         </tbody>
                     </table>

@@ -78,6 +78,7 @@ public class PromotionManagementController extends HttpServlet {
                 // Show Assign Promotion page
             } else if ("showAssignPromotion".equals(action)) {
                 int customerID = Integer.parseInt(request.getParameter("customerID"));
+                boolean overrideEligibility = "true".equals(request.getParameter("overrideEligibility"));
 
                 CustomerDAO customerDAO = new CustomerDAO();
                 Customer targetCust = customerDAO.getCustomer(customerID);
@@ -92,13 +93,13 @@ public class PromotionManagementController extends HttpServlet {
 
                 request.setAttribute("targetCust", targetCust);
                 request.setAttribute("promotionList", activePromotions);
+                request.setAttribute("overrideEligibility", overrideEligibility);
                 request.getRequestDispatcher("/admin/assign-promotion.jsp").forward(request, response);
                 return;
 
                 // ------------------------------------------------------------------
                 // POST actions
                 // ------------------------------------------------------------------
-                
                 // Add Promotion
             } else if ("addPromotion".equals(action)) {
 
@@ -195,20 +196,18 @@ public class PromotionManagementController extends HttpServlet {
                 int customerID = Integer.parseInt(request.getParameter("customerID"));
                 int promotionID = Integer.parseInt(request.getParameter("promotionID"));
                 String notes = request.getParameter("notes");
-
                 if (notes == null) {
                     notes = "";
                 }
+                boolean overrideEligibility = "true".equals(request.getParameter("overrideEligibility"));
 
-                // Promotion outdated or sooner
                 if (!promotionDAO.isPromotionValid(promotionID)) {
                     session.setAttribute("PROMO_ERR", "This promotion is expired or sooner than start-date!");
                     response.sendRedirect("MainController?action=viewPromotionManagement");
                     return;
                 }
 
-                // Tier is not suitable
-                if (!promotionDAO.isCustomerEligibleForPromotion(customerID, promotionID)) {
+                if (!overrideEligibility && !promotionDAO.isCustomerEligibleForPromotion(customerID, promotionID)) {
                     session.setAttribute("PROMO_ERR", "Customer is not eligible for this promotion.");
                     response.sendRedirect("MainController?action=viewPromotionManagement");
                     return;
