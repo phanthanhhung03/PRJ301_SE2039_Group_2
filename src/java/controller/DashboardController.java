@@ -1,8 +1,10 @@
-
 package controller;
 
+import dao.CustomerDAO;
+import dao.CustomerTierDAO;
 import dao.VehicleDAO;
 import dto.Customer;
+import dto.CustomerTier;
 import dto.Vehicle;
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +35,7 @@ public class DashboardController extends HttpServlet {
 
             return;
         }
-        dao.CustomerDAO cDao = new dao.CustomerDAO();
+        CustomerDAO cDao = new CustomerDAO();
         Customer freshUser = cDao.getCustomer(user.getCusId());
         if (freshUser != null) {
             user = freshUser; // Gán lại data mới
@@ -50,70 +52,53 @@ public class DashboardController extends HttpServlet {
         }
 
         // === Next Reward ===
+        CustomerTier currentTier = user.getTierId();
+
+        CustomerTierDAO tierDAO = new CustomerTierDAO();
+
+        CustomerTier nextTier
+                = tierDAO.getNextTier(
+                        currentTier.getPriorityLevel());
+
+        boolean isMaxTier = (nextTier == null);
+
         String nextTierName = null;
-
-        String tierName = user.getTierId().getTierName();
-        int currentBookings = user.getTotalBooking();
-        double currentSpend = user.getTotalSpend();
-
-        // Target
         double bookingTarget = 0;
         double spendTarget = 0;
 
-        switch (tierName) {
+        if (!isMaxTier) {
 
-            case "Member":
+            nextTierName = nextTier.getTierName();
 
-                nextTierName = "Silver";
-                bookingTarget = 5;
-                spendTarget = 2000000;
+            bookingTarget = nextTier.getMinBookings();
 
-                break;
-
-            case "Silver":
-
-                nextTierName = "Gold";
-                bookingTarget = 15;
-                spendTarget = 6000000;
-
-                break;
-
-            case "Gold":
-
-                nextTierName = "Platinum";
-                bookingTarget = 30;
-                spendTarget = 15000000;
-
-                break;
-
-            case "Platinum":
-                break;
-
+            spendTarget = nextTier.getMinSpend();
         }
 
-        // Calculate Remaining Washes , Spend , Percent and Points
+        int currentBookings = user.getTotalBooking();
+        double currentSpend = user.getTotalSpend();
+        int currentPoints = user.getCurrentPoint();
+        
         int remainingWashes = 0;
         double remainingSpend = 0;
         double progressPercent = 100;
         int remainingPoints = 0;
 
-        int currentPoints = user.getCurrentPoint();
-
-        boolean isMaxTier = "Platinum".equals(tierName);
         if (!isMaxTier) {
 
             remainingWashes = (int) Math.max(0, bookingTarget - currentBookings);
 
             remainingSpend = Math.max(0, spendTarget - currentSpend);
 
-            progressPercent = Math.min(100,
-                    Math.max(
-                            currentBookings * 100.0 / bookingTarget,
-                            currentSpend * 100.0 / spendTarget
-                    )
-            );
+            double bookingProgress = currentBookings * 100.0 / bookingTarget;
+            double spendProgress = currentSpend * 100.0 / spendTarget;
 
-            remainingPoints = (int) Math.ceil(remainingSpend / 1000.0);
+            progressPercent = Math.min(100,
+                            Math.max(
+                                    bookingProgress,
+                                    spendProgress));
+
+            remainingPoints= (int) Math.ceil(remainingSpend / 1000.0);
         }
 
         // Finding Member Tier

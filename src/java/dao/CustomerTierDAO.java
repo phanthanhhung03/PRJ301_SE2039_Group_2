@@ -199,8 +199,7 @@ public class CustomerTierDAO {
                 + "        WHERE tierID = ?";
 
         try (
-                 Connection conn = dbutils.DBUtils.getConnection();  
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+                 Connection conn = dbutils.DBUtils.getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, tier.getMinBookings());
             ps.setDouble(2, tier.getMinSpend());
@@ -215,5 +214,47 @@ public class CustomerTierDAO {
         }
 
         return false;
+    }
+
+    public CustomerTier getNextTier(int currentPriorityLevel) {
+
+        CustomerTier tier = null;
+
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+
+            cn = DBUtils.getConnection();
+
+            String sql
+                    = "SELECT TOP 1 * "
+                    + "FROM CustomerTiers "
+                    + "WHERE PriorityLevel > ? "
+                    + "ORDER BY PriorityLevel ASC";
+
+            st = cn.prepareStatement(sql);
+            st.setInt(1, currentPriorityLevel);
+
+            rs = st.executeQuery();
+
+            if (rs.next()) {
+
+                tier = new CustomerTier();
+
+                tier.setTierID(rs.getInt("TierID"));
+                tier.setTierName(rs.getString("TierName"));
+                tier.setMinBookings(rs.getInt("MinBookings"));
+                tier.setMinSpend(rs.getDouble("MinSpend"));
+                tier.setPriorityLevel(rs.getInt("PriorityLevel"));
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return tier;
     }
 }
