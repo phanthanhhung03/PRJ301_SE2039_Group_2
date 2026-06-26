@@ -562,8 +562,8 @@ public class CustomerDAO {
     }
 
     // ==========================================================
-    // 1. CHỜ XỬ LÝ -> HỦY (Trừ thẳng 20đ cố định)
-    // ==========================================================
+    //CHỜ XỬ LÝ -> HỦY (Trừ thẳng 20đ cố định)
+
     public boolean updateCustomerAfterCancelled(int cusID) {
         boolean check = false;
         java.sql.Connection cn = null;

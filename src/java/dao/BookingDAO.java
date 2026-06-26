@@ -311,63 +311,6 @@ public class BookingDAO {
         return isBooked;
     }
 
-    public List<Booking> getTop5PendingBookings() {
-        List<Booking> list = new ArrayList<>();
-        Connection cn = null;
-        PreparedStatement st = null;
-        ResultSet rs = null;
-
-        try {
-            cn = DBUtils.getConnection();
-            if (cn != null) {
-                // Lấy 5 booking gần nhất (Pending) kèm tên khách hàng và xe
-                String sql = "SELECT TOP 5 b.*, c.FullName AS CustomerName, v.Brand, v.Model, v.LicensePlate "
-                        + "FROM Bookings b "
-                        + "JOIN Vehicles v ON b.VehicleID = v.VehicleID "
-                        + "JOIN Customers c ON v.CustomerID = c.CustomerID "
-                        + "WHERE b.BookingStatus = 'Pending' "
-                        + "AND b.BookingDate >= CAST(GETDATE() AS DATE) " // Chỉ lấy từ hôm nay trở đi
-                        + "ORDER BY b.BookingDate ASC, b.TimeSlot ASC";
-
-                st = cn.prepareStatement(sql);
-                rs = st.executeQuery();
-
-                while (rs.next()) {
-                    Booking b = new Booking();
-                    b.setBookingID(rs.getInt("BookingID"));
-                    b.setTimeSlot(rs.getString("TimeSlot"));
-                    b.setServiceType(rs.getString("ServiceType"));
-                    b.setBookingStatus(rs.getString("BookingStatus"));
-
-                    // Cột ảo hiển thị Tên Khách & Tên Xe
-                    b.setCustomerName(rs.getString("CustomerName"));
-                    String carName = rs.getString("LicensePlate") + " • " + rs.getString("Brand") + " " + rs.getString("Model");
-                    b.setVehicleName(carName);
-
-                    list.add(b);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            // FIX BUG #2: Đóng connection để tránh connection leak
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (st != null) {
-                    st.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (java.sql.SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return list;
-    }
-
     public List<Booking> getAllAdminBookings() {
         List<Booking> list = new ArrayList<>();
         java.sql.Connection cn = null;
