@@ -518,4 +518,71 @@ public class BookingDAO {
 
         return list;
     }
+
+    public List<Booking> getBookingsByVehicleId(int vehicleId, String status) {
+        List<Booking> bookingList = new ArrayList<>();
+
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+
+            if (cn != null) {
+
+                String sql = "SELECT BookingID, VehicleID, BookingDate, TimeSlot, "
+                        + "ServiceType, BookingStatus, Notes, CreatedAt, "
+                        + "TotalAmount, DiscountAmount, FinalAmount "
+                        + "FROM Bookings "
+                        + "WHERE VehicleID = ? AND BookingStatus = ? "
+                        + "ORDER BY BookingDate DESC";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, vehicleId);
+                st.setString(2, status);
+
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+
+                    Booking booking = new Booking();
+
+                    booking.setBookingID(rs.getInt("BookingID"));
+                    booking.setVehicleID(rs.getInt("VehicleID"));
+                    booking.setBookingDate(rs.getTimestamp("BookingDate"));
+                    booking.setTimeSlot(rs.getString("TimeSlot"));
+                    booking.setServiceType(rs.getString("ServiceType"));
+                    booking.setBookingStatus(rs.getString("BookingStatus"));
+                    booking.setNotes(rs.getString("Notes"));
+                    booking.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    booking.setTotalAmount(rs.getDouble("TotalAmount"));
+                    booking.setDiscountAmount(rs.getDouble("DiscountAmount"));
+                    booking.setFinalAmount(rs.getDouble("FinalAmount"));
+
+                    bookingList.add(booking);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return bookingList;
+    }
+
 }

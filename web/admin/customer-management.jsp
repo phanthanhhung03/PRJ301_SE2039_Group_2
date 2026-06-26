@@ -322,23 +322,21 @@
         <script>
             document.addEventListener("DOMContentLoaded", function () {
 
-                const toast =
-                        document.getElementById("success-toast");
+                const toasts = document.querySelectorAll(".toast");
 
-                if (!toast) {
-                    return;
-                }
+                toasts.forEach(function (toast) {
 
-                setTimeout(() => {
+                    setTimeout(function () {
 
-                    toast.classList.add(
-                            "toast--hide");
+                        toast.classList.add("toast--hide");
 
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 500);
+                        setTimeout(function () {
+                            toast.remove();
+                        }, 500);
 
-                }, 3000);
+                    }, 3000);
+
+                });
 
             });
 

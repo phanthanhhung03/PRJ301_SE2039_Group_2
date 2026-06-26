@@ -596,19 +596,24 @@ public class CustomerDAO {
     }
 
     // ==========================================================
-    // 2. HOÀN THÀNH -> HỦY (Thu hồi điểm thưởng, trừ thêm 20đ phạt)
+    // CẬP NHẬT ĐIỂM + TOTALSPEND KHI TẠO BOOKING (SAU THANH TOÁN)
+    // TotalBookings chỉ cộng khi Admin mark Completed
     // ==========================================================
-    public boolean revertCompletedBooking(int cusID, double finalAmount) {
+    public boolean updateCustomerAfterBookingCreated(int cusID, double finalAmount) {
         boolean check = false;
-        java.sql.Connection cn = null;
-        java.sql.PreparedStatement tierSt = null;
-        java.sql.PreparedStatement st = null;
-        java.sql.ResultSet rs = null;
+        Connection cn = null;
+        PreparedStatement tierSt = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
         try {
             cn = dbutils.DBUtils.getConnection();
             if (cn != null) {
+                // Lấy PointMultiplier của tier hiện tại
                 double multiplier = 1.0;
-                String tierSql = "SELECT t.PointMultiplier FROM Customers c JOIN CustomerTiers t ON c.TierID = t.TierID WHERE c.CustomerID = ?";
+                String tierSql = "SELECT t.PointMultiplier "
+                        + "FROM Customers c "
+                        + "JOIN CustomerTiers t ON c.TierID = t.TierID "
+                        + "WHERE c.CustomerID = ?";
                 tierSt = cn.prepareStatement(tierSql);
                 tierSt.setInt(1, cusID);
                 rs = tierSt.executeQuery();
@@ -616,97 +621,29 @@ public class CustomerDAO {
                     multiplier = rs.getDouble("PointMultiplier");
                 }
 
-                // Tổng điểm cần trừ = Điểm thưởng đã nhận trước đó + 20 điểm phạt cố định
+                // Tính điểm thưởng: 1000đ = 1 điểm x multiplier
                 int earnedPoints = (int) Math.floor((finalAmount / 1000) * multiplier);
-                int totalPointsToDeduct = earnedPoints + 20;
-
-                String sql = "UPDATE Customers SET "
-                        + "TotalSpend = CASE WHEN ISNULL(TotalSpend, 0) - ? < 0 THEN 0 ELSE ISNULL(TotalSpend, 0) - ? END, "
-                        + "CurrentPoints = CASE WHEN ISNULL(CurrentPoints, 0) - ? < 0 THEN 0 ELSE ISNULL(CurrentPoints, 0) - ? END "
-                        + "WHERE CustomerID = ?";
-                st = cn.prepareStatement(sql);
-                st.setDouble(1, finalAmount);
-                st.setDouble(2, finalAmount);
-                st.setInt(3, totalPointsToDeduct);
-                st.setInt(4, totalPointsToDeduct);
-                st.setInt(5, cusID);
-
-                check = st.executeUpdate() > 0;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (tierSt != null) {
-                    tierSt.close();
-                }
-                if (st != null) {
-                    st.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-            }
-        }
-        return check;
-    }
-
-    // ==========================================================
-    // 3. HỦY -> HOÀN THÀNH (Hoàn lại 20đ phạt cố định, cộng điểm thưởng)
-    // ==========================================================
-    public boolean restoreCancelledToCompleted(int cusID, double finalAmount) {
-        boolean check = false;
-        java.sql.Connection cn = null;
-        java.sql.PreparedStatement tierSt = null;
-        java.sql.PreparedStatement st = null;
-        java.sql.ResultSet rs = null;
-        try {
-            cn = dbutils.DBUtils.getConnection();
-            if (cn != null) {
-                double multiplier = 1.0;
-                String tierSql = "SELECT t.PointMultiplier FROM Customers c JOIN CustomerTiers t ON c.TierID = t.TierID WHERE c.CustomerID = ?";
-                tierSt = cn.prepareStatement(tierSql);
-                tierSt.setInt(1, cusID);
-                rs = tierSt.executeQuery();
-                if (rs.next()) {
-                    multiplier = rs.getDouble("PointMultiplier");
-                }
-
-                // Tổng điểm cộng lại = Điểm thưởng thực tế + Trả lại 20đ đã phạt trước đó
-                int earnedPoints = (int) Math.floor((finalAmount / 1000) * multiplier);
-                int totalPointsToAdd = earnedPoints + 20;
 
                 String sql = "UPDATE Customers SET "
                         + "TotalSpend = ISNULL(TotalSpend, 0) + ?, "
-                        + "CurrentPoints = ISNULL(CurrentPoints, 0) + ? "
+                        + "CurrentPoints = ISNULL(CurrentPoints, 0) + ?, "
+                        + "TotalBookings = ISNULL(TotalBookings, 0) + 1 "
                         + "WHERE CustomerID = ?";
+
                 st = cn.prepareStatement(sql);
                 st.setDouble(1, finalAmount);
-                st.setInt(2, totalPointsToAdd);
+                st.setInt(2, earnedPoints);
                 st.setInt(3, cusID);
-
                 check = st.executeUpdate() > 0;
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (tierSt != null) {
-                    tierSt.close();
-                }
-                if (st != null) {
-                    st.close();
-                }
-                if (cn != null) {
-                    cn.close();
-                }
+                if (rs != null) rs.close();
+                if (tierSt != null) tierSt.close();
+                if (st != null) st.close();
+                if (cn != null) cn.close();
             } catch (Exception e) {
             }
         }

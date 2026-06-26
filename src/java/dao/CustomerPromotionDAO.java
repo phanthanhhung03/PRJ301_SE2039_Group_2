@@ -25,6 +25,10 @@ public class CustomerPromotionDAO {
         if (!promotionDAO.isCustomerEligibleForPromotion(customerID, promotionID)) {
             return 0;
         }
+        if (hasActiveAssignment(customerID, promotionID)) { 
+            return 0;
+        }
+        
         int result = 0;
         Connection cn = null;
         PreparedStatement st = null;
@@ -50,6 +54,76 @@ public class CustomerPromotionDAO {
         }
 
         return result;
+    }
+
+    // Đánh dấu promotion đã được sử dụng bởi customer
+    // Bước 1: Thử UPDATE nếu đã có record trong CustomerPromotions
+    // Bước 2: Nếu chưa có record thì INSERT mới với IsUsed = 1
+    public boolean markAsUsed(int customerID, int promotionID) {
+        Connection cn = null;
+        PreparedStatement st = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                // Bước 1: Thử UPDATE record có sẵn
+                String updateSql = "UPDATE CustomerPromotions "
+                        + "SET IsUsed = 1, UsedDate = GETDATE() "
+                        + "WHERE CustomerID = ? AND PromotionID = ? AND IsDeleted = 0";
+                st = cn.prepareStatement(updateSql);
+                st.setInt(1, customerID);
+                st.setInt(2, promotionID);
+                int updated = st.executeUpdate();
+                st.close();
+
+                // Bước 2: Nếu không có record nào được UPDATE thì INSERT mới
+                if (updated == 0) {
+                    String insertSql = "INSERT INTO CustomerPromotions "
+                            + "(CustomerID, PromotionID, AssignedDate, IsUsed, UsedDate, Notes) "
+                            + "VALUES (?, ?, GETDATE(), 1, GETDATE(), 'Auto-recorded: used in booking')";
+                    st = cn.prepareStatement(insertSql);
+                    st.setInt(1, customerID);
+                    st.setInt(2, promotionID);
+                    st.executeUpdate();
+                }
+
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeAll(cn, st, null);
+        }
+
+        return false;
+    }
+
+// Check: khách này đã từng DÙNG voucher TIER_ONLY này chưa (bất kể được grant tay hay tự nhập)
+    public boolean hasCustomerUsedPromotion(int customerID, int promotionID) {
+        boolean exists = false;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT 1 FROM CustomerPromotions "
+                        + "WHERE CustomerID = ? AND PromotionID = ? "
+                        + "AND IsUsed = 1 AND IsDeleted = 0";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, customerID);
+                st.setInt(2, promotionID);
+                rs = st.executeQuery();
+                exists = rs.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeAll(cn, st, rs);
+        }
+        return exists;
     }
 
     // Revoke an assignment
@@ -147,7 +221,7 @@ public class CustomerPromotionDAO {
                         + "LEFT JOIN Bookings b ON b.VehicleID = v.VehicleID "
                         + "WHERE c.CustomerID NOT IN ( "
                         + "    SELECT cp.CustomerID FROM CustomerPromotions cp "
-                        + "    WHERE cp.IsDeleted = 0 "
+                        + "    WHERE cp.IsDeleted = 0 AND cp.IsUsed = 0  "
                         + ") "
                         + "GROUP BY c.CustomerID, c.FullName "
                         + "HAVING MAX(b.BookingDate) IS NULL "
@@ -178,6 +252,84 @@ public class CustomerPromotionDAO {
         }
 
         return list;
+    }
+// Lấy các voucher admin gán riêng cho khách, còn hiệu lực và chưa dùng
+
+    public List<CustomerPromotion> getActiveAssignmentsForCustomer(int customerID) {
+        List<CustomerPromotion> list = new ArrayList<>();
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT cp.CustomerPromotionID, cp.CustomerID, cp.PromotionID, "
+                        + "cp.AssignedDate, cp.IsUsed, cp.UsedDate, cp.Notes, "
+                        + "p.PromotionName, p.DiscountPercent "
+                        + "FROM CustomerPromotions cp "
+                        + "JOIN Promotions p ON p.PromotionID = cp.PromotionID "
+                        + "WHERE cp.CustomerID = ? "
+                        + "AND cp.IsDeleted = 0 "
+                        + "AND cp.IsUsed = 0 "
+                        + "AND p.IsDeleted = 0 "
+                        + "AND p.Status = 1 "
+                        + "AND CAST(GETDATE() AS DATE) BETWEEN p.StartDate AND p.EndDate "
+                        + "ORDER BY cp.AssignedDate DESC";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, customerID);
+                rs = st.executeQuery();
+
+                while (rs.next()) {
+
+                    CustomerPromotion cp = new CustomerPromotion();
+                    cp.setCustomerPromotionID(rs.getInt("CustomerPromotionID"));
+                    cp.setCustomerID(rs.getInt("CustomerID"));
+                    cp.setPromotionID(rs.getInt("PromotionID"));
+                    cp.setAssignedDate(rs.getDate("AssignedDate"));
+                    cp.setUsed(rs.getBoolean("IsUsed"));
+                    cp.setUsedDate(rs.getDate("UsedDate"));
+                    cp.setNotes(rs.getString("Notes"));
+                    cp.setPromotionName(rs.getString("PromotionName"));
+                    cp.setDiscountPercent(rs.getDouble("DiscountPercent"));
+                    list.add(cp);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeAll(cn, st, rs);
+        }
+        return list;
+    }
+
+// Check nhanh: khách này còn quyền dùng promo này không (đã được gán, chưa dùng)
+    public boolean hasActiveAssignment(int customerID, int promotionID) {
+        boolean exists = false;
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT 1 FROM CustomerPromotions "
+                        + "WHERE CustomerID = ? AND PromotionID = ? "
+                        + "AND IsUsed = 0 AND IsDeleted = 0";
+
+                st = cn.prepareStatement(sql);
+                st.setInt(1, customerID);
+                st.setInt(2, promotionID);
+                rs = st.executeQuery();
+                exists = rs.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeAll(cn, st, rs);
+        }
+        return exists;
     }
 
     // -----------------------------------------------------------------------

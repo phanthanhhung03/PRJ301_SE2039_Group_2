@@ -85,6 +85,77 @@ public class PromotionDAO {
         return 0;
     }
 
+    public Promotion getPromotionById(int promotionID) {
+
+        Connection cn = null;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+
+            cn = DBUtils.getConnection();
+
+            if (cn != null) {
+
+                String sql = "SELECT PromotionID, AdminID, PromotionName, "
+                        + "Description, DiscountPercent, BonusPoints, "
+                        + "StartDate, EndDate, Status, TargetType "
+                        + "FROM Promotions "
+                        + "WHERE PromotionID = ?";
+
+                st = cn.prepareStatement(sql);
+
+                st.setInt(1, promotionID);
+
+                rs = st.executeQuery();
+
+                if (rs.next()) {
+
+                    Promotion p = new Promotion();
+
+                    p.setPromotionID(rs.getInt("PromotionID"));
+                    p.setAdminID(rs.getInt("AdminID"));
+                    p.setPromotionName(rs.getString("PromotionName"));
+                    p.setDescription(rs.getString("Description"));
+                    p.setDiscountPercent(rs.getDouble("DiscountPercent"));
+                    p.setBonusPoints(rs.getInt("BonusPoints"));
+                    p.setStartDate(rs.getDate("StartDate"));
+                    p.setEndDate(rs.getDate("EndDate"));
+                    p.setStatus(rs.getBoolean("Status"));
+                    p.setTargetType(rs.getString("TargetType"));
+
+                    return p;
+                }
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            try {
+
+                if (rs != null) {
+                    rs.close();
+                }
+
+                if (st != null) {
+                    st.close();
+                }
+
+                if (cn != null) {
+                    cn.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        return null;
+    }
+
     public int updatePromotion(Promotion p) {
 
         int result = 0;
@@ -349,16 +420,6 @@ public class PromotionDAO {
         return true;
     }
 
-    public Promotion getValidPromotion(int promotionID) {
-
-        if (!isPromotionValid(promotionID)) {
-            return null;
-        }
-        
-
-        return getPromotionByID(promotionID);
-    }
-
     // Checking if customer suitable for promo
     public boolean isCustomerEligibleForPromotion(int customerID, int promotionID) {
 
@@ -369,17 +430,12 @@ public class PromotionDAO {
 
         String type = p.getTargetType();
 
-        // 1. ALL → luôn được
-        if ("ALL".equals(type)) {
-            return true;
-        }
-
-        // 2. TIER_ONLY → check tier mapping
+        // 1. TIER_ONLY → check tier mapping
         if ("TIER_ONLY".equals(type)) {
             return isCustomerEligibleByTier(customerID, promotionID);
         }
 
-        // 3. LOW_ENGAGEMENT → check inactivity
+        // 2. LOW_ENGAGEMENT → check inactivity
         if ("LOW_ENGAGEMENT".equals(type)) {
             return isLowEngagement(customerID);
         }
@@ -422,8 +478,8 @@ public class PromotionDAO {
         return false;
     }
 
-    // 1. Lấy danh sách Voucher hợp lệ theo Tier
-    public List<Promotion> getActiveVouchersByTier(int tierID) { 
+    // Lấy danh sách Voucher hợp lệ theo Tier, loại bỏ những promotion khách đã dùng rồi
+    public List<Promotion> getActiveVouchersByTierForCustomer(int tierID, int customerID) {
         List<Promotion> list = new ArrayList<>();
         Connection cn = null;
         PreparedStatement st = null;
@@ -432,13 +488,25 @@ public class PromotionDAO {
         try {
             cn = DBUtils.getConnection();
             if (cn != null) {
-                String sql = "SELECT p.* FROM Promotions p " +
-                             "JOIN PromotionTiers pt ON p.PromotionID = pt.PromotionID " +
-                             "WHERE pt.TierID = ? AND p.Status = 1 " +
-                             "AND CAST(GETDATE() AS DATE) BETWEEN p.StartDate AND p.EndDate";
+                String sql = "SELECT p.* FROM Promotions p "
+                        + "WHERE p.Status = 1 "
+                        + "AND CAST(GETDATE() AS DATE) BETWEEN p.StartDate AND p.EndDate "
+                        + "AND EXISTS ( "
+                        + "    SELECT 1 FROM PromotionTiers pt "
+                        + "    JOIN CustomerTiers minTier ON minTier.TierID = pt.TierID "
+                        + "    WHERE pt.PromotionID = p.PromotionID "
+                        + "    AND minTier.PriorityLevel <= ( "
+                        + "        SELECT PriorityLevel FROM CustomerTiers WHERE TierID = ? "
+                        + "    ) "
+                        + ") "
+                        + "AND p.PromotionID NOT IN ( "
+                        + "    SELECT cp.PromotionID FROM CustomerPromotions cp "
+                        + "    WHERE cp.CustomerID = ? AND cp.IsUsed = 1 AND cp.IsDeleted = 0 "
+                        + ")";
 
                 st = cn.prepareStatement(sql);
-                st.setInt(1, tierID); 
+                st.setInt(1, tierID);
+                st.setInt(2, customerID);
                 rs = st.executeQuery();
 
                 while (rs.next()) {
@@ -462,32 +530,6 @@ public class PromotionDAO {
             closeAll(cn, st, rs);
         }
         return list;
-    }
-    
-    // 2. Kiểm tra voucher khi booking
-    public boolean isVoucherValidForTier(int promotionID, int tierID) {
-        boolean isValid = false;
-        Connection cn = null;
-        PreparedStatement st = null;
-        ResultSet rs = null;
-        try {
-            cn = DBUtils.getConnection();
-            if (cn != null) {
-                String sql = "SELECT 1 FROM PromotionTiers WHERE PromotionID = ? AND TierID = ?";
-                st = cn.prepareStatement(sql);
-                st.setInt(1, promotionID);
-                st.setInt(2, tierID);
-                rs = st.executeQuery();
-                if (rs.next()) {
-                    isValid = true;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeAll(cn, st, rs);
-        }
-        return isValid;
     }
 
     // Checking is Low Engagement
@@ -525,24 +567,23 @@ public class PromotionDAO {
 
         return false;
     }
+
     // -----------------------------------------------------------------------
     // Helper: close JDBC resources safely
     // -----------------------------------------------------------------------
     private void closeAll(Connection cn, PreparedStatement st, ResultSet rs) {
         try {
-            if (rs != null) rs.close();
-            if (st != null) st.close();
-            if (cn != null) cn.close();
+            if (rs != null) {
+                rs.close();
+            }
+            if (st != null) {
+                st.close();
+            }
+            if (cn != null) {
+                cn.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (st != null) st.close();
-                if (cn != null) cn.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
-    }    
+    }
 }

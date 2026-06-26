@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @WebServlet(name = "TierController", urlPatterns = {"/TierController"})
 public class TierController extends HttpServlet {
@@ -15,7 +16,12 @@ public class TierController extends HttpServlet {
     protected void processRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-
+        HttpSession session = request.getSession(false);
+        // Guard: admin must be logged in
+        if (session == null || session.getAttribute("ADMIN_USER") == null) {
+            response.sendRedirect(request.getContextPath() + "/MainController?action=viewAdminSignIn");
+            return;
+        }
         String action = request.getParameter("action");
 
         if (action == null) {

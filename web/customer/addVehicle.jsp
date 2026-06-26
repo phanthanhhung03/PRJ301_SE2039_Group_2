@@ -197,16 +197,6 @@
 
                     <!-- Actions -->
                     <div style="margin-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
-
-                        <!-- OCR Scan Button -->
-                        <button type="button"
-                                class="btn btn--secondary btn--block"
-                                onclick="document.getElementById('registrationFile').click()">
-
-                            📷 Scan Vehicle Registration
-
-                        </button>
-
                         <input type="hidden" name="action" value="addVehicle">
                         <!-- Submit -->
                         <button type="submit"
