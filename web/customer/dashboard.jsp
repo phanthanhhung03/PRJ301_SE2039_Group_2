@@ -124,10 +124,19 @@
                             </span>
                         </div>
 
-                        <div class="membership-card__holder">
-                            <span class="membership-card__holder-label">Current Status</span>
-                            <h3 class="membership-card__holder-name"><%= user.getFullName()%></h3>
-                            <span class="membership-card__tier">Tier: <%= user.getTierId().getTierName()%></span>
+                        <div class="membership-card__holder"
+                             style="display: flex;
+                             flex-direction: row;
+                             justify-content: space-between">
+                            <div>
+                                <span class="membership-card__holder-label">Current Status</span>
+                                <h3 class="membership-card__holder-name"><%= user.getFullName()%></h3>
+                                <span class="membership-card__tier">Tier: <%= user.getTierId().getTierName()%></span>
+                            </div>
+                            <div>
+                                <span class="membership-card__holder-label">Wallet balance</span>
+                                <h3 class="membership-card__holder-name">${USER.walletBalance}</h3>
+                            </div>
                         </div>
 
                         <div class="membership-card__body">
