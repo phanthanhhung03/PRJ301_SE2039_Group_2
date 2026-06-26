@@ -71,7 +71,7 @@ public class BookingController extends HttpServlet {
                         session.setAttribute("USER", updatedUser);
                     }
 
-                    session.setAttribute("MSG", "Booking cancelled successfully! " + deductPoints + " reward points were deducted and " + refundAmount + " VNĐ has been refunded to your wallet.");
+                    session.setAttribute("SUCCESS_MESSAGE", "Booking cancelled successfully! " + deductPoints + " reward points were deducted and " + refundAmount + " VNĐ has been refunded to your wallet.");
                 } else {
                     session.setAttribute("ERROR", "Failed to cancel booking. Please try again.");
                 }
@@ -300,7 +300,7 @@ public class BookingController extends HttpServlet {
                     // Xóa Session Draft
                     session.removeAttribute("BOOKING_DRAFT");
 
-                    session.setAttribute("MSG", "Booking created successfully! Thank you for your payment.");
+                    session.setAttribute("SUCCESS_MESSAGE", "Booking created successfully! Thank you for your payment.");
                     response.sendRedirect("MainController?action=viewDashBoard");
 
                 } else {
