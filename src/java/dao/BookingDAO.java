@@ -571,8 +571,8 @@ public class BookingDAO {
         try {
             cn = DBUtils.getConnection();
             if (cn != null) {
-                // Tự động chuyển những booking đã quá hạn thành Complete
-                String sql = "UPDATE Bookings SET BookingStatus = 'Completed' WHERE BookingStatus = 'Pending' AND BookingDate < GETDATE()";
+                // Tự động chuyển những booking đã quá hạn (cộng thêm 30 phút thời lượng rửa xe) thành Complete
+                String sql = "UPDATE Bookings SET BookingStatus = 'Completed' WHERE BookingStatus = 'Pending' AND DATEADD(MINUTE, 30, BookingDate) < GETDATE()";
                 st = cn.prepareStatement(sql);
                 rows = st.executeUpdate();
             }
