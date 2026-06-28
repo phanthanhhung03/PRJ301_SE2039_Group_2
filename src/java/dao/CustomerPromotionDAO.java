@@ -22,9 +22,6 @@ public class CustomerPromotionDAO {
         if (!promotionDAO.isPromotionValid(promotionID)) {
             return 0;
         }
-        if (!promotionDAO.isCustomerEligibleForPromotion(customerID, promotionID)) {
-            return 0;
-        }
         if (hasActiveAssignment(customerID, promotionID)) { 
             return 0;
         }

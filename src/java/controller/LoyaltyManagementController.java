@@ -4,13 +4,12 @@
  */
 package controller;
 
+import dao.BookingDAO;
 import dao.CustomerDAO;
 import dao.CustomerTierDAO;
-import dao.PointTransactionDAO;
-import dto.Admin;
+import dto.Booking;
 import dto.Customer;
 import dto.CustomerTier;
-import dto.PointTransaction;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -77,27 +76,33 @@ public class LoyaltyManagementController extends HttpServlet {
             // DEFAULT: load and display loyalty management page
             // ------------------------------------------------------------------
             CustomerDAO customerDAO = new CustomerDAO();
-            PointTransactionDAO pointTransactionDAO = new PointTransactionDAO();
+            BookingDAO bookingDAO = new BookingDAO();   
             List<CustomerTier> tierList = tierDAO.getAllTiers();
             Map<Integer, Integer> customerTierCountMap = tierDAO.getCustomerCountByTier();
-            List<PointTransaction> transactionList = pointTransactionDAO.getRecentTransactions(50);
-            Map<String, Double> tierPointsAvgMap = pointTransactionDAO.getAveragePointsByTier();
-            Map<Integer, Double> revenueByTierMap = customerDAO.getRevenueByTier();
-            List<Customer> topCustomersByPoints = customerDAO.getTopCustomersByPoints(5);
+            List<Booking> pointsActivityList = bookingDAO.getRecentPointsActivity(12);
+            
+            // Tinh diem theo nam hien tai
+            int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+            Map<Integer, Double> tierAvgPointsMap = customerDAO.getAvgPointsByTier(currentYear); 
+            Map<Integer, Double> revenueByTierMap = customerDAO.getRevenueByTier(currentYear);
+            
+            List<Customer> customersNearNextTier = customerDAO.getCustomersNearNextTier(5);
 
             double totalRevenue = 0;
             for (double v : revenueByTierMap.values()) {
                 totalRevenue += v;
             }
 
+            // Set Data to JSP
             request.setAttribute("tierList", tierList);
             request.setAttribute("customerTierCountMap", customerTierCountMap);
-            request.setAttribute("transactionList", transactionList);
-            request.setAttribute("tierPointsAvgMap", tierPointsAvgMap);
+            request.setAttribute("pointsActivityList", pointsActivityList);  
+            request.setAttribute("tierAvgPointsMap", tierAvgPointsMap);       
             request.setAttribute("revenueByTierMap", revenueByTierMap);
             request.setAttribute("totalRevenue", totalRevenue);
-            request.setAttribute("topCustomersByPoints", topCustomersByPoints);
+            request.setAttribute("customersNearNextTier", customersNearNextTier);
 
+            // Forward
             request.getRequestDispatcher("/admin/loyalty-management.jsp").forward(request, response);
 
         } catch (Exception e) {

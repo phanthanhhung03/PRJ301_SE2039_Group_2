@@ -44,16 +44,60 @@ public class TierController extends HttpServlet {
                     double discountPercent = Double.parseDouble(request.getParameter("discountPercent"));
 
                     // ===== VALIDATE =====
+                    CustomerTier currentTier = tierDAO.getTierByID(tierID);
+                    if (currentTier == null) {
+                        request.getSession().setAttribute("ERROR_MESSAGE", "Tier not found.");
+                        response.sendRedirect("MainController?action=viewLoyaltyManagement");
+                        return;
+                    }
+
+                    CustomerTier prevTier = tierDAO.getPreviousTier(currentTier.getPriorityLevel());
+                    CustomerTier nextTier = tierDAO.getNextTier(currentTier.getPriorityLevel());
+
+                    // Update Min Booking
                     if (minBookings < 0) {
                         request.getSession().setAttribute("ERROR_MESSAGE", "Minimum bookings cannot be negative.");
                         response.sendRedirect("MainController?action=viewLoyaltyManagement");
                         return;
                     }
+                    if (prevTier != null && minBookings <= prevTier.getMinBookings()) {
+                        request.getSession().setAttribute("ERROR_MESSAGE",
+                                "Minimum bookings must be greater than " + prevTier.getTierName()
+                                + "'s threshold (" + prevTier.getMinBookings() + ").");
+                        response.sendRedirect("MainController?action=viewLoyaltyManagement");
+                        return;
+                    }
+
+                    if (nextTier != null && minBookings >= nextTier.getMinBookings()) {
+                        request.getSession().setAttribute("ERROR_MESSAGE",
+                                "Minimum bookings must be less than " + nextTier.getTierName()
+                                + "'s threshold (" + nextTier.getMinBookings() + ").");
+                        response.sendRedirect("MainController?action=viewLoyaltyManagement");
+                        return;
+                    }
+                    
+                    // Update Min Spend
                     if (minSpend < 0) {
                         request.getSession().setAttribute("ERROR_MESSAGE", "Minimum spend cannot be negative.");
                         response.sendRedirect("MainController?action=viewLoyaltyManagement");
                         return;
                     }
+                    if (prevTier != null && minSpend <= prevTier.getMinSpend()) {
+                        request.getSession().setAttribute("ERROR_MESSAGE",
+                                "Minimum spend must be greater than " + prevTier.getTierName()
+                                + "'s threshold (" + prevTier.getMinSpend() + ").");
+                        response.sendRedirect("MainController?action=viewLoyaltyManagement");
+                        return;
+                    }
+                    if (nextTier != null && minSpend >= nextTier.getMinSpend()) {
+                        request.getSession().setAttribute("ERROR_MESSAGE",
+                                "Minimum spend must be less than " + nextTier.getTierName()
+                                + "'s threshold (" + nextTier.getMinSpend() + ").");
+                        response.sendRedirect("MainController?action=viewLoyaltyManagement");
+                        return;
+                    }
+
+                    // Point & Discount Percent
                     if (pointMultiplier < 0) {
                         request.getSession().setAttribute("ERROR_MESSAGE", "Point multiplier cannot be negative.");
                         response.sendRedirect("MainController?action=viewLoyaltyManagement");
