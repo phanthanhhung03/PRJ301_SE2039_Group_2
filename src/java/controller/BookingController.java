@@ -289,7 +289,7 @@ public class BookingController extends HttpServlet {
                     // Update Customer (điểm + số lượt + tier)
                     CustomerDAO cDao = new CustomerDAO();
                     cDao.updateCustomerAfterBookingCreated(user.getCusId(), draft.getFinalAmount());
-                    cDao.checkAndUpdateTier(user.getCusId());
+                    cDao.checkAndUpdateTier(user.getCusId());   
 
                     // Refresh session USER
                     Customer updatedUser = cDao.getCustomer(user.getCusId());
